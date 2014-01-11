@@ -1,5 +1,5 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#ifndef SIMPLE_AUDIO_H
+#define SIMPLE_AUDIO_H
 
 #include <RtAudio.h>
 #include <SamplerateControl.h>
@@ -164,4 +164,4 @@ void SimpleAudio<double>::open()
   doOpen(RTAUDIO_FLOAT64);
 }
 
-#endif // AUDIO_H
+#endif // SIMPLE_AUDIO_H
