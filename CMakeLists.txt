@@ -24,6 +24,7 @@ ENDIF()
 _PROJECT(AudioTemplate)
 
 _SUBDIRS(
-  external
+  external      # Contains external dependencies that are built as part of this project.
+  libraries     # Contains internal libraries.
   applications
 )

@@ -1,0 +1,15 @@
+INSTALL
+
+To compile and install Yaffut, type
+
+    make all; sudo make install
+
+This will install yaffut in /usr/local.  To install Yaffut in an
+alternative prefix, eg in your home directory, type
+
+    make install prefix=$HOME
+
+PREREQUISITES
+
+To compile, yaffut requires a standards conforming compiler and the
+standard library. The gui front-end requires fox and boost to compile.

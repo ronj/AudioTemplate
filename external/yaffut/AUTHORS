@@ -1,0 +1,11 @@
+AUTHORS
+
+This file lists authors of Yaffut, and what they wrote.
+
+Rutger van Beusekom <rutger.van.beusekom@gmail.com>
+  Main author.
+
+Jan Nieuwenhuizen <janneke@gnu.org>
+  Exit status, simplify progress messages, command line options,
+  yaffut:: namespace, isolated Suite listing and running,
+  installation and distribution.

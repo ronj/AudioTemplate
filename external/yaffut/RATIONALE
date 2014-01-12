@@ -1,0 +1,22 @@
+RATIONALE
+
+A test framework for C++ must be written using C++ idioms and not
+using the idioms of the intersection between Java (or Smalltalk) and
+C++.  The main reason is to communicate proper C++ usage and allow
+programmers to learn to avoid perversions (like macros) as practiced
+by most other unit test frameworks.  This implies for instance
+leveraging partial template specialisations, although this regrettably
+rules out any non standard conforming compilers.
+
+A test framework must impose as little overhead either physical or
+mental on the programmer and his environment, therefore using the
+framework should stop at allowing the programmer to simply write the
+test as terse as possible.
+
+Support for test assertion, which halts the test is most naturally
+implemented using exceptions.  Besides the type thrown on failing
+assertion there is no dependency between the assertion implementation
+and the rest of the framework.  Therefore this can be (re)implemented
+"freely" by users.  A predefined set of asserting template functions
+are provided.
+

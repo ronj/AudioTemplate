@@ -1,0 +1,13 @@
+TODO
+
+-unit test everything ;-(
+
+-integrate acceptance test fixtures with the rest of the unit test
+ framework
+
+-port to other platforms aside from GNU/Cygwin and GNU/Linux like:
+ MSVC, SUNPRO
+
+-user/developer documentation
+
+-make a release

@@ -1,0 +1,52 @@
+YAFFUT -- YET ANOTHER FRAMEWORK FOR UNIT TESTING
+
+Yaffut is a framework for C++ unit testing.  Unit testing
+prevents you from shooting yourself in yaffut ;-)
+
+The only file you need is yaffut.h, however there is also a GUI
+front-end available: yaffut-gui.
+
+
+GETTING YAFFUT
+
+The latest version is available in bzr (http://bazaar-vcs.org) from
+
+    bzr branch http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
+
+RUNNING
+
+To test yaffut, do
+
+    make check
+
+this runs make all, ./yaffut-test or ./yaffut-gui ./yaffut-test
+depending on whether the fox library is available.
+
+EXAMPLES
+
+See example.cpp for a full example, simple.cpp for even more simple
+usage for those who are not afraid of macros.
+
+PREREQUISITES
+
+To compile, yaffut requires a standards conforming compiler and the
+standard library.  The gui front-end requires fox and boost to
+compile.
+
+LIMITATIONS
+
+SUNPRO is know not to allow the forced registration by taking the
+address of the registrator static member.  It does allow the explicit
+template instantiation as defined by the TEST and FUNC macro.
+
+MSVC 6.0 appears to be limited by the compiler/linker in finding
+duplicate registrator symbols.  MSVC 7.1 and the Express edition do
+not suffer this behaviour.
+
+Yaffut-gui is currently only available on *nix like platforms due to
+the usage of a background shell execution of yaffut-test and named
+pipes.
+
+BUGS and HUGS
+
+Report bugs to rutger.van.beusekom@gmail.com (TODO: ml at launchpad).

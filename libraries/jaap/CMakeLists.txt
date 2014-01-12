@@ -1,0 +1,1 @@
+SET(JAAP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Include directories for jaap")
