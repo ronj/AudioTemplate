@@ -28,8 +28,7 @@ public:
 
     if (decodedSamples > 0)
     {
-      std::transform(iMP3.data().cbegin(), iMP3.data().cbegin() + decodedSamples, aOutBegin, [](signed long sample) { return sample; });
-      //std::copy(iMP3.data().cbegin(), iMP3.data().cbegin() + decodedSamples, aOutBegin);
+      std::copy(iMP3.data().cbegin(), iMP3.data().cbegin() + decodedSamples, aOutBegin);
     }
   }
 

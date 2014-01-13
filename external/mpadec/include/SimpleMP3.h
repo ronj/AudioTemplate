@@ -51,11 +51,11 @@ public:
     unsigned int bufferUsedSize = 0;
 
     mp3dec_decode(iDecoder,
-    	          reinterpret_cast<unsigned char*>(&iDecodedData[0]),
-    	          iDecodedData.capacity() * sizeof(T),
-    	          &bufferUsedSize);
+    	            reinterpret_cast<unsigned char*>(&iDecodedData[0]),
+    	            iDecodedData.capacity() * sizeof(T),
+    	            &bufferUsedSize);
 
-    return bufferUsedSize;
+    return bufferUsedSize / sizeof(T);
   }
 
   const decoded_data_container& data() const
