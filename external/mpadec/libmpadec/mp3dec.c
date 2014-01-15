@@ -101,7 +101,16 @@ int mp3dec_init_file(mp3dec_t mp3dec, int fd, int64_t length, int nogap)
     }
   } else mpadec_reset(mp3->mpadec);
   if (!mp3->out_buffer_used) {
+    int32_t t = 0;
     r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used, NULL, 0, &mp3->in_buffer_offset, NULL);
+    t += mp3->in_buffer_offset;
+    while ((r == MPADEC_RETCODE_NO_SYNC) && (t < MP3DEC_HEADER_SEEK_SIZE)) {
+      int32_t n = read(fd, mp3->in_buffer, sizeof(mp3->in_buffer));
+      if (n < 0) n = 0;
+      mp3->in_buffer_used = n;
+      r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used, NULL, 0, &mp3->in_buffer_offset, NULL);
+      t += mp3->in_buffer_offset;
+    }
     mp3->in_buffer_used -= mp3->in_buffer_offset;
     if (r != MPADEC_RETCODE_OK) {
       mp3dec_reset(mp3);
