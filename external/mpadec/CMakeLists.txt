@@ -8,7 +8,7 @@ SET(LIBMPADEC_SOURCES libmpadec/layer1.c
                       libmpadec/synth.c
                       libmpadec/tables.c)
 
-ADD_LIBRARY(mpadec STATIC ${LIBMPADEC_SOURCES})
+ADD_LIBRARY(mpadec ${LIBRARY_TYPE} ${LIBMPADEC_SOURCES})
 
 SET(MPADEC_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE INTERNAL "Include directories for MPADec")
 SET(MPADEC_LIBRARY mpadec CACHE INTERNAL "MPADec library" FORCE)

@@ -3,6 +3,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
 INCLUDE(cmake/macros.cmake)
 INCLUDE(CheckCXXCompilerFlag)
 
+SET(BUILD_STATIC_LIBRARIES TRUE CACHE BOOL "Build libraries that are built by this project statically.")
+
+IF(BUILD_STATIC_LIBRARIES)
+  SET(LIBRARY_TYPE STATIC)
+ELSE()
+  SET(LIBRARY_TYPE SHARED)
+ENDIF()
+
 IF(WIN32)
 
 ELSE()

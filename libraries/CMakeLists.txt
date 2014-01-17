@@ -1,3 +1,4 @@
 _SUBDIRS(
+  audio
   jaap
 )
