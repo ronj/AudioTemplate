@@ -61,6 +61,11 @@ public:
     start();
   }
 
+  void setCallback(callback_type aCallback)
+  {
+    iCallback = aCallback;
+  }
+
   unsigned int bufferSize() const
   {
     return iBufferSize;
