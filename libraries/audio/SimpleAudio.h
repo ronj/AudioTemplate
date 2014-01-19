@@ -47,6 +47,11 @@ public:
     //iStreamOptions.flags = RTAUDIO_MINIMIZE_LATENCY;
   }
 
+  SimpleAudio()
+    : SimpleAudio(nullptr)
+  {
+  }
+
   ~SimpleAudio()
   {
     if (iDac.isStreamOpen())
@@ -115,10 +120,17 @@ private:
     unsigned int inputDataSize = aBufferFrameCount * audio.iInputParameters.nChannels;
     unsigned int outputDataSize = aBufferFrameCount * audio.iOutputParameters.nChannels;
 
-    audio.iCallback(static_cast<sample_iterator>(aInputBuffer),
-                    static_cast<sample_iterator>(aInputBuffer) + inputDataSize,
-                    static_cast<sample_iterator>(aOutputBuffer),
-                    static_cast<sample_iterator>(aOutputBuffer) + outputDataSize);
+    try
+    {
+      audio.iCallback(reinterpret_cast<sample_iterator>(aInputBuffer),
+                      reinterpret_cast<sample_iterator>(aInputBuffer) + inputDataSize,
+                      reinterpret_cast<sample_iterator>(aOutputBuffer),
+                      reinterpret_cast<sample_iterator>(aOutputBuffer) + outputDataSize);
+    }
+    catch (std::bad_function_call& aException)
+    {
+      std::cout << aException.what() << ": You have not set an audio callback." << std::endl;
+    }
 
     return 0;
   }

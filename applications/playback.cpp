@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 
 using Audio = SimpleAudio<signed long>;
 using MP3 = SimpleMP3<signed long>;
@@ -10,8 +11,8 @@ using MP3 = SimpleMP3<signed long>;
 class Playback
 {
 public:
-  explicit Playback(MP3& aMP3)
-    : iMP3(aMP3)
+  Playback(const std::string& aFilename, unsigned int aBufferSize)
+    : iMP3(aFilename, aBufferSize)
   {
   }
 
@@ -33,7 +34,7 @@ public:
   }
 
 private:
-  MP3& iMP3;
+  MP3 iMP3;
 };
 
 int main(int argc, char* argv[])
@@ -44,9 +45,9 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  MP3 mp3(argv[1], 512);
-  Playback playback(mp3);
-  Audio audio(Audio::binder(&Playback::playback, playback));
+  Audio audio;
+  Playback playback(argv[1], audio.bufferSize());
+  audio.setCallback(Audio::binder(&Playback::playback, playback));
   audio.play();
 
   std::cout << "Stream opened with a buffer size of " << audio.bufferSize()
