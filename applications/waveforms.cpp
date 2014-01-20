@@ -1,12 +1,10 @@
 #include "SimpleAudio.h"
-#include "Oscillator.h"
-#include "Waveforms.h"
+
+#include "generators/Oscillator.h"
+#include "generators/Waveforms.h"
 
 #include <algorithm>
 #include <iostream>
-
-// Very cool:
-// http://www.mazbox.com/synths/dubstep/
 
 using Audio = SimpleAudio<float>;
 
