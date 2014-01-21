@@ -1,5 +1,7 @@
 #include "FFT.h"
 
+#include "common.h"
+
 #include "KissFFT.h"
 
 #ifdef ALLOW_FFTW
@@ -7,46 +9,6 @@
 #endif
 
 #include <stdexcept>
-#include <limits>
-#include <iostream>
-
-static const double PI     = std::atan(1.0f) * 4.0f;
-static const double TWO_PI = std::atan(1.0f) * 8.0f;
-
-template <typename T>
-T clamp(T value, T min, T max)
-{
-  return std::max(min, std::min(value, max));
-}
-
-float ofMap ( float   value,
-float   inputMin,
-float   inputMax,
-float   outputMin,
-float   outputMax,
-bool  clamp = false
-)
-{
-
-    if (fabs(inputMin - inputMax) < std::numeric_limits<float>::epsilon()) {
-        std::cout << "ofMap(): avoiding possible divide by zero, check inputMin and inputMax: " << inputMin << " " << inputMax << std::endl;
-        return outputMin;
-    } else {
-        float outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
-    
-        if( clamp ){
-            if(outputMax < outputMin){
-                if( outVal < outputMax )outVal = outputMax;
-                else if( outVal > outputMin )outVal = outputMin;
-            }else{
-                if( outVal > outputMax )outVal = outputMax;
-                else if( outVal < outputMin )outVal = outputMin;
-            }
-        }
-        return outVal;
-    }
-
-}
 
 std::shared_ptr<Fft> Fft::create(unsigned int aSignalSize, fftWindowType windowType, fftImplementation implementation)
 {
@@ -245,7 +207,7 @@ float Fft::getAmplitudeAtBin(float bin) {
   float* amplitude = getAmplitude();
   int lowBin = clamp((int)std::floor(bin), 0, binSize - 1);
   int highBin = clamp((int)std::ceil(bin), 0, binSize - 1);
-  return ofMap(bin, lowBin, highBin, amplitude[lowBin], amplitude[highBin]);
+  return map<float>(bin, lowBin, highBin, amplitude[lowBin], amplitude[highBin]);
 }
 
 float Fft::getBinFromFrequency(float frequency, float sampleRate) {

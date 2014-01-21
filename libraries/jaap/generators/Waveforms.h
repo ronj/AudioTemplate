@@ -1,10 +1,7 @@
 #ifndef WAVEFORMS_H
 #define WAVEFORMS_H
 
-#include <cmath>
-
-static const double PI     = std::atan(1.0f) * 4.0f;
-static const double TWO_PI = std::atan(1.0f) * 8.0f;
+#include "common.h"
 
 namespace WaveformType {
 
@@ -32,6 +29,6 @@ struct Triangle
   constexpr T operator()(T aStep) { return 1 - 4 * std::abs(std::round(aStep) - aStep); }
 };
 
-} //! namespace WaveformType
+} // namespace WaveformType
 
 #endif // WAVEFORMS_H

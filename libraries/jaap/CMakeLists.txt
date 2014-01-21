@@ -1,7 +1,8 @@
-INCLUDE_DIRECTORIES(${KISSFFT_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${KISSFFT_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 
 SET(JAAP_SOURCES analysis/FFT.cpp
-                 analysis/KissFFT.cpp)
+                 analysis/KissFFT.cpp
+                 analysis/BeatDetector.cpp)
 
 ADD_LIBRARY(jaap ${LIBRARY_TYPE} ${JAAP_SOURCES})
 
