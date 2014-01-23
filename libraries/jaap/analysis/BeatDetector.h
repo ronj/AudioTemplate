@@ -177,7 +177,7 @@ public:
 	std::map<int,int> contribution_counter;
 #endif	
 	
-	BeatDetektor(float BPM_MIN_in=100.0,float BPM_MAX_in=200.0, BeatDetektor *link_src = NULL) :
+	BeatDetektor(float BPM_MIN_in=100.0,float BPM_MAX_in=200.0, BeatDetektor *link_src = nullptr) :
 	
 	current_bpm(0.0),
 	winning_bpm(0.0), 

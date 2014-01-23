@@ -16,7 +16,7 @@ std::shared_ptr<Fft> Fft::create(unsigned int aSignalSize, fftWindowType windowT
     return std::make_shared<KissFft>(aSignalSize, windowType);
   } else if(implementation == OF_FFT_FFTW) {
     #ifdef ALLOW_FFTW
-      fft = new ofxFftw();
+      return std::make_shared<FFTW>(aSignalSize, windowType);
     #else
       throw std::logic_error("FFTW support not enabled");
     #endif
