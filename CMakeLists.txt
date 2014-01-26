@@ -27,6 +27,9 @@ ELSE()
     # Workaround for usage of thread::sleep (see: http://stackoverflow.com/questions/12523122/what-is-glibcxx-use-nanosleep-all-about).
     ADD_DEFINITIONS(-D_GLIBCXX_USE_NANOSLEEP)
   ENDIF()
+
+  # Find a clean way to detect SSE support.
+  ADD_DEFINITIONS(-DSSE_SUPPORT -DSSE3_SUPPORT)
 ENDIF()
 
 _PROJECT(AudioTemplate)
