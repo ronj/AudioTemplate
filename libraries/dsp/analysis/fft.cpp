@@ -5,7 +5,7 @@
   #include "fftw_fft.h"
 #endif
 
-#include <dsp/dsp_math.h>
+#include <dsp/common/dsp_math.h>
 
 #include <stdexcept>
 
@@ -67,13 +67,13 @@ void Fft::setWindowType(fftWindowType windowType) {
     }
   } else if(windowType == OF_FFT_WINDOW_HANN) {
     for(int i = 0; i < signalSize; i++)
-      window[i] = .5 * (1 - cos((TWO_PI * i) / (signalSize - 1)));
+      window[i] = .5 * (1 - cos((2_pi * i) / (signalSize - 1)));
   } else if(windowType == OF_FFT_WINDOW_HAMMING) {
     for(int i = 0; i < signalSize; i++)
-      window[i] = .54 - .46 * cos((TWO_PI * i) / (signalSize - 1));
+      window[i] = .54 - .46 * cos((2_pi * i) / (signalSize - 1));
   } else if(windowType == OF_FFT_WINDOW_SINE) {
     for(int i = 0; i < signalSize; i++)
-      window[i] = sin((PI * i) / (signalSize - 1));
+      window[i] = sin((pi<double>() * i) / (signalSize - 1));
   }
 
   windowSum = 0;

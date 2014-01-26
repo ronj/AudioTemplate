@@ -2,8 +2,7 @@
 #include <iostream>
 
 #include <dsp/analysis/fft.h>
-
-static const double PI = std::atan(1.0f) * 4.0f;
+#include <dsp/common/dsp_math.h>
 
 int main(int argc, char* argv[])
 {
@@ -13,13 +12,13 @@ int main(int argc, char* argv[])
   std::shared_ptr<Fft> fft = Fft::create();
   std::vector<float> signal(512);
   double theta = 0;
-  float deltaTheta = 2.0 * M_PI * (440.0 / 44100.0);
+  float deltaTheta = 2_pi * (440.0 / 44100.0);
 
   for (int i = 0; i < signal.size(); i++)
   {
     signal[i] = sin(theta);
     theta += deltaTheta;
-    if (theta > 2.0 * M_PI) theta = theta - 2.0 * M_PI;
+    if (theta > 2_pi) theta = theta - 2_pi;
   }
 
   fft->setSignal(signal);

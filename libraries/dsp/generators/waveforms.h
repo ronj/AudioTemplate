@@ -1,14 +1,14 @@
 #ifndef WAVEFORMS_H
 #define WAVEFORMS_H
 
-#include "dsp/dsp_math.h"
+#include <dsp/common/dsp_math.h>
 
 namespace WaveformType {
 
 template <typename T>
 struct Sine
 {
-  constexpr T operator()(T aStep) { return std::sin(TWO_PI * aStep); }
+  constexpr T operator()(T aStep) { return std::sin(2_pi * aStep); }
 };
 
 template <typename T>
