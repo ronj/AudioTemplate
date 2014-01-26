@@ -1,7 +1,7 @@
 #ifndef KISSFFT_H
 #define KISSFFT_H
 
-#include "FFT.h"
+#include "fft.h"
 
 #include "kiss_fftr.h"
 

@@ -1,14 +1,13 @@
-#include "SimpleAudio.h"
-
-#include "analysis/FFT.h"
-#include "analysis/BeatDetector.h"
+#include <audio/io.h>
+#include <dsp/analysis/fft.h>
+#include <dsp/analysis/beat_detector.h>
 
 #include <algorithm>
 #include <iostream>
 #include <chrono>
 #include <iostream>
 
-using Audio = SimpleAudio<float>;
+using Audio = AudioIO<float>;
 
 int main(int argc, char* argv[])
 {

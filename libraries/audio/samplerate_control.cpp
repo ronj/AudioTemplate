@@ -1,5 +1,5 @@
-#include "SamplerateControl.h"
-#include "SamplerateObserver.h"
+#include "samplerate_control.h"
+#include "samplerate_observer.h"
 
 #include <algorithm>
 

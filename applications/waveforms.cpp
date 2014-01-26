@@ -1,18 +1,17 @@
-#include "SimpleAudio.h"
-
-#include "generators/Oscillator.h"
-#include "generators/Waveforms.h"
+#include <audio/io.h>
+#include <dsp/generators/oscillator.h>
+#include <dsp/generators/waveforms.h>
 
 #include <algorithm>
 #include <iostream>
 
-using Audio = SimpleAudio<float>;
+using Audio = AudioIO<float>;
 
 class Waveform
 {
 public:
   Waveform()
-    : sine(400, 44100)
+    : sine(440, 44100)
   {
   }
 

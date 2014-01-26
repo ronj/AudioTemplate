@@ -1,7 +1,7 @@
 #ifndef OSCILLATOR_H
 #define OSCILLATOR_H
 
-#include <array>
+#include <vector>
 
 template <typename T>
 using return_type = typename std::result_of<T(std::size_t)>::type;
@@ -10,11 +10,12 @@ template <typename WaveformType, std::size_t N = 2048>
 class Oscillator
 {
 public:
-  Oscillator(double aFrequency, double aSamplerate)
+  Oscillator(double aFrequency, double aSamplerate = 44100.0)
     : iSamplerate(aSamplerate)
   {
     if (sTable.empty())
     {
+      sTable.reserve(N);
       WaveformType w;
 
       for (std::size_t n = 0; n < N; ++n)
@@ -66,7 +67,7 @@ public:
   }
 
 private:
-  static std::array<return_type<WaveformType>, N> sTable;
+  static std::vector<return_type<WaveformType>> sTable;
 
 private:
   std::size_t  iIndex = 0;
@@ -77,6 +78,6 @@ private:
 };
 
 template <typename WaveformType, std::size_t N>
-std::array<return_type<WaveformType>, N> Oscillator<WaveformType, N>::sTable;
+std::vector<return_type<WaveformType>> Oscillator<WaveformType, N>::sTable;
 
 #endif // OSCILLATOR_H

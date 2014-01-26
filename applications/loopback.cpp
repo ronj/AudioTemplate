@@ -1,9 +1,9 @@
-#include "SimpleAudio.h"
+#include <audio/io.h>
 
 #include <algorithm>
 #include <iostream>
 
-using Audio = SimpleAudio<float>;
+using Audio = AudioIO<float>;
 
 int main(int argc, char* argv[])
 {

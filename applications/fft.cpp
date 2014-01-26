@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "analysis/FFT.h"
+#include <dsp/analysis/fft.h>
 
 static const double PI = std::atan(1.0f) * 4.0f;
 

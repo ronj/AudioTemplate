@@ -32,7 +32,7 @@
 
 
 
-#include "BeatDetector.h"
+#include "beat_detector.h"
 
 void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 {

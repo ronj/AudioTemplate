@@ -102,7 +102,7 @@
 
 #include <map>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 #define BD_DETECTION_RANGES 128
 #define BD_DETECTION_RATE 12.0

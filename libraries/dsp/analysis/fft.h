@@ -25,6 +25,15 @@ public:
 	Fft(unsigned int aSignalSize, fftWindowType windowType);
 	virtual ~Fft();
 
+	template <typename Iterator>
+	void operator()(Iterator aBegin, Iterator aEnd)
+	{
+	  clearUpdates();
+	  std::copy(aBegin, aEnd, signal);
+	  signalUpdated = true;
+	  signalNormalized = true;
+	}
+
 	void setSignal(const std::vector<float>& signal);
 	void setSignal(const float* signal);
 	void setCartesian(float* real, float* imag = nullptr);

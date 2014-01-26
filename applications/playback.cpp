@@ -1,12 +1,12 @@
-#include "SimpleAudio.h"
-#include "SimpleMP3.h"
+#include <audio/io.h>
+#include <audio/decoders/mp3.h>
 
 #include <algorithm>
 #include <iostream>
 #include <iterator>
 
-using Audio = SimpleAudio<signed long>;
-using MP3 = SimpleMP3<signed long>;
+using Audio = AudioIO<signed long>;
+using MP3 = MP3Decoder<signed long>;
 
 class Playback
 {

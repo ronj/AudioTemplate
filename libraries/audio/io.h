@@ -1,8 +1,8 @@
-#ifndef SIMPLE_AUDIO_H
-#define SIMPLE_AUDIO_H
+#ifndef AUDIO_IO_H
+#define AUDIO_IO_H
 
 #include <RtAudio.h>
-#include <SamplerateControl.h>
+#include <audio/samplerate_control.h>
 
 #include <functional>
 #include <memory>
@@ -11,7 +11,7 @@
 #include <typeinfo>
 
 template <typename T>
-class SimpleAudio
+class AudioIO
 {
 public:
   using sample_type = T;
@@ -34,7 +34,7 @@ public:
   }
 
 public:
-  explicit SimpleAudio(callback_type aCallback)
+  explicit AudioIO(callback_type aCallback)
     : iCallback(aCallback)
     , iBufferSize(512)
     , iSamplerateControl(44100.0)
@@ -47,12 +47,12 @@ public:
     //iStreamOptions.flags = RTAUDIO_MINIMIZE_LATENCY;
   }
 
-  SimpleAudio()
-    : SimpleAudio(nullptr)
+  AudioIO()
+    : AudioIO(nullptr)
   {
   }
 
-  ~SimpleAudio()
+  ~AudioIO()
   {
     if (iDac.isStreamOpen())
     {
@@ -96,7 +96,7 @@ private:
                     aAudioFormat,
                     iSamplerateControl.getSamplerate(),
                     &iBufferSize,
-                    &SimpleAudio::audioCallback,
+                    &AudioIO::audioCallback,
                     static_cast<void*>(this),
                     &iStreamOptions);
   }
@@ -116,7 +116,7 @@ private:
     (void)aStreamTime;
     (void)aStreamStatus;
 
-    SimpleAudio& audio = *static_cast<SimpleAudio*>(aData);
+    AudioIO& audio = *static_cast<AudioIO*>(aData);
     unsigned int inputDataSize = aBufferFrameCount * audio.iInputParameters.nChannels;
     unsigned int outputDataSize = aBufferFrameCount * audio.iOutputParameters.nChannels;
 
@@ -146,39 +146,39 @@ private:
 };
 
 template <typename T>
-void SimpleAudio<T>::open()
+void AudioIO<T>::open()
 {
   throw std::logic_error(std::string("Sample type ") + typeid(T).name() + " not supported.");
 }
 
 template <>
-void SimpleAudio<char>::open()
+void AudioIO<char>::open()
 {
   doOpen(RTAUDIO_SINT8);
 }
 
 template <>
-void SimpleAudio<signed short>::open()
+void AudioIO<signed short>::open()
 {
   doOpen(RTAUDIO_SINT16);
 }
 
 template <>
-void SimpleAudio<signed long>::open()
+void AudioIO<signed long>::open()
 {
   doOpen(RTAUDIO_SINT32);
 }
 
 template <>
-void SimpleAudio<float>::open()
+void AudioIO<float>::open()
 {
   doOpen(RTAUDIO_FLOAT32);
 }
 
 template <>
-void SimpleAudio<double>::open()
+void AudioIO<double>::open()
 {
   doOpen(RTAUDIO_FLOAT64);
 }
 
-#endif // SIMPLE_AUDIO_H
+#endif // AUDIO_IO_H

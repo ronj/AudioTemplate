@@ -1,5 +1,5 @@
-#ifndef SIMPLE_MP3_H
-#define SIMPLE_MP3_H
+#ifndef MP3_DECODER_H
+#define MP3_DECODER_H
 
 #include "mp3dec.h"
 
@@ -8,14 +8,14 @@
 #include <unistd.h>
 
 template <typename T>
-class SimpleMP3
+class MP3Decoder
 {
 public:
   using sample_type = T;
   using decoded_data_container = std::vector<T>;
 
 public:
-  SimpleMP3(const std::string& aFilename, typename decoded_data_container::size_type aBufferSize)
+  MP3Decoder(const std::string& aFilename, typename decoded_data_container::size_type aBufferSize)
     : iFile(open(aFilename.c_str(), O_RDONLY | O_BINARY))
     , iDecoder(mp3dec_init())
     , iDecodedData(aBufferSize)
@@ -36,7 +36,7 @@ public:
               << iInfo.duration / 60 << ":" << iInfo.duration % 60 << std::endl;
   }
 
-  ~SimpleMP3()
+  ~MP3Decoder()
   {
     if (iDecoder)
     {
@@ -84,4 +84,4 @@ private:
   decoded_data_container iDecodedData;
 };
 
-#endif // SIMPLE_MP3_H
+#endif // MP3_DECODER_H

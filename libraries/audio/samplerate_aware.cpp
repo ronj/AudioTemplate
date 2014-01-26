@@ -1,5 +1,5 @@
-#include "SamplerateAware.h"
-#include "SamplerateControl.h"
+#include "samplerate_aware.h"
+#include "samplerate_control.h"
 
 SamplerateAware::SamplerateAware(SamplerateControl& aSamplerateControl)
   : iSamplerateControl(aSamplerateControl)

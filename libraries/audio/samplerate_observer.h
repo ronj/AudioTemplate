@@ -1,5 +1,5 @@
-#ifndef SAMPLERATEOBSERVER_H
-#define SAMPLERATEOBSERVER_H
+#ifndef SAMPLERATE_OBSERVER_H
+#define SAMPLERATE_OBSERVER_H
 
 class SamplerateObserver
 {
@@ -8,4 +8,4 @@ public:
 	virtual void samplerateChanged(float aNewRate, float aOldRate) = 0;
 };
 
-#endif // SAMPLERATEOBSERVER_H
+#endif // SAMPLERATE_OBSERVER_H

@@ -1,12 +1,11 @@
-#include "FFT.h"
+#include "fft.h"
 
-#include "common.h"
-
-#include "KissFFT.h"
-
+#include "kiss_fft.h"
 #ifdef ALLOW_FFTW
-  #include "Fftw.h"
+  #include "fftw_fft.h"
 #endif
+
+#include <dsp/dsp_math.h>
 
 #include <stdexcept>
 
@@ -16,7 +15,7 @@ std::shared_ptr<Fft> Fft::create(unsigned int aSignalSize, fftWindowType windowT
     return std::make_shared<KissFft>(aSignalSize, windowType);
   } else if(implementation == OF_FFT_FFTW) {
     #ifdef ALLOW_FFTW
-      return std::make_shared<FFTW>(aSignalSize, windowType);
+      return std::make_shared<FftwFft>(aSignalSize, windowType);
     #else
       throw std::logic_error("FFTW support not enabled");
     #endif

@@ -1,4 +1,4 @@
-#include "KissFFT.h"
+#include "kiss_fft.h"
 
 KissFft::KissFft(unsigned int aSignalSize, fftWindowType windowType)
   : Fft(aSignalSize, windowType)

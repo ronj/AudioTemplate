@@ -1,7 +1,7 @@
 #ifndef WAVEFORMS_H
 #define WAVEFORMS_H
 
-#include "common.h"
+#include "dsp/dsp_math.h"
 
 namespace WaveformType {
 

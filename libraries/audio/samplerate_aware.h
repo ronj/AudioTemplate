@@ -1,7 +1,7 @@
-#ifndef SAMPLERATEAWARE_H
-#define SAMPLERATEAWARE_H
+#ifndef SAMPLERATE_AWARE_H
+#define SAMPLERATE_AWARE_H
 
-#include "SamplerateObserver.h"
+#include <audio/samplerate_observer.h>
 
 class SamplerateControl;
 
@@ -18,4 +18,4 @@ private:
   SamplerateControl& iSamplerateControl;
 };
 
-#endif // SAMPLERATEAWARE_H
+#endif // SAMPLERATE_AWARE_H

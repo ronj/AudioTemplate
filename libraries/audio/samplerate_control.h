@@ -1,5 +1,5 @@
-#ifndef SAMPLERATECONTROL_H
-#define SAMPLERATECONTROL_H
+#ifndef SAMPLERATE_CONTROL_H
+#define SAMPLERATE_CONTROL_H
 
 #include <vector>
 
@@ -28,4 +28,4 @@ private:
   std::vector<SamplerateObserver*> iObservers;
 };
 
-#endif // SAMPLERATECONTROL_H
+#endif // SAMPLERATE_CONTROL_H

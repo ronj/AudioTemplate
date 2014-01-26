@@ -318,20 +318,15 @@ inline void equal(const char* e, const char* a, const char* at = "", const char*
     throw failure(e, a, at, expr);
   }
 }
-  
-inline void equal(double e, double a, double p, const char* at = "", const char* expr = "")
-{
-  if(std::abs(e - a) > p)
-  {
-    throw failure(e, a, at, expr);
-  }
-}
 
 inline void equal(double e, double a, const char* at = "", const char* expr = "")
 {
-  double max = std::abs(std::max(e, a));
+  double max = std::abs((std::max)(e, a));
   max = max < 1.0 ? 1.0 : max;
-  equal(e, a, max, at, expr);
+  if(std::abs(e - a) > std::numeric_limits<double>::epsilon() * max)
+  {
+    throw failure(e, a, at, expr);
+  }
 }
 inline void check(bool b, const char* at = "", const char* expr = "")
 { 
@@ -427,12 +422,6 @@ void assert_throw(T* pt, void(T::*mf)(), const char* at = "")
 #endif
 #ifndef __AT__
 #define __AT__ __YAFFUT_AT__
-#endif
-
-#define YAFFUT_EQUAL_PRECISION(e,a,p) \
-yaffut::equal (e, a, p, __YAFFUT_AT__, "EQUAL(" #e " == " #a ") failed ")
-#ifndef EQUAL_PRECISION
-#define EQUAL_PRECISION YAFFUT_EQUAL_PRECISION
 #endif
 
 #define YAFFUT_EQUAL(e,a) \
