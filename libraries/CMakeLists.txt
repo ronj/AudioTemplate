@@ -3,4 +3,5 @@ SET(LIBRARIES_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Internal l
 _SUBDIRS(
   audio
   dsp
+  nodes
 )

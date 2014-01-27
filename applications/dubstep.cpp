@@ -3,6 +3,7 @@
 #include <dsp/generators/waveforms.h>
 #include <dsp/generators/noise.h>
 
+#include <array>
 #include <algorithm>
 #include <iostream>
 
@@ -107,9 +108,9 @@ int main(int argc, char* argv[])
 
   unsigned int bpm = 120;
 
-  std::array<int, 10> notes = { 40, 41, 28, 28, 28, 28, 27, 25, 35, 78 };
-  std::array<int, 10> sweepRate = { 1, 6, 6, 2, 1, 2, 4, 8, 3, 3 };
-  std::array<int, 16> kickSequence = { 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0 };
+  std::array<int, 10> notes = { { 40, 41, 28, 28, 28, 28, 27, 25, 35, 78 } };
+  std::array<int, 10> sweepRate = { { 1, 6, 6, 2, 1, 2, 4, 8, 3, 3 } };
+  std::array<int, 16> kickSequence = { { 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0 } };
   unsigned int sweepPos = 0;
   unsigned int kickPos = 0;
 
