@@ -3,17 +3,21 @@
 
 #include <nodes/utils/any.h>
 #include <nodes/utils/indexer.h>
-#include <nodes/models/node.h>
 
 #include <vector>
+#include <string>
 
 class Connection;
+class Node;
 
 class Field
 {
 public:
+  enum class Direction { Input, Output };
+
+public:
   Field();
-  Field(Node& aNode, const std::string& aName, bool aIsOutput = false);
+  Field(Node& aNode, const std::string& aName, Direction aDirection, Any aValue = Any());
 
   Node& getNode() const;
 
@@ -25,7 +29,7 @@ public:
   const std::vector<Connection*>& getConnections() const;
   bool isConnected() const;
 
-  void setChanged();
+  void setChanged(bool aChanged);
   bool isChanged();
 
   void setValue(Any aValue);

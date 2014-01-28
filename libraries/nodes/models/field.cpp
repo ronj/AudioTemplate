@@ -1,8 +1,10 @@
 #include "field.h"
 
-#include "connection.h"
+#include <nodes/models/connection.h>
+#include <nodes/models/node.h>
 
 #include <algorithm>
+#include <cassert>
 
 Field::Field()
   : iFieldID(0)
@@ -12,11 +14,12 @@ Field::Field()
 {
 }
 
-Field::Field(Node& aNode, const std::string& aName, bool aIsOutput)
+Field::Field(Node& aNode, const std::string& aName, Direction aDirection, Any aValue)
   : iFieldID(iIndexer.getUID())
   , iNode(&aNode)
   , iName(aName)
-  , iIsOutput(aIsOutput)
+  , iIsOutput(aDirection == Direction::Output)
+  , iValue(std::move(aValue))
 {
 }
 
@@ -66,9 +69,9 @@ bool Field::isConnected() const
   return iConnections.size() > 0;
 }
 
-void Field::setChanged()
+void Field::setChanged(bool aChanged)
 {
-  iIsChanged = true;
+  iIsChanged = aChanged;
 }
 
 bool Field::isChanged()

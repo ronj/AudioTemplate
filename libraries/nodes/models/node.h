@@ -1,10 +1,12 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <string>
-#include <algorithm>
-
 #include <nodes/utils/indexer.h>
+#include <nodes/collections/field_collection.h>
+
+#include <algorithm>
+#include <string>
+#include <vector>
 
 class Connection;
 class Field;
@@ -12,48 +14,23 @@ class Field;
 class Node
 {
 public:
-  Node(const std::string& aName, const std::string& aGroup)
-    : iNodeID(iIndexer.getUID())
-    , iName(aName)
-    , iGroup(aGroup)
-    , iAutoEvaluate(false)
-    , iDirty(true)
-    , iParent(nullptr)
-  {
-  }
+  Node(const std::string& aName, const std::string& aGroup, Node* aParent = nullptr);
 
-  unsigned int nodeID()
-  {
-    return iNodeID;
-  }
+  unsigned int nodeID() const;
+  const std::string& name() const;
 
-  void setDirty()
-  {
-    iDirty = true;
-  }
+  void setDirty();
 
-  void addOutConnection(Connection* aConnection, Field* aField)
-  {
-    if (std::find(iOutConnections.begin(), iOutConnections.end(), aConnection) == iOutConnections.end())
-    {
-      iOutConnections.push_back(aConnection);
-    }
-  }
+  void addOutConnection(Connection* aConnection, Field* aField);
+  void removeConnection(Connection* aConnection);
 
-  void removeConnection(Connection* aConnection)
-  {
-    iOutConnections.erase(std::remove(iOutConnections.begin(), iOutConnections.end(), aConnection), iOutConnections.end());
-  }
+  bool hasParent() const;
+  Node* getParent() const;
 
-  bool hasParent() const
-  {
-    return iParent != nullptr;
-  }
+  std::vector<Node*> getUpstreamNodes() const;
+  std::vector<Node*> getDownstreamNodes() const;
 
-  Node* getParent()
-  {
-    return iParent;
-  }
+  FieldCollection& fields();
 
 private:
   Indexer iIndexer;
@@ -64,6 +41,7 @@ private:
   bool iDirty;
   Node* iParent;
   std::vector<Connection*> iOutConnections;
+  FieldCollection iFields;
 };
 
 #endif // NODE_H

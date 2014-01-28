@@ -6,7 +6,7 @@
 FUNC(should_create_field)
 {
   Node n("NodeName", "NodeGroup");
-  Field f(n, "FieldName");
+  Field f(n, "FieldName", Field::Direction::Input);
 
   CHECK(f.getValue().is_null());
 }
@@ -14,7 +14,7 @@ FUNC(should_create_field)
 FUNC(should_set_default_value)
 {
   Node n("", "");
-  Field f(n, "");
+  Field f(n, "", Field::Direction::Output);
 
   f.setDefaultValue("Default");
   f.setValue(Any());
@@ -30,7 +30,7 @@ FUNC(should_set_default_value)
 FUNC(should_create_float_field)
 {
   Node n("", "");
-  Field f(n, "");
+  Field f(n, "", Field::Direction::Output);
 
   f.setValue(1.0f);
   EQUAL(1.0f, f.getValue().as<float>());

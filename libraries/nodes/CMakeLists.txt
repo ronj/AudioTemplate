@@ -1,7 +1,10 @@
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR} ${LIBRARIES_INCLUDE_DIR})
 
 SET(NODES_SOURCES utils/indexer.cpp
-                  models/field.cpp)
+                  models/node.cpp
+                  models/field.cpp
+                  models/connection.cpp
+                  collections/field_collection.cpp)
 
 ADD_LIBRARY(nodes ${LIBRARY_TYPE} ${NODES_SOURCES})
 
