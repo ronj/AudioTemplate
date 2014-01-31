@@ -4,6 +4,7 @@ SET(NODES_SOURCES utils/indexer.cpp
                   models/node.cpp
                   models/field.cpp
                   models/connection.cpp
+                  collections/node_collection.cpp
                   collections/field_collection.cpp)
 
 ADD_LIBRARY(nodes ${LIBRARY_TYPE} ${NODES_SOURCES})

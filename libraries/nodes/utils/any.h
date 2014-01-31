@@ -6,6 +6,8 @@
 #include <utility>
 
 // TODO: incorporate storage policy as in http://www.codeproject.com/Articles/11250/High-Performance-Dynamic-Typing-in-C-using-a-Repla
+// TODO: http://stackoverflow.com/questions/17617420/can-i-avoid-all-this-multiples-try-catch   see the nullptr paradigm with boost::any_cast pointer variant.
+// TODO: implement out of class casts and return own exception. Use typeid to check i.s.o. dynamic_cast.
 
 template<class T>
 using StorageType = typename std::decay<T>::type;

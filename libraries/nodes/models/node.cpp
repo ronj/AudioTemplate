@@ -21,9 +21,24 @@ const std::string& Node::name() const
   return iName;
 }
 
-void Node::setDirty()
+void Node::setDirty(bool aDirty)
 {
-  iDirty = true;
+  iDirty = aDirty;
+}
+
+bool Node::isDirty() const
+{
+  return iDirty;
+}
+
+void Node::setAutoEvaluate(bool aAutoEvaluate)
+{
+  iAutoEvaluate = aAutoEvaluate;
+}
+
+bool Node::getAutoEvaluate() const
+{
+  return iAutoEvaluate;
 }
 
 void Node::addOutConnection(Connection* aConnection, Field* aField)

@@ -31,7 +31,7 @@ public:
 
   void setFieldInputUnchanged();
 
-  void addField(const field_key& aKey, Field::Direction aDirection, Any aValue = Any());
+  Field* addField(const field_key& aKey, Field::Direction aDirection, Any aValue = Any());
 
 private:
   Node&     iNode;

@@ -12,26 +12,27 @@ public:
     : Node("IfElse", "Conditional")
   {
     fields().addField("condition", Field::Direction::Input, false);
-    fields().addField("val1", Field::Direction::Input);
-    fields().addField("val2", Field::Direction::Input);
+    fields().addField("true_val", Field::Direction::Input);
+    fields().addField("false_val", Field::Direction::Input);
     fields().addField("out", Field::Direction::Output);
 
     iCondition = &fields().getField("condition", Field::Direction::Input);
-    iVal1 = &fields().getField("val1", Field::Direction::Input);
-    iVal2 = &fields().getField("val2", Field::Direction::Input);
+    iTrueVal = &fields().getField("true_val", Field::Direction::Input);
+    iFalseVal = &fields().getField("false_val", Field::Direction::Input);
     iOut = &fields().getField("out", Field::Direction::Output);
   }
 
   void compute()
   {
     bool cond = condition().getValue().as<bool>();
+
     if (cond)
     {
-      out().setValue(val1().getValue());
+      out().setValue(trueVal().getValue());
     }
     else
     {
-      out().setValue(val2().getValue());
+      out().setValue(falseVal().getValue());
     }
   }
 
@@ -41,16 +42,16 @@ public:
     return *iCondition;
   }
 
-  Field& val1()
+  Field& trueVal()
   {
-    assert(iVal1 != nullptr);
-    return *iVal1;
+    assert(iTrueVal != nullptr);
+    return *iTrueVal;
   }
 
-  Field& val2()
+  Field& falseVal()
   {
-    assert(iVal2 != nullptr);
-    return *iVal2;
+    assert(iFalseVal != nullptr);
+    return *iFalseVal;
   }
 
   Field& out()
@@ -61,8 +62,8 @@ public:
 
 private:
   Field* iCondition = nullptr;
-  Field* iVal1 = nullptr;
-  Field* iVal2 = nullptr;
+  Field* iTrueVal = nullptr;
+  Field* iFalseVal = nullptr;
   Field* iOut = nullptr;
 };
 

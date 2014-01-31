@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 class Connection;
 class Field;
 
@@ -19,7 +21,11 @@ public:
   unsigned int nodeID() const;
   const std::string& name() const;
 
-  void setDirty();
+  void setDirty(bool aDirty);
+  bool isDirty() const;
+
+  void setAutoEvaluate(bool aAutoEvaluate);
+  bool getAutoEvaluate() const;
 
   void addOutConnection(Connection* aConnection, Field* aField);
   void removeConnection(Connection* aConnection);
@@ -31,6 +37,8 @@ public:
   std::vector<Node*> getDownstreamNodes() const;
 
   FieldCollection& fields();
+
+  virtual void compute() = 0;
 
 private:
   Indexer iIndexer;

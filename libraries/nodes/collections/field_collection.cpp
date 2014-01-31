@@ -94,15 +94,17 @@ void FieldCollection::setFieldInputUnchanged()
   }
 }
 
-void FieldCollection::addField(const field_key& aKey, Field::Direction aDirection, Any aValue)
+Field* FieldCollection::addField(const field_key& aKey, Field::Direction aDirection, Any aValue)
 {
   switch(aDirection)
   {
     case Field::Direction::Input:
       iInputs[aKey] = Field(iNode, aKey, aDirection, aValue);
-      break;
+      return &iInputs[aKey];
     case Field::Direction::Output:
       iOutputs[aKey] = Field(iNode, aKey, aDirection, aValue);
-      break;
+      return &iOutputs[aKey];
   }
+
+  return nullptr;
 }

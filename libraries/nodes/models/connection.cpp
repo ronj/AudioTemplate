@@ -22,7 +22,7 @@ Connection::Connection(Field& aInField, Field& aOutField)
     iToField->addConnection(this);
 
     iToField->setValue(iFromField->getValue());
-    iFromField->getNode().setDirty();
+    iFromField->getNode().setDirty(true);
   }
 }
 
@@ -32,7 +32,7 @@ Connection::~Connection()
   iToField->unregisterConnection(this);
   iToField->removeConnections();
 
-  iToField->getNode().setDirty();
+  iToField->getNode().setDirty(true);
   iToField->setChanged(true);
 }
 

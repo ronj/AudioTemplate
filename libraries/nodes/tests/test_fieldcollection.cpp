@@ -1,12 +1,12 @@
 #include "yaffut.h"
+#include "test_node.h"
 
 #include <nodes/models/connection.h>
-#include <nodes/models/node.h>
 #include <nodes/collections/field_collection.h>
 
 FUNC(should_create_fieldcollection)
 {
-  Node n("", "");
+  TestNode n;
   FieldCollection fc(n);
 
   // We have not defined inputs or outputs
@@ -18,7 +18,7 @@ FUNC(should_create_fieldcollection)
 
 FUNC(should_set_output_field_of_fieldcollection)
 {
-  Node n("", "");
+  TestNode n;
   FieldCollection fc(n);
 
   fc.addField("Fs", Field::Direction::Output);
@@ -29,9 +29,9 @@ FUNC(should_set_output_field_of_fieldcollection)
 
 FUNC(should_get_upstream_and_downstream_nodes)
 {
-  Node a("A", "");
-  Node b("B", "");
-  Node c("C", "");
+  TestNode a;
+  TestNode b;
+  TestNode c;
 
   FieldCollection fc_a(a);
   FieldCollection fc_b(b);

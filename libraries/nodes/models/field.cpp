@@ -109,12 +109,15 @@ void Field::setValue(Any aValue)
 
 Any Field::getValue() const
 {
+  // getValue should not have any side-effects.
+  // This makes it possible to alias Field::iValue
+  // to avoid consecutive dynamic_casts.
   return iValue;
 }
 
 void Field::setNodeAndParentsDirty(Node& aNode)
 {
-  aNode.setDirty();
+  aNode.setDirty(true);
 
   if (aNode.hasParent())
   {

@@ -2,10 +2,11 @@
 #define CONNECTION_H
 
 #include <nodes/utils/indexer.h>
+#include <nodes/utils/noncopyable.h>
 
 class Field;
 
-class Connection
+class Connection : private NonCopyable
 {
 public:
   Connection(Field& aInField, Field& aOutField);

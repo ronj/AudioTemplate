@@ -4,11 +4,18 @@
 
 #include <string>
 
-FUNC(should_test_any)
+struct AnyTest
+{
+};
+
+TEST(AnyTest, should_construct_null_any)
 {
   Any n;
   CHECK(n.is_null());
+}
 
+TEST(AnyTest, should_copy_value_to_any)
+{
   std::string s1 = "foo";
 
   Any a1 = s1;
@@ -26,4 +33,17 @@ FUNC(should_test_any)
   std::string s2 = a2;
 
   EQUAL(s1, s2);
+}
+
+TEST(AnyTest, should_assign_to_any)
+{
+  Any a;
+
+  a = 1.0f;
+
+  CHECK(a.is<float>());
+
+  float f = a;
+
+  EQUAL(1.0f, f);
 }

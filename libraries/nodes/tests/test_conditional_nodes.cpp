@@ -1,41 +1,27 @@
 #include "yaffut.h"
 
-#include <nodes/nodes/base.h>
 #include <nodes/nodes/conditional.h>
-#include <nodes/models/connection.h>
 
 FUNC(should_return_value_based_on_condtion)
 {
   IfElse cond;
-  //EQUAL(cond.val1().getValue(), Any());
 
-  cond.val1().setValue(10);
-  cond.val2().setValue(100);
+  cond.trueVal().setValue(10);
+  cond.falseVal().setValue(100);
+  cond.compute();
+
+  // Alias the out field so only one dynamic_cast is needed.
+  int& out = cond.out().getValue().as<int>();
+
+  EQUAL(100, out);
+
   cond.condition().setValue(true);
   cond.compute();
 
-  EQUAL(10, cond.out().getValue().as<int>());
-}
+  EQUAL(10, out);
 
-FUNC(should_connect)
-{
-  Boolean b;
-  IfElse cond;
-
-  cond.val1().setValue(10);
-  cond.val2().setValue(100);
-
-  Connection(b.out(), cond.condition());
-
-  b.boolean().setValue(true);
-  b.compute();
+  cond.condition().setValue(false);
   cond.compute();
 
-  EQUAL(10, cond.out().getValue().as<int>());
-
-  b.boolean().setValue(false);
-  b.compute();
-  cond.compute();
-
-  EQUAL(100, cond.out().getValue().as<int>());
+  EQUAL(100, out);
 }

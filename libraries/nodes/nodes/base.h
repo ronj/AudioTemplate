@@ -1,57 +1,12 @@
 #ifndef NODES_BASE_H
 #define NODES_BASE_H
 
-#include <nodes/models/node.h>
+#include <nodes/nodes/common.h>
 
-#include <cassert>
-
-class NodeNumberSimple : public Node
+struct Number : public NodeNumberUnary
 {
-public:
-  NodeNumberSimple(const std::string& aName, const std::string& aGroupName)
-    : Node(aName, aGroupName)
-  {
-    fields().addField("in", Field::Direction::Input, 0.0f);
-    fields().addField("out", Field::Direction::Output, 0.0f);
-
-    iIn = &fields().getField("in", Field::Direction::Input);
-    iOut = &fields().getField("out", Field::Direction::Output);
-  }
-
-  float process(float aInput, unsigned int aIndex)
-  {
-    return aInput;
-  }
-
-  void compute()
-  {
-    out().setValue(process(in().getValue().as<float>(), 0));
-  }
-
-  Field& in()
-  {
-    assert(iIn != nullptr);
-    return *iIn;
-  }
-
-  Field& out()
-  {
-    assert(iOut != nullptr);
-    return *iOut;
-  }
-
-private:
-  Field* iIn = nullptr;
-  Field* iOut = nullptr;
-};
-
-class Number : public NodeNumberSimple
-{
-public:
-  Number()
-    : NodeNumberSimple("Number", "Base")
-  {
-  }
+  Number() : NodeNumberUnary("Number", "Base") { }
+  float process(float aInput) { return aInput; }
 };
 
 class Boolean : public Node

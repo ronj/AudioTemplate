@@ -1,11 +1,11 @@
 #include "yaffut.h"
+#include "test_node.h"
 
 #include <nodes/models/field.h>
-#include <nodes/models/node.h>
 
 FUNC(should_create_field)
 {
-  Node n("NodeName", "NodeGroup");
+  TestNode n;
   Field f(n, "FieldName", Field::Direction::Input);
 
   CHECK(f.getValue().is_null());
@@ -13,7 +13,7 @@ FUNC(should_create_field)
 
 FUNC(should_set_default_value)
 {
-  Node n("", "");
+  TestNode n;
   Field f(n, "", Field::Direction::Output);
 
   f.setDefaultValue("Default");
@@ -29,7 +29,7 @@ FUNC(should_set_default_value)
 
 FUNC(should_create_float_field)
 {
-  Node n("", "");
+  TestNode n;
   Field f(n, "", Field::Direction::Output);
 
   f.setValue(1.0f);

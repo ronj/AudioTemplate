@@ -5,21 +5,25 @@
 FUNC(should_create_number_node)
 {
   Number n;
-  EQUAL(0.0f, n.out().getValue().as<float>());
+  float& f = n.out().getValue().as<float>();
+
+  EQUAL(0.0f, f);
 
   n.in().setValue(10.0f);
   n.compute();
 
-  EQUAL(10.0f, n.out().getValue().as<float>());
+  EQUAL(10.0f, f);
 }
 
 FUNC(should_create_boolean_node)
 {
   Boolean b;
-  EQUAL(true, b.out().getValue().as<bool>());
+  bool& out = b.out().getValue().as<bool>();
+
+  EQUAL(true, out);
 
   b.boolean().setValue(false);
   b.compute();
 
-  EQUAL(false, b.out().getValue().as<bool>());
+  EQUAL(false, out);
 }
