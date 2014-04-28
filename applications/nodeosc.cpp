@@ -2,7 +2,9 @@
 #include <dsp/generators/oscillator.h>
 #include <dsp/generators/waveforms.h>
 
+#include <nodes/models/connection.h>
 #include <nodes/nodes/common.h>
+#include <nodes/nodes/math.h>
 
 #include <algorithm>
 #include <iostream>
@@ -12,9 +14,9 @@ using Audio = AudioIO<float>;
 class SineOscillator : public NodeNumberGenerator
 {
 public:
-  SineOscillator()
+  SineOscillator(float aFreq)
     : NodeNumberGenerator("Oscillator", "Math")
-    , iSine(440.0, 44100.0)
+    , iSine(aFreq, 44100.0)
   {
   }
 
@@ -30,6 +32,18 @@ private:
 class Waveform
 {
 public:
+  Waveform()
+    : sine(440.0f)
+    , sine2(400.0f)
+  {
+    c1 = std::make_shared<Connection>(
+      sine.fields().getField("out", Field::Direction::Output),
+      mult.fields().getField("x", Field::Direction::Input));
+    c2 = std::make_shared<Connection>(
+      sine2.fields().getField("out", Field::Direction::Output),
+      mult.fields().getField("y", Field::Direction::Input));
+  }
+
   void generate(Audio::sample_iterator aInBegin,
                 Audio::sample_iterator aInEnd,
                 Audio::sample_iterator aOutBegin,
@@ -42,7 +56,9 @@ public:
     for (Audio::sample_iterator it = aOutBegin; it != aOutEnd; it += 2)
     {
       sine.compute();
-      float sample = sine.fields().getField("out", Field::Direction::Output).getValue();
+      sine2.compute();
+      mult.compute();
+      float sample = mult.fields().getField("out", Field::Direction::Output).getValue();
 
       *it = sample;
       *(it + 1) = sample;
@@ -51,6 +67,10 @@ public:
 
 private:
   SineOscillator sine;
+  SineOscillator sine2;
+  Multiply mult;
+  std::shared_ptr<Connection> c1;
+  std::shared_ptr<Connection> c2;
 };
 
 int main(int argc, char* argv[])

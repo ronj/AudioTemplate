@@ -15,10 +15,9 @@ public:
   using decoded_data_container = std::vector<T>;
 
 public:
-  MP3Decoder(const std::string& aFilename, typename decoded_data_container::size_type aBufferSize)
+  MP3Decoder(const std::string& aFilename, typename decoded_data_container::size_type aSamplesPerChannel)
     : iFile(open(aFilename.c_str(), O_RDONLY | O_BINARY))
     , iDecoder(mp3dec_init())
-    , iDecodedData(aBufferSize)
   {
     if (!iDecoder)
     {
@@ -28,6 +27,8 @@ public:
     apiWrapper(mp3dec_configure, iDecoder, &iConfig);
     apiWrapper(mp3dec_init_file, iDecoder, iFile, 0, FALSE);
     apiWrapper(mp3dec_get_info, iDecoder, &iInfo, MPADEC_INFO_STREAM);
+
+    iDecodedData.resize(aSamplesPerChannel * iInfo.channels);
 
     std::cout << "Opened file " << aFilename << std::endl;
     std::cout << "Details: Layer " << iInfo.layer
@@ -51,7 +52,7 @@ public:
     unsigned int bufferUsedSize = 0;
 
     mp3dec_decode(iDecoder,
-                  reinterpret_cast<unsigned char*>(&iDecodedData[0]),
+                  reinterpret_cast<uint8_t*>(&iDecodedData[0]),
                   iDecodedData.capacity() * sizeof(T),
                   &bufferUsedSize);
 
@@ -78,7 +79,7 @@ private:
   int                    iFile = -1;
   mp3dec_t               iDecoder = nullptr;
   mpadec_config_t        iConfig = { MPADEC_CONFIG_FULL_QUALITY, MPADEC_CONFIG_AUTO,
-                                     MPADEC_CONFIG_32BIT, MPADEC_CONFIG_LITTLE_ENDIAN,
+                                     MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
                                      MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
   mpadec_info_t          iInfo;
   decoded_data_container iDecodedData;
