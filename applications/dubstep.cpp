@@ -1,4 +1,4 @@
-#include <audio/io.h>
+#include <audio/audio_io.h>
 #include <dsp/generators/oscillator.h>
 #include <dsp/generators/waveforms.h>
 #include <dsp/generators/noise.h>

@@ -1,10 +1,12 @@
-#include <audio/io.h>
-#include <audio/decoders/mp3.h>
+#include <audio/audio_io.h>
+#include <audio/codec_repository.h>
 
 #include <dsp/analysis/fft.h>
 #include <dsp/analysis/beat_detector.h>
+#include <dsp/common/dsp_algorithm.h>
 #include <dsp/generators/oscillator.h>
 #include <dsp/generators/waveforms.h>
+#include <dsp/effects/FFTConvolver.h>
 
 #include <algorithm>
 #include <iostream>
@@ -12,20 +14,20 @@
 #include <chrono>
 #include <functional>
 
-using Audio = AudioIO<double>;
-using MP3 = MP3Decoder<float>;
+using Audio = AudioIO<float>;
 
 class Playback
 {
 public:
   Playback(const std::string& aFilename, unsigned int aSamplesPerChannel)
-    : iMP3(aFilename, aSamplesPerChannel)
+    : iSoundfile(iCodecs.open(aFilename))
     , fft(Fft::create())
     , beat_lo(48, 95)
     , beat_mid(85, 169, &beat_lo)
     , beat_high(150, 280, &beat_lo)
     , sine(440, 44100)
     , sine2(400, 44100)
+    , iDecodedData(aSamplesPerChannel * iSoundfile->info().channels(), 0.0f)
   {
   }
 
@@ -39,9 +41,9 @@ public:
     (void)aOutEnd;
 
     static auto start = std::chrono::steady_clock::now();
-    unsigned int decodedSamples = iMP3.decode();
+    std::size_t decodedSamples = iSoundfile->decode(iDecodedData.data(), iDecodedData.capacity());
 
-    fft->setSignal(iMP3.data());
+    fft->setSignal(iDecodedData);
     float* amp = fft->getAmplitude();
     std::vector<float> amplitude(fft->getBinSize());
     std::copy(fft->getAmplitude(), fft->getAmplitude() + fft->getBinSize(), amplitude.begin());
@@ -65,26 +67,32 @@ public:
     if (!beat_lo.is_erratic)  std::cout << "Low: " << beat_lo.win_bpm_int / 10.f << " BPM / " << beat_lo.win_bpm_int_lo << " BPM" << std::endl;
     if (!beat_mid.is_erratic) std::cout << "Med: " << beat_mid.win_bpm_int / 10.f << " BPM / " << beat_mid.win_bpm_int_lo << " BPM" << std::endl;
     if (!beat_high.is_erratic) std::cout << "Hi : " << beat_high.win_bpm_int / 10.f << " BPM / " << beat_high.win_bpm_int_lo << " BPM" << std::endl;
+    std::cout << "RMS: " << rms(iDecodedData.cbegin(), iDecodedData.cend()) << std::endl;
+    std::cout << "AMP: " << max_amplitude(iDecodedData.cbegin(), iDecodedData.cend()) << std::endl;
+    std::cout << "DEV: " << std_dev(iDecodedData.cbegin(), iDecodedData.cend()) << std::endl;
 
     std::vector<float> data(decodedSamples);
     float sample = sine() + sine2() * sine();
 
     if (decodedSamples > 0)
     {
-      std::copy(iMP3.data().cbegin(), iMP3.data().cbegin() + decodedSamples, data.begin());
+      std::copy(iDecodedData.cbegin(), iDecodedData.cbegin() + decodedSamples, data.begin());
       //std::transform(data.begin(), data.end(), aOutBegin, std::bind2nd(std::multiplies<float>(), sample));
       std::copy(data.begin(), data.end(), aOutBegin);
     }
   }
 
 private:
-  MP3 iMP3;
+  CodecRepository<Audio::sample_type> iCodecs;
+  std::shared_ptr<IAudioCodec<float>> iSoundfile;
+  std::vector<Audio::sample_type> iDecodedData;
   std::shared_ptr<Fft> fft;
   BeatDetektor beat_lo;
   BeatDetektor beat_mid;
   BeatDetektor beat_high;
   Oscillator<WaveformType::Sine<float>> sine;
   Oscillator<WaveformType::Sine<float>> sine2;
+  fftconvolver::FFTConvolver iConvolver;
 };
 
 int main(int argc, char* argv[])

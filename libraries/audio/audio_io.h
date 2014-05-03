@@ -21,6 +21,9 @@ public:
                                            sample_iterator,
                                            sample_iterator)>;
 
+  static constexpr std::size_t DefaultBufferSize = 512;
+  static constexpr float DefaultSamplerate = 44100.0f;
+
 public:
   template <typename Method, typename Instance>
   static auto binder(Method&& m, Instance&& i) -> decltype(std::bind(m, &i,
@@ -36,8 +39,8 @@ public:
 public:
   explicit AudioIO(callback_type aCallback)
     : iCallback(aCallback)
-    , iBufferSize(512)
-    , iSamplerateControl(44100.0)
+    , iBufferSize(DefaultBufferSize)
+    , iSamplerateControl(DefaultSamplerate)
   {
     iInputParameters.deviceId = iDac.getDefaultInputDevice();
     iInputParameters.nChannels = 2;
@@ -103,6 +106,11 @@ private:
 
   void start()
   {
+    if (!iCallback)
+    {
+      throw std::logic_error("You are trying to start a stream without setting a callback.");
+    }
+
     iDac.startStream();
   }
 
@@ -120,17 +128,10 @@ private:
     unsigned int inputDataSize = aBufferFrameCount * audio.iInputParameters.nChannels;
     unsigned int outputDataSize = aBufferFrameCount * audio.iOutputParameters.nChannels;
 
-    try
-    {
-      audio.iCallback(reinterpret_cast<sample_iterator>(aInputBuffer),
-                      reinterpret_cast<sample_iterator>(aInputBuffer) + inputDataSize,
-                      reinterpret_cast<sample_iterator>(aOutputBuffer),
-                      reinterpret_cast<sample_iterator>(aOutputBuffer) + outputDataSize);
-    }
-    catch (std::bad_function_call& aException)
-    {
-      std::cout << aException.what() << ": You have not set an audio callback." << std::endl;
-    }
+    audio.iCallback(reinterpret_cast<sample_iterator>(aInputBuffer),
+                    reinterpret_cast<sample_iterator>(aInputBuffer) + inputDataSize,
+                    reinterpret_cast<sample_iterator>(aOutputBuffer),
+                    reinterpret_cast<sample_iterator>(aOutputBuffer) + outputDataSize);
 
     return 0;
   }

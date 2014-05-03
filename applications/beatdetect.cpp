@@ -1,4 +1,4 @@
-#include <audio/io.h>
+#include <audio/audio_io.h>
 #include <dsp/analysis/fft.h>
 #include <dsp/analysis/beat_detector.h>
 
