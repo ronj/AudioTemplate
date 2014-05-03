@@ -16,6 +16,11 @@ public:
   SndFileCodec(const std::string& aFilename)
   {
     iSndFile = sf_open(aFilename.c_str(), SFM_READ, iInfo.nativeHandle());
+
+    if (sf_error(iSndFile))
+    {
+      throw FormatNotSupportedException();
+    }
   }
 
   virtual ~SndFileCodec()

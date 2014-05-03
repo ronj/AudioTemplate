@@ -15,8 +15,8 @@ class CodecRepository
 public:
   CodecRepository()
   {
-    registerCodec<MPADECCodec<T>>();
     registerCodec<SndFileCodec<T>>();
+    registerCodec<MPADECCodec<T>>();
   }
 
   std::shared_ptr<IAudioCodec<T>> open(const std::string& aFilename)

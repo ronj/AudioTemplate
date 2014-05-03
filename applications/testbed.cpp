@@ -20,14 +20,14 @@ class Playback
 {
 public:
   Playback(const std::string& aFilename, unsigned int aSamplesPerChannel)
-    : iSoundfile(iCodecs.open(aFilename))
+    : iMP3(iCodecs.open(aFilename))
     , fft(Fft::create())
     , beat_lo(48, 95)
     , beat_mid(85, 169, &beat_lo)
     , beat_high(150, 280, &beat_lo)
     , sine(440, 44100)
     , sine2(400, 44100)
-    , iDecodedData(aSamplesPerChannel * iSoundfile->info().channels(), 0.0f)
+    , iDecodedData(aSamplesPerChannel * iMP3->info().channels(), 0.0f)
   {
   }
 
@@ -41,7 +41,7 @@ public:
     (void)aOutEnd;
 
     static auto start = std::chrono::steady_clock::now();
-    std::size_t decodedSamples = iSoundfile->decode(iDecodedData.data(), iDecodedData.capacity());
+    std::size_t decodedSamples = iMP3->decode(iDecodedData.data(), iDecodedData.capacity());
 
     fft->setSignal(iDecodedData);
     float* amp = fft->getAmplitude();
@@ -84,7 +84,7 @@ public:
 
 private:
   CodecRepository<Audio::sample_type> iCodecs;
-  std::shared_ptr<IAudioCodec<float>> iSoundfile;
+  std::shared_ptr<IAudioCodec<float>> iMP3;
   std::vector<Audio::sample_type> iDecodedData;
   std::shared_ptr<Fft> fft;
   BeatDetektor beat_lo;
