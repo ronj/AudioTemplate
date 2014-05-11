@@ -1,41 +1,190 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.8)
 
-INCLUDE(cmake/macros.cmake)
-INCLUDE(CheckCXXCompilerFlag)
+include(cmake/macros.cmake)
+include(CheckCXXCompilerFlag)
 
-SET(BUILD_STATIC_LIBRARIES TRUE CACHE BOOL "Build libraries that are built by this project statically.")
+## Global options section.
+#
+# Use cmake-gui or cmake (command-line) to set these options.
+# E.g. cmake -DOPT_STOP_ON_FIRST_ERROR:Bool=False or
+# -DCMAKE_BUID_TYPE=Debug to generate build files for a debug build.
 
-IF(BUILD_STATIC_LIBRARIES)
+set(OPT_TREAT_WARNINGS_AS_ERRORS TRUE  CACHE BOOL "Treat warnings as errors.")
+set(OPT_STOP_ON_FIRST_ERROR      TRUE  CACHE BOOL "Stop compilation on first error.")
+set(OPT_BUILD_EXAMPLES           TRUE  CACHE BOOL "Build included example applications.")
+set(OPT_BUILD_TESTS              FALSE CACHE BOOL "Build included unit tests.")
+set(OPT_HEADER_ONLY              FALSE CACHE BOOL "Whether to use supported libraries as a header-only libraries.")
+set(OPT_STATIC_LIBRARIES         TRUE  CACHE BOOL "Build libraries that are built by this project statically.")
+
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif()
+
+# TODO: This should move to global library macro.
+IF(OPT_STATIC_LIBRARIES)
   SET(LIBRARY_TYPE STATIC)
 ELSE()
   SET(LIBRARY_TYPE SHARED)
 ENDIF()
 
-IF(WIN32)
 
-ELSE()
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX_COMPILER_SUPPORTS_NEW_ISO_STD)
+## Compiler options section.
+#
+# Based upon the options set by the user and the detected compiler
+# the compilation flags are determined.
 
-  IF(${CXX_COMPILER_SUPPORTS_NEW_ISO_STD})
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -ansi -std=c++11")
-    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra -ansi -std=c++11")
-  ELSE()
-    MESSAGE(FATAL_ERROR "The selected compiler does not support C++11 features while this project requires it.")
-  ENDIF()
+## Clang/GCC config section.
 
-  IF(APPLE)
+if (CMAKE_CXX_COMPILER MATCHES ".*clang")
+  set(CMAKE_COMPILER_IS_CLANGXX 1)
+endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_COMPILER_IS_CLANGXX 1)
+endif()
+
+if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+  if (MINGW)
+    set(OPT_BUILD_64_BIT FALSE CACHE BOOL "Enable 64-bit build.")
+  else()
+    set(OPT_BUILD_64_BIT TRUE  CACHE BOOL "Enable 64-bit build.")
+  endif()
+
+  if (OPT_BUILD_64_BIT)
+    #set(PROJECT_COMMON_FLAGS "-m64" CACHE INTERNAL "Common flags." FORCE)
+    set(PROJECT_SIZE_TYPE x64 CACHE INTERNAL "" FORCE)
+  else()
+    #set(PROJECT_COMMON_FLAGS "-m32" CACHE INTERNAL "Common flags." FORCE)
+    set(PROJECT_SIZE_TYPE x86 CACHE INTERNAL "" FORCE)
+  endif()
+
+  set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Wall -Wno-missing-braces")
+
+  if (OPT_TREAT_WARNINGS_AS_ERRORS)
+    set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Werror")
+  endif()
+
+  if (OPT_STOP_ON_FIRST_ERROR)
+    set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Wfatal-errors")
+  endif()
+
+  if (MINGW)
+    set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -static-libstdc++ -static-libgcc -static")
+  endif()
+
+  foreach (flag "-std=c++11" "-std=c++0x")
+    CHECK_CXX_COMPILER_FLAG(${flag} CXX_COMPILER_SUPPORTS_NEW_ISO_STD)
+
+    if (CXX_COMPILER_SUPPORTS_NEW_ISO_STD)
+      set(CXX_NEW_ISO_STD_FLAG ${flag})
+      break()
+    endif()
+  endforeach()
+
+  if (NOT CXX_COMPILER_SUPPORTS_NEW_ISO_STD)
+    message(FATAL_ERROR "The project requires C++11 features.\n"
+                        "You need at least one of the following compilers:\n"
+                        "- gcc 4.7 (see: http://gcc.gnu.org/projects/cxx0x.html).\n"
+                        "- clang 3.1 (see: http://clang.llvm.org/cxx_status.html).")
+  endif()
+
+  if (CMAKE_COMPILER_IS_CLANGXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_NEW_ISO_STD_FLAG} -stdlib=libc++")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_NEW_ISO_STD_FLAG}")
     # Workaround for usage of thread::sleep (see: http://stackoverflow.com/questions/12523122/what-is-glibcxx-use-nanosleep-all-about).
-    ADD_DEFINITIONS(-D_GLIBCXX_USE_NANOSLEEP)
-  ENDIF()
+    add_definitions("-D_GLIBCXX_USE_NANOSLEEP")
+  endif()
 
-  # Find a clean way to detect SSE support.
-  ADD_DEFINITIONS(-DSSE_SUPPORT -DSSE3_SUPPORT)
-ENDIF()
+  set(CMAKE_C_FLAGS             "${CMAKE_C_FLAGS}             ${PROJECT_COMMON_FLAGS}")
+  set(CMAKE_CXX_FLAGS           "${CMAKE_CXX_FLAGS}           ${PROJECT_COMMON_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS}    ${PROJECT_COMMON_FLAGS}")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${PROJECT_COMMON_FLAGS}")
+  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${PROJECT_COMMON_FLAGS}")
+endif()
+
+
+## MSVC config section.
+
+if (MSVC OR MSVC_IDE)
+  # See http://binglongx.wordpress.com/2013/06/28/set-non-default-platform-toolset-in-cmake/
+  # for information on setting a non default platform toolset as is done below.
+
+  if (MSVC_VERSION LESS 1700) # VC10-/VS2010-.
+    message(FATAL_ERROR "The project requires C++11 features.\n"
+                        "You need at least Visual Studio 11 (Microsoft Visual Studio 2012), "
+                        "with Microsoft Visual C++ Compiler Nov 2012 CTP (v120_CTP_Nov2012).")
+  elseif (MSVC_VERSION EQUAL 1700) # VC11/VS2012.
+    message("VC11: use Microsoft Visual Studio 2012 "
+            "with Microsoft Visual C++ Compiler Nov 2012 CTP (v120_CTP_Nov2012)")
+    set(CMAKE_GENERATOR_TOOLSET "v120_CTP_Nov2012" CACHE STRING "Platform toolset." FORCE)
+  else() # VC12+, assuming C++11 supported.
+  endif()
+
+  if (CMAKE_SIZEOF_VOID_P MATCHES 4)
+    set(PROJECT_SIZE_TYPE x86 CACHE INTERNAL "" FORCE)
+    set(OPT_BUILD_64_BIT FALSE CACHE INTERNAL "" FORCE)
+  else()
+    set(PROJECT_SIZE_TYPE x64 CACHE INTERNAL "" FORCE)
+    set(OPT_BUILD_64_BIT TRUE CACHE INTERNAL "" FORCE)
+  endif()
+
+  add_definitions("-D_VARIADIC_MAX=6")
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+
+  set(OPT_LINK_STATIC_RUNTIME OFF CACHE BOOL "Link statically against C++ runtime.")
+  if (OPT_LINK_STATIC_RUNTIME)
+    foreach (flag CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+        string(REGEX REPLACE "/MDd" "/MTd" ${flag} "${${flag}}")
+    endforeach()
+
+    set(CMAKE_C_FLAGS_DEBUG            "${CMAKE_C_FLAGS_DEBUG}"            CACHE STRING "MSVC C Debug MT flags." FORCE)
+    set(CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}"          CACHE STRING "MSVC CXX Debug MT flags." FORCE)
+    set(CMAKE_C_FLAGS_RELEASE          "${CMAKE_C_FLAGS_RELEASE}"          CACHE STRING "MSVC C Release MT flags." FORCE)
+    set(CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}"        CACHE STRING "MSVC CXX Release MT flags." FORCE)
+    set(CMAKE_C_FLAGS_MINSIZEREL       "${CMAKE_C_FLAGS_MINSIZEREL}"       CACHE STRING "MSVC C Debug MT flags." FORCE)
+    set(CMAKE_CXX_FLAGS_MINSIZEREL     "${CMAKE_CXX_FLAGS_MINSIZEREL}"     CACHE STRING "MSVC C Release MT flags." FORCE)
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO   "${CMAKE_C_FLAGS_RELWITHDEBINFO}"   CACHE STRING "MSVC CXX Debug MT flags." FORCE)
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Release MT flags." FORCE)
+  endif()
+endif()
+
+
+## Output directory section.
+
+set(PROJECT_OUTPUT_SUBDIR ${PROJECT_SIZE_TYPE} CACHE INTERNAL "" FORCE)
+set(PROJECT_BINARY_PATH  ${CMAKE_BINARY_DIR}/bin/${PROJECT_OUTPUT_SUBDIR} CACHE INTERNAL "" FORCE)
+set(PROJECT_LIBRARY_PATH ${CMAKE_BINARY_DIR}/lib/${PROJECT_OUTPUT_SUBDIR} CACHE INTERNAL "" FORCE)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+    ${PROJECT_BINARY_PATH}
+    CACHE PATH
+    "Single Directory for all Executables." FORCE)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
+    ${PROJECT_BINARY_PATH}
+    CACHE PATH
+    "Single Directory for all Libraries" FORCE)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+    ${PROJECT_LIBRARY_PATH}
+    CACHE PATH
+    "Single Directory for all static libraries." FORCE)
+
+
+# Find a clean way to detect SSE support.
+add_definitions(-DSSE_SUPPORT -DSSE3_SUPPORT)
 
 _PROJECT(AudioTemplate)
 
+set(EXTERNAL_DIR ${CMAKE_HOME_DIRECTORY}/external)
+
+if (OPT_BUILD_EXAMPLES)
+  set(INCLUDE_EXAMPLE_DIR examples)
+endif()
+
 _SUBDIRS(
-  external      # Contains external dependencies that are built as part of this project.
-  libraries     # Contains internal libraries.
-  applications
+  ${EXTERNAL_DIR}        # Contains external dependencies that are built as part of this project.
+  libraries              # Contains internal libraries.
+  ${INCLUDE_EXAMPLE_DIR} # Contains example applications.
 )

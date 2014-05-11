@@ -11,4 +11,6 @@ ADD_LIBRARY(nodes ${LIBRARY_TYPE} ${NODES_SOURCES})
 
 SET(NODES_LIBRARY nodes CACHE INTERNAL "Nodes library" FORCE)
 
-_SUBDIRS(tests)
+if (OPT_BUILD_TESTS)
+  _SUBDIRS(tests)
+endif()

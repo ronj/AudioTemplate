@@ -1,0 +1,37 @@
+INCLUDE_DIRECTORIES(${RTAUDIO_INCLUDE_DIRS} ${MPADEC_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR} ${THREE_DEP_INCLUDES})
+
+ADD_EXECUTABLE(loopback loopback.cpp)
+TARGET_LINK_LIBRARIES(loopback ${AUDIO_LIBRARY})
+
+ADD_EXECUTABLE(waveforms waveforms.cpp)
+TARGET_LINK_LIBRARIES(waveforms ${AUDIO_LIBRARY})
+
+ADD_EXECUTABLE(playback playback.cpp)
+TARGET_LINK_LIBRARIES(playback ${AUDIO_LIBRARY})
+
+ADD_EXECUTABLE(fft fft.cpp)
+TARGET_LINK_LIBRARIES(fft ${DSP_LIBRARY})
+
+ADD_EXECUTABLE(beatdetect beatdetect.cpp)
+TARGET_LINK_LIBRARIES(beatdetect ${AUDIO_LIBRARY} ${DSP_LIBRARY})
+
+ADD_EXECUTABLE(dubstep dubstep.cpp)
+TARGET_LINK_LIBRARIES(dubstep ${AUDIO_LIBRARY} ${DSP_LIBRARY})
+
+ADD_EXECUTABLE(equalizer equalizer.cpp)
+TARGET_LINK_LIBRARIES(equalizer ${AUDIO_LIBRARY} ${DSP_LIBRARY})
+
+ADD_EXECUTABLE(nodeosc nodeosc.cpp)
+TARGET_LINK_LIBRARIES(nodeosc ${AUDIO_LIBRARY} ${NODES_LIBRARY})
+
+ADD_EXECUTABLE(testbed testbed.cpp)
+TARGET_LINK_LIBRARIES(testbed ${AUDIO_LIBRARY} ${DSP_LIBRARY})
+
+ADD_EXECUTABLE(convolution convolution.cpp)
+TARGET_LINK_LIBRARIES(convolution ${AUDIO_LIBRARY} ${DSP_LIBRARY})
+
+# TODO: Incorporate defines in elegant solution as well.
+add_definitions(-DTHREE_DATA_DIR="${CMAKE_HOME_DIRECTORY}/data")
+
+ADD_EXECUTABLE(audio_shader audio_shader.cpp)
+TARGET_LINK_LIBRARIES(audio_shader ${THREE_DEP_LIBS} ${AUDIO_LIBRARY} ${DSP_LIBRARY})

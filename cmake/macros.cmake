@@ -79,6 +79,46 @@ MACRO(_ADD_UNIT_TESTS EXECUTABLE)
   ENDFOREACH()
 ENDMACRO()
 
+
+# Only link the taget if necessary.
+# _name The target name.
+macro(LINK_IF_NEEDED _name)
+  if(WIN32 AND MSVC)
+    set_target_properties(${_name} PROPERTIES LINK_FLAGS_RELEASE /OPT:REF)
+  elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    #set_target_properties(${_name} PROPERTIES LINK_FLAGS -Wl)
+  elseif(__COMPILER_PATHSCALE)
+    set_target_properties(${_name} PROPERTIES LINK_FLAGS -mp)
+  else()
+    set_target_properties(${_name} PROPERTIES LINK_FLAGS -Wl,--as-needed)
+  endif()
+endmacro()
+
+###############################################################################
+# Add a library target.
+# _name The library name.
+# ARGN The source files for the library.
+macro(THREE_ADD_LIBRARY _name)
+  if (OPT_STATIC_LIBRARIES)
+    add_library(${_name} STATIC ${ARGN})
+  else()
+    add_library(${_name} SHARED ${ARGN})
+  endif()
+
+  target_link_libraries(${_name} "${_name}${_DEP_LIBS}")
+
+  if ("${_name}_DEPENDS")
+    add_dependencies(${_name} "${_name}${_DEPENDS}")
+  endif()
+
+  #link_if_needed(${_name})
+
+  if(NOT OPT_STATIC_LIBRARIES)
+    set_target_properties(${_name} PROPERTIES COMPILE_DEFINITIONS "THREE_SOURCE")
+  endif()
+endmacro()
+
+
 # Create a library.
 MACRO(_CREATE_LIBRARY name type)
   SET(STORED_CURRENT_TARGET_NAME ${name})
