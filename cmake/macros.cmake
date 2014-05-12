@@ -68,10 +68,11 @@ ENDMACRO()
 # suitename.testname.
 #
 # Compatibility: Yaffut and Google Test (GTest).
+# TODO: Proper support for FUNC test definition of Yaffut.
 MACRO(_ADD_UNIT_TESTS EXECUTABLE)
   FOREACH(TEST_SOURCE ${ARGN})
     FILE(READ "${TEST_SOURCE}" CONTENTS)
-    STRING(REGEX MATCHALL "TEST_?F?\\(([A-Za-z_0-9 ,]+)\\)" FOUND_TESTS ${CONTENTS})
+    STRING(REGEX MATCHALL "[TEST]_?F?\\(([A-Za-z_0-9 ,]+)\\)" FOUND_TESTS ${CONTENTS})
     FOREACH(FOUND_TEST ${FOUND_TESTS})
       STRING(REGEX REPLACE ".*\\(([A-Za-z_0-9]+)[, ]*([A-Za-z_0-9]+)\\).*" "\\1.\\2" TEST_NAME ${FOUND_TEST})
       ADD_TEST(${TEST_NAME} ${EXECUTABLE} ${TEST_NAME})

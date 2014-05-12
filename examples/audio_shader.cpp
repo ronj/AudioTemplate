@@ -23,6 +23,7 @@
 #include <cerrno>
 
 #include "stride_iterator.h"
+#include "readerwriterqueue.h"
 
 using Audio = AudioIO<float>;
 using namespace three;
@@ -62,8 +63,12 @@ Texture::Ptr createAudioTexture()
   return texture;
 }
 
-void audioShader(GLRenderer::Ptr renderer, Texture::Ptr texture, const std::string& shader)
+void audioShader(GLRenderer::Ptr renderer, moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>>& q, const std::string& shader)
 {
+  std::shared_ptr<Fft> fft = Fft::create();
+  auto audioTexture = createAudioTexture();
+  std::vector<Audio::sample_type> leftChannelData(Audio::DefaultBufferSize);
+
   auto camera = Camera::create();
   camera->position.z = 1;
 
@@ -75,7 +80,7 @@ void audioShader(GLRenderer::Ptr renderer, Texture::Ptr texture, const std::stri
   uniforms["time"]       = Uniform(THREE::f, time);
   uniforms["resolution"] = Uniform(THREE::v2, Vector2((float)renderer->width(),
                                                       (float)renderer->height()));
-  uniforms["texture"]    = Uniform(THREE::t, texture.get());
+  uniforms["texture"]    = Uniform(THREE::t, audioTexture.get());
 
   auto material = ShaderMaterial::create(vertexShader, get_file_contents(shader), uniforms);
   auto mesh = Mesh::create(PlaneGeometry::create(2, 2), material);
@@ -92,6 +97,29 @@ void audioShader(GLRenderer::Ptr renderer, Texture::Ptr texture, const std::stri
   anim::gameLoop([&](float dt) -> bool {
     time += dt;
     material->uniforms["time"].value = time;
+    std::vector<Audio::sample_type> audioData;
+
+    if (q.try_dequeue(audioData))
+    {
+      stride_iter<Audio::sample_type*> leftChannelBegin(audioData.data(), 2);
+      stride_iter<Audio::sample_type*> leftChannelEnd(audioData.data() + audioData.size(), 2);
+      std::copy(leftChannelBegin, leftChannelEnd, leftChannelData.begin());
+
+      fft->setSignal(leftChannelData);
+      float* amp = fft->getAmplitude();
+
+      for (std::size_t i = 0; i < fft->getBinSize(); ++i)
+      {
+        audioTexture->image[0].data[i] = static_cast<unsigned char>((amp[i] * 0.5f + 0.5f) * 254.0f);
+      }
+
+      for (std::size_t i = 0; i < leftChannelData.size(); ++i)
+      {
+        audioTexture->image[0].data[512 + i] = static_cast<unsigned char>((leftChannelData[i] * 0.5f + 0.5f) * 254.0f);
+      }
+
+      audioTexture->needsUpdate = true;
+    }
 
     renderer->render(*scene, *camera);
 
@@ -125,41 +153,27 @@ int main(int argc, char* argv[])
 
   CodecRepository<Audio::sample_type> codecs;
   auto codec = codecs.open(argv[1]);
-  std::shared_ptr<Fft> fft = Fft::create();
-  std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
-  std::vector<Audio::sample_type> leftChannelData(Audio::DefaultBufferSize);
-  Texture::Ptr audioTexture = createAudioTexture();
+
+  std::vector<Audio::sample_type> decodingBuffer(Audio::DefaultBufferSize * codec->info().channels());
+  std::vector<Audio::sample_type> audioData(decodingBuffer.capacity());
+  moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q(2);
 
   Audio audio([&](Audio::sample_iterator aInBegin,
                   Audio::sample_iterator aInEnd,
                   Audio::sample_iterator aOutBegin,
                   Audio::sample_iterator aOutEnd)
               {
-                std::size_t decodedSamples = codec->decode(audioData.data(), audioData.capacity());
+                std::size_t decodedSamples = codec->decode(decodingBuffer.data(), decodingBuffer.capacity());
 
                 if (decodedSamples > 0)
                 {
-/*
-                  stride_iter<Audio::sample_type*> leftChannelBegin(audioData.data(), 2);
-                  stride_iter<Audio::sample_type*> leftChannelEnd(audioData.data() + decodedSamples, 2);
-                  std::copy(leftChannelBegin, leftChannelEnd, leftChannelData.begin());
-
-                  fft->setSignal(audioData);
-                  float* amp = fft->getAmplitude();
-
-                  for (std::size_t i = 0; i < fft->getBinSize(); ++i)
+                  std::copy(decodingBuffer.cbegin(), decodingBuffer.cbegin() + decodedSamples, audioData.begin());
+                  if (!q.try_enqueue(audioData))
                   {
-                    audioTexture->image[0].data[i] = static_cast<unsigned char>((amp[i] * 0.5f + 0.5f) * 254.0f);
+                    std::cout << "Dropping audio frame" << std::endl;
                   }
-*/
-                  for (std::size_t i = 0; i < decodedSamples / 2; ++i)
-                  {
-                    audioTexture->image[0].data[512 + i] = static_cast<unsigned char>((audioData[i] * 0.5f + 0.5f) * 254.0f);
-                  }
-
-                  audioTexture->needsUpdate = true;
-
-                  std::copy(audioData.cbegin(), audioData.cbegin() + decodedSamples, aOutBegin);
+                  std::cout << audioData.size() << " " << audioData.capacity() << std::endl;
+                  std::copy(decodingBuffer.cbegin(), decodingBuffer.cbegin() + decodedSamples, aOutBegin);
                 }
               });
 
@@ -170,7 +184,7 @@ int main(int argc, char* argv[])
             << " samples (" << (audio.streamLatency() / audio.samplerateControl().getSamplerate()) * 1000. << " ms.)" << std::endl
             << "Playing back " << argv[1] << ", which is " << codec->info().toString() << std::endl;
 
-  audioShader(renderer, audioTexture, argv[2]);
+  audioShader(renderer, q, argv[2]);
 
   return 0;
 }

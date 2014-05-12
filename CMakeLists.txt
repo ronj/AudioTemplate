@@ -12,7 +12,7 @@ include(CheckCXXCompilerFlag)
 set(OPT_TREAT_WARNINGS_AS_ERRORS TRUE  CACHE BOOL "Treat warnings as errors.")
 set(OPT_STOP_ON_FIRST_ERROR      TRUE  CACHE BOOL "Stop compilation on first error.")
 set(OPT_BUILD_EXAMPLES           TRUE  CACHE BOOL "Build included example applications.")
-set(OPT_BUILD_TESTS              FALSE CACHE BOOL "Build included unit tests.")
+set(OPT_BUILD_TESTS              TRUE  CACHE BOOL "Build included unit tests.")
 set(OPT_HEADER_ONLY              FALSE CACHE BOOL "Whether to use supported libraries as a header-only libraries.")
 set(OPT_STATIC_LIBRARIES         TRUE  CACHE BOOL "Build libraries that are built by this project statically.")
 
@@ -20,6 +20,11 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
+endif()
+
+if (OPT_BUILD_TESTS)
+  include(CTest)
+  enable_testing()
 endif()
 
 # TODO: This should move to global library macro.
@@ -52,14 +57,14 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLA
   endif()
 
   if (OPT_BUILD_64_BIT)
-    #set(PROJECT_COMMON_FLAGS "-m64" CACHE INTERNAL "Common flags." FORCE)
+    set(PROJECT_COMMON_FLAGS "-m64" CACHE INTERNAL "Common flags." FORCE)
     set(PROJECT_SIZE_TYPE x64 CACHE INTERNAL "" FORCE)
   else()
-    #set(PROJECT_COMMON_FLAGS "-m32" CACHE INTERNAL "Common flags." FORCE)
+    set(PROJECT_COMMON_FLAGS "-m32" CACHE INTERNAL "Common flags." FORCE)
     set(PROJECT_SIZE_TYPE x86 CACHE INTERNAL "" FORCE)
   endif()
 
-  set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Wall -Wno-missing-braces")
+  set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Wall -Wextra -Wno-missing-braces")
 
   if (OPT_TREAT_WARNINGS_AS_ERRORS)
     set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Werror")

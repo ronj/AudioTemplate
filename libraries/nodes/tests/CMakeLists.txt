@@ -5,6 +5,4 @@ FILE(GLOB TEST_SOURCES "test_*.cpp")
 ADD_EXECUTABLE(test_nodes ${TEST_SOURCES} "${EXTERNAL_DIR}/yaffut/testrunner.cpp")
 TARGET_LINK_LIBRARIES(test_nodes ${NODES_LIBRARY})
 
-enable_testing()
-
-_ADD_UNIT_TESTS(test_nodes ${TEST_SOURCES})
+_ADD_UNIT_TESTS("${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_nodes" ${TEST_SOURCES})

@@ -7,6 +7,8 @@
 #include <condition_variable>
 #include <iostream>
 
+#include "readerwriterqueue.h"
+
 using Audio = AudioIO<float>;
 
 int main(int argc, char* argv[])
@@ -18,21 +20,38 @@ int main(int argc, char* argv[])
   }
 
   CodecRepository<Audio::sample_type> codecs;
-  std::shared_ptr<IAudioCodec<Audio::sample_type>> codec = codecs.open(argv[1]);
-  std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
+  auto codec = codecs.open(argv[1]);
 
-  std::thread decoderThread = std::thread([&](){ std::cout << "Decoding" << std::endl; });
+  moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q;
+
+  std::thread decoderThread = std::thread([&](){
+    std::size_t decodedSamples = 0;
+
+    do
+    {
+      std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
+      decodedSamples = codec->decode(audioData.data(), audioData.capacity());
+
+      bool queue_full = true;
+      while (queue_full)
+      {
+        queue_full = !q.try_enqueue(audioData);
+        std::chrono::milliseconds dura( 10 );
+        std::this_thread::sleep_for( dura );
+      }
+    } while (decodedSamples > 0);
+  });
 
   Audio audio([&](Audio::sample_iterator aInBegin,
                   Audio::sample_iterator aInEnd,
                   Audio::sample_iterator aOutBegin,
                   Audio::sample_iterator aOutEnd)
               {
-                std::size_t decodedSamples = codec->decode(audioData.data(), audioData.capacity());
+                std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
 
-                if (decodedSamples > 0)
+                if (q.try_dequeue(audioData))
                 {
-                  std::copy(audioData.cbegin(), audioData.cbegin() + decodedSamples, aOutBegin);
+                  std::copy(audioData.cbegin(), audioData.cend(), aOutBegin);
                 }
               });
 
@@ -43,5 +62,5 @@ int main(int argc, char* argv[])
             << " samples (" << (audio.streamLatency() / audio.samplerateControl().getSamplerate()) * 1000. << " ms.)" << std::endl
             << "Playing back " << argv[1] << ", which is " << codec->info().toString() << std::endl;
 
-  std::cin.get();
+  decoderThread.join();
 }
