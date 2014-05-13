@@ -6,9 +6,7 @@
 
 class IAudioInfo;
 
-using namespace std;
-
-class FormatNotSupportedException : public exception
+class FormatNotSupportedException : public std::exception
 {
   virtual const char* what() const throw()
   {

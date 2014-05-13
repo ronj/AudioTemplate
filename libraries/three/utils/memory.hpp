@@ -21,7 +21,7 @@ struct Ptr : public shared_ptr<T> { };
 
 // Workaround for using make_shared with protected constructors
 
-#if THREE_HAS_VARIADIC_TEMPLATES
+#if CFG_HAS_VARIADIC_TEMPLATES
 
 template < typename T >
 struct Derived : public T {
@@ -44,7 +44,7 @@ inline shared_ptr<T> make_shared( Args&& ... args ) {
   return std::make_shared<Derived<T>>( std::move( args )... );
 }
 
-#else // THREE_HAS_VARIADIC_TEMPLATES
+#else // CFG_HAS_VARIADIC_TEMPLATES
 
 template < typename T >
 struct Derived : public T {
@@ -106,8 +106,8 @@ inline shared_ptr<T> make_shared( Arg0 && arg0, Arg1 && arg1, Arg2 && arg2, Arg3
   return std::make_shared<Derived<T>>( std::move( arg0 ), std::move( arg1 ), std::move( arg2 ), std::move( arg3 ), std::move( arg4 ), std::move( arg5 ) );
 }
 
-#endif // THREE_HAS_VARIADIC_TEMPLATES
+#endif // CFG_HAS_VARIADIC_TEMPLATES
 
 } // namespace three
 
-#endif // THREE_UTILS_HPP
+#endif // THREE_MEMORY_UTILS_HPP

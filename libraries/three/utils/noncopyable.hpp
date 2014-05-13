@@ -8,8 +8,8 @@ protected:
   NonCopyable() {}
   ~NonCopyable() {}
 private:
-  NonCopyable( const NonCopyable& ) THREE_DECL_DELETE;
-  const NonCopyable& operator=( const NonCopyable& ) THREE_DECL_DELETE;
+  NonCopyable( const NonCopyable& ) CFG_DECL_DELETE;
+  const NonCopyable& operator=( const NonCopyable& ) CFG_DECL_DELETE;
 };
 
 } // namespace three

@@ -1,4 +1,4 @@
-if ((NOT OPT_HEADER_ONLY) OR OPT_BUILD_EXAMPLES)
+if ((NOT HEADER_ONLY) OR BUILD_EXAMPLES)
   set(SDL_ROOT "" CACHE PATH
       "The location of the SDL install prefix (only used if the SDL is not yet found)")
   if(SDL_ROOT)
@@ -13,13 +13,14 @@ if ((NOT OPT_HEADER_ONLY) OR OPT_BUILD_EXAMPLES)
   find_package(OpenGL REQUIRED)
   find_package(RapidJSON REQUIRED)
 
-  set(THREE_STATIC_GLEW OFF CACHE BOOL "Use static glew library.")
-
   if (NOT WIN32)
     find_package(GLEW REQUIRED)
   else()
     # Locating GLEW on Windows isn't worth it... just build it
-    add_subdirectory(external/glew-1.9.0)
+    add_subdirectory(${EXTERNAL_DIR}/glew-1.9.0)
+
+    option(THREE_STATIC_GLEW "Use static glew library." OFF)
+
     if (THREE_STATIC_GLEW)
       set(GLEW_LIBRARY glews CACHE INTERNAL "" FORCE)
     else()
@@ -28,17 +29,14 @@ if ((NOT OPT_HEADER_ONLY) OR OPT_BUILD_EXAMPLES)
   endif()
 
   set(THREE_DEP_LIBS ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL_LIBRARY} CACHE INTERNAL "" FORCE)
-  set(THREE_DEP_INCLUDES ${GLEW_INCLUDE_DIR} ${SDL_INCLUDE_DIR} ${RAPID_JSON_INCLUDE_DIR} CACHE INTERNAL "" FORCE)
+  set(THREE_DEP_INCLUDES ${SDL_INCLUDE_DIR} CACHE INTERNAL "" FORCE)
 
   include_directories(${GLEW_INCLUDE_DIR})
   include_directories(${SDL_INCLUDE_DIR})
   include_directories(${RAPID_JSON_INCLUDE_DIR})
 
-  # TODO: Remove explicit sdl/glew dependencies
-  add_definitions(-DTHREE_SDL -DTHREE_GLEW)
-  if (THREE_STATIC_GLEW)
-    add_definitions(-DGLEW_STATIC)
-  endif()
+  # TODO: Remove explicit glew dependency
+  add_definitions(-DTHREE_GLEW)
 
   ## TODO: Remove hard-wired data directory path
   set(THREE_RELEASE_BUILD FALSE CACHE BOOL
@@ -51,10 +49,9 @@ if ((NOT OPT_HEADER_ONLY) OR OPT_BUILD_EXAMPLES)
   endif()
 endif()
 
-
 # Copy SDL runtime on Windows
 if (MSVC OR MINGW)
-  if ((NOT THREE_HEADER_ONLY) OR THREE_BUILD_EXAMPLES OR THREE_BUILD_TESTS)
+  if ((NOT HEADER_ONLY) OR BUILD_EXAMPLES OR BUILD_TESTS)
     get_filename_component(SDL_PATH ${SDLMAIN_LIBRARY} PATH)
     set(SDL_RUNTIME_LIBRARY "${SDL_PATH}/SDL.dll" CACHE INTERNAL "" FORCE)
     message (STATUS "Copying ${SDL_RUNTIME_LIBRARY} to ${THREE_BINARY_PATH} \n")
@@ -76,9 +73,9 @@ if (MSVC OR MINGW)
   endif()
 endif()
 
-if (NOT OPT_HEADER_ONLY)
+if (NOT HEADER_ONLY)
   add_definitions(-DTHREE_SEPARATE_COMPILATION)
-  if (NOT OPT_STATIC_LIBRARIES)
+  if (NOT STATIC_LIBRARIES)
     add_definitions(-DTHREE_DYN_LINK)
   endif()
 

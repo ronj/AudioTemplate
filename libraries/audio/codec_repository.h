@@ -1,13 +1,22 @@
 #ifndef CODEC_REPOSITORY_H
 #define CODEC_REPOSITORY_H
 
-#include "codecs/mpadec_codec.h"
-#include "codecs/sndfile_codec.h"
+#include <audio/codecs/mpadec_codec.h>
+#include <audio/codecs/sndfile_codec.h>
 
+#include <exception>
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <functional>
+
+class NoCodecForFiletype : public std::exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Format is not supported by any of the registered codecs.";
+  }
+};
 
 template <typename T>
 class CodecRepository
@@ -32,6 +41,8 @@ public:
         continue;
       }
     }
+
+    throw NoCodecForFiletype();
   }
 
 private:

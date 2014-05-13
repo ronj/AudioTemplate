@@ -51,11 +51,11 @@ private:
   EventKey eventKey;
 };
 
-} // namespace sdl
+} // namespace events
 } // namespace three
 
 #if defined(THREE_HEADER_ONLY)
 # include <three/extras/impl/events.ipp>
 #endif // defined(THREE_HEADER_ONLY)
 
-#endif // THREE_SDL_HPP
+#endif // THREE_EVENTS_HPP

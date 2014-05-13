@@ -6,12 +6,9 @@
 #include "audio_codec.h"
 #include "sndfile_info.h"
 
-template <typename T>
-class SndFileCodec : public IAudioCodec<T>
+template <typename TSample>
+class SndFileCodec : public IAudioCodec<TSample>
 {
-public:
-  using sample_type = T;
-
 public:
   SndFileCodec(const std::string& aFilename)
   {
@@ -28,12 +25,12 @@ public:
     sf_close(iSndFile);
   }
 
-  std::size_t decode(sample_type* aSamples, std::size_t aSampleCount)
+  std::size_t decode(TSample* aSamples, std::size_t aSampleCount)
   {
     return sf_read_float(iSndFile, aSamples, aSampleCount);
   }
 
-  std::size_t encode(const sample_type*, std::size_t)
+  std::size_t encode(const TSample*, std::size_t)
   {
     throw std::logic_error("Not implemented");
   }

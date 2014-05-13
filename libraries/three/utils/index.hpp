@@ -13,7 +13,7 @@ struct IndexT {
   IndexT& operator=( T t ) { value = t; return *this; }
   IndexT& operator=( const IndexT& other ) { value = other.value; return *this; }
 
-  //THREE_EXPLICIT operator bool() const { return value != invalid; }
+  //CFG_EXPLICIT operator bool() const { return value != invalid; }
   bool valid() const { return value != invalid; }
 
   struct IncompleteType;

@@ -6,15 +6,15 @@ include(CheckCXXCompilerFlag)
 ## Global options section.
 #
 # Use cmake-gui or cmake (command-line) to set these options.
-# E.g. cmake -DOPT_STOP_ON_FIRST_ERROR:Bool=False or
+# E.g. cmake -DSTOP_ON_FIRST_ERROR=Off or
 # -DCMAKE_BUID_TYPE=Debug to generate build files for a debug build.
 
-set(OPT_TREAT_WARNINGS_AS_ERRORS TRUE  CACHE BOOL "Treat warnings as errors.")
-set(OPT_STOP_ON_FIRST_ERROR      TRUE  CACHE BOOL "Stop compilation on first error.")
-set(OPT_BUILD_EXAMPLES           TRUE  CACHE BOOL "Build included example applications.")
-set(OPT_BUILD_TESTS              TRUE  CACHE BOOL "Build included unit tests.")
-set(OPT_HEADER_ONLY              FALSE CACHE BOOL "Whether to use supported libraries as a header-only libraries.")
-set(OPT_STATIC_LIBRARIES         TRUE  CACHE BOOL "Build libraries that are built by this project statically.")
+option(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors."                                      ON)
+option(STOP_ON_FIRST_ERROR      "Stop compilation on first error."                               ON)
+option(BUILD_EXAMPLES           "Build included example applications."                           ON)
+option(BUILD_TESTS              "Build included unit tests."                                     ON)
+option(HEADER_ONLY              "Whether to use supported libraries as a header-only libraries." OFF)
+option(STATIC_LIBRARIES         "Build libraries that are built by this project statically."     ON)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -22,18 +22,12 @@ if (NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif()
 
-if (OPT_BUILD_TESTS)
-  include(CTest)
-  enable_testing()
-endif()
-
 # TODO: This should move to global library macro.
-IF(OPT_STATIC_LIBRARIES)
+IF(STATIC_LIBRARIES)
   SET(LIBRARY_TYPE STATIC)
 ELSE()
   SET(LIBRARY_TYPE SHARED)
 ENDIF()
-
 
 ## Compiler options section.
 #
@@ -51,12 +45,12 @@ endif()
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
   if (MINGW)
-    set(OPT_BUILD_64_BIT FALSE CACHE BOOL "Enable 64-bit build.")
+    option(BUILD_64_BIT "Enable 64-bit build." OFF)
   else()
-    set(OPT_BUILD_64_BIT TRUE  CACHE BOOL "Enable 64-bit build.")
+    option(BUILD_64_BIT "Enable 64-bit build." ON)
   endif()
 
-  if (OPT_BUILD_64_BIT)
+  if (BUILD_64_BIT)
     set(PROJECT_COMMON_FLAGS "-m64" CACHE INTERNAL "Common flags." FORCE)
     set(PROJECT_SIZE_TYPE x64 CACHE INTERNAL "" FORCE)
   else()
@@ -66,11 +60,11 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLA
 
   set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Wall -Wextra -Wno-missing-braces")
 
-  if (OPT_TREAT_WARNINGS_AS_ERRORS)
+  if (TREAT_WARNINGS_AS_ERRORS)
     set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Werror")
   endif()
 
-  if (OPT_STOP_ON_FIRST_ERROR)
+  if (STOP_ON_FIRST_ERROR)
     set(PROJECT_COMMON_FLAGS "${PROJECT_COMMON_FLAGS} -Wfatal-errors")
   endif()
 
@@ -129,29 +123,29 @@ if (MSVC OR MSVC_IDE)
 
   if (CMAKE_SIZEOF_VOID_P MATCHES 4)
     set(PROJECT_SIZE_TYPE x86 CACHE INTERNAL "" FORCE)
-    set(OPT_BUILD_64_BIT FALSE CACHE INTERNAL "" FORCE)
+    set(BUILD_64_BIT FALSE CACHE INTERNAL "" FORCE)
   else()
     set(PROJECT_SIZE_TYPE x64 CACHE INTERNAL "" FORCE)
-    set(OPT_BUILD_64_BIT TRUE CACHE INTERNAL "" FORCE)
+    set(BUILD_64_BIT TRUE CACHE INTERNAL "" FORCE)
   endif()
 
-  add_definitions("-D_VARIADIC_MAX=6")
+  add_definitions("-D_VARIADIC_MAX=10")
   add_definitions("-D_CRT_SECURE_NO_WARNINGS")
 
-  set(OPT_LINK_STATIC_RUNTIME OFF CACHE BOOL "Link statically against C++ runtime.")
-  if (OPT_LINK_STATIC_RUNTIME)
+  option(LINK_STATIC_RUNTIME "Link statically against C++ runtime." OFF)
+  if (LINK_STATIC_RUNTIME)
     foreach (flag CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO CMAKE_CXX_FLAGS_RELWITHDEBINFO)
         string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")
         string(REGEX REPLACE "/MDd" "/MTd" ${flag} "${${flag}}")
     endforeach()
 
-    set(CMAKE_C_FLAGS_DEBUG            "${CMAKE_C_FLAGS_DEBUG}"            CACHE STRING "MSVC C Debug MT flags." FORCE)
-    set(CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}"          CACHE STRING "MSVC CXX Debug MT flags." FORCE)
-    set(CMAKE_C_FLAGS_RELEASE          "${CMAKE_C_FLAGS_RELEASE}"          CACHE STRING "MSVC C Release MT flags." FORCE)
+    set(CMAKE_C_FLAGS_DEBUG            "${CMAKE_C_FLAGS_DEBUG}"            CACHE STRING "MSVC C Debug MT flags."     FORCE)
+    set(CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}"          CACHE STRING "MSVC CXX Debug MT flags."   FORCE)
+    set(CMAKE_C_FLAGS_RELEASE          "${CMAKE_C_FLAGS_RELEASE}"          CACHE STRING "MSVC C Release MT flags."   FORCE)
     set(CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}"        CACHE STRING "MSVC CXX Release MT flags." FORCE)
-    set(CMAKE_C_FLAGS_MINSIZEREL       "${CMAKE_C_FLAGS_MINSIZEREL}"       CACHE STRING "MSVC C Debug MT flags." FORCE)
-    set(CMAKE_CXX_FLAGS_MINSIZEREL     "${CMAKE_CXX_FLAGS_MINSIZEREL}"     CACHE STRING "MSVC C Release MT flags." FORCE)
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO   "${CMAKE_C_FLAGS_RELWITHDEBINFO}"   CACHE STRING "MSVC CXX Debug MT flags." FORCE)
+    set(CMAKE_C_FLAGS_MINSIZEREL       "${CMAKE_C_FLAGS_MINSIZEREL}"       CACHE STRING "MSVC C Debug MT flags."     FORCE)
+    set(CMAKE_CXX_FLAGS_MINSIZEREL     "${CMAKE_CXX_FLAGS_MINSIZEREL}"     CACHE STRING "MSVC C Release MT flags."   FORCE)
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO   "${CMAKE_C_FLAGS_RELWITHDEBINFO}"   CACHE STRING "MSVC CXX Debug MT flags."   FORCE)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}" CACHE STRING "MSVC CXX Release MT flags." FORCE)
   endif()
 endif()
@@ -184,7 +178,12 @@ _PROJECT(AudioTemplate)
 
 set(EXTERNAL_DIR ${CMAKE_HOME_DIRECTORY}/external)
 
-if (OPT_BUILD_EXAMPLES)
+if (BUILD_TESTS)
+  include(CTest)
+  enable_testing()
+endif()
+
+if (BUILD_EXAMPLES)
   set(INCLUDE_EXAMPLE_DIR examples)
 endif()
 

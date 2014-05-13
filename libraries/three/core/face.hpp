@@ -72,7 +72,7 @@ private:
   THREE::FaceType mType;
   int mSize;
 
-  Face( ) THREE_DECL_DELETE;
+  Face( ) CFG_DECL_DELETE;
 
 };
 

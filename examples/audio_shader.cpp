@@ -1,6 +1,9 @@
 #include <audio/audio_io.h>
 #include <audio/codec_repository.h>
 
+#include <common/stride_iterator.h>
+#include <common/readerwriterqueue.h>
+
 #include <dsp/analysis/fft.h>
 
 #include <three/config.hpp>
@@ -21,9 +24,6 @@
 #include <streambuf>
 #include <string>
 #include <cerrno>
-
-#include "stride_iterator.h"
-#include "readerwriterqueue.h"
 
 using Audio = AudioIO<float>;
 using namespace three;

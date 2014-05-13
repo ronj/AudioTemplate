@@ -9,12 +9,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-template <typename T>
-class MPADECCodec : public IAudioCodec<T>
+template <typename TSample>
+class MPADECCodec : public IAudioCodec<TSample>
 {
-public:
-  using sample_type = T;
-
 public:
   MPADECCodec(const std::string& aFilename)
     : iFile(open(aFilename.c_str(), O_RDONLY | O_BINARY))
@@ -38,19 +35,19 @@ public:
     cleanup();
   }
 
-  std::size_t decode(sample_type* aSamples, std::size_t aSampleCount)
+  std::size_t decode(TSample* aSamples, std::size_t aSampleCount)
   {
     unsigned int bufferUsedSize = 0;
 
     mp3dec_decode(iDecoder,
                   reinterpret_cast<uint8_t*>(aSamples),
-                  aSampleCount * sizeof(T),
+                  aSampleCount * sizeof(TSample),
                   &bufferUsedSize);
 
-    return bufferUsedSize / sizeof(T);
+    return bufferUsedSize / sizeof(TSample);
   }
 
-  std::size_t encode(const sample_type*, std::size_t)
+  std::size_t encode(const TSample*, std::size_t)
   {
     throw std::logic_error("Not implemented");
   }
@@ -99,10 +96,10 @@ private:
   MPADECInfo             iInfo;
 };
 
-template <typename T>
-void MPADECCodec<T>::setFormat(mpadec_config_t&)
+template <typename TSample>
+void MPADECCodec<TSample>::setFormat(mpadec_config_t&)
 {
-  throw std::logic_error(std::string("Sample type ") + typeid(T).name() + " not supported.");
+  throw std::logic_error(std::string("Sample type ") + typeid(TSample).name() + " not supported.");
 }
 
 template <>

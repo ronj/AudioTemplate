@@ -100,19 +100,25 @@ endmacro()
 # _name The library name.
 # ARGN The source files for the library.
 macro(THREE_ADD_LIBRARY _name)
-  if (OPT_STATIC_LIBRARIES)
+  if (STATIC_LIBRARIES)
     add_library(${_name} STATIC ${ARGN})
   else()
     add_library(${_name} SHARED ${ARGN})
   endif()
 
-  target_link_libraries(${_name} "${_name}${_DEP_LIBS}")
+  set(DEP_LIBS_VAR ${_name}_DEP_LIBS)
+  string(TOUPPER ${DEP_LIBS_VAR} DEP_LIBS_VAR)
 
-  if ("${_name}_DEPENDS")
-    add_dependencies(${_name} "${_name}${_DEPENDS}")
+  target_link_libraries(${_name} ${${DEP_LIBS_VAR}})
+
+  set(DEPENDS_VAR ${_name}_DEPENDS)
+  string(TOUPPER ${DEPENDS_VAR} DEPENDS_VAR)
+
+  if (${${DEPENDS_VAR}})
+    add_dependencies(${_name} ${${DEPENDS_VAR}})
   endif()
 
-  #link_if_needed(${_name})
+  link_if_needed(${_name})
 
   if(NOT OPT_STATIC_LIBRARIES)
     set_target_properties(${_name} PROPERTIES COMPILE_DEFINITIONS "THREE_SOURCE")
