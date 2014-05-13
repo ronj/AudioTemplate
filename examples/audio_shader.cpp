@@ -172,7 +172,6 @@ int main(int argc, char* argv[])
                   {
                     std::cout << "Dropping audio frame" << std::endl;
                   }
-                  std::cout << audioData.size() << " " << audioData.capacity() << std::endl;
                   std::copy(decodingBuffer.cbegin(), decodingBuffer.cbegin() + decodedSamples, aOutBegin);
                 }
               });
