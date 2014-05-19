@@ -1,9 +1,9 @@
 #ifndef SNDFILE_INFO_H
 #define SNDFILE_INFO_H
 
-#include <sndfile.h>
-
 #include "audio_info.h"
+
+#include <sndfile.h>
 
 class SndFileInfo : public IAudioInfo
 {
@@ -23,16 +23,24 @@ public:
     return iInfo.samplerate;
   }
 
-  unsigned int duration() const
+  audio_duration duration() const
   {
-    return 0;
+    if ((samplerate() < 1) ||
+        (iInfo.frames / samplerate()) > 0x7FFFFFFF)
+    {
+      return std::chrono::duration<float>::zero();
+    }
+
+    return audio_duration((1.0f * iInfo.frames) / samplerate());
   }
 
   std::string toString() const
   {
     std::stringstream ss;
 
-    ss << typeToString() << " " << samplerateToString();
+    ss << typeToString() << " "
+       << channelsToString() << " " << samplerateToString() << " "
+       << bitrateToString() << " " << durationToString();
 
     return ss.str();
   }
@@ -75,11 +83,6 @@ private:
 
       default: return "Unknown format";
     }
-  }
-
-  std::string samplerateToString() const
-  {
-    return Stringify(samplerate()) + " Hz";
   }
 
 private:

@@ -328,6 +328,17 @@ inline void equal(double e, double a, const char* at = "", const char* expr = ""
     throw failure(e, a, at, expr);
   }
 }
+
+inline void equal(float e, float a, const char* at = "", const char* expr = "")
+{
+  float max = std::abs((std::max)(e, a));
+  max = max < 1.0 ? 1.0 : max;
+  if(std::abs(e - a) > std::numeric_limits<float>::epsilon() * max)
+  {
+    throw failure(e, a, at, expr);
+  }
+}
+
 inline void check(bool b, const char* at = "", const char* expr = "")
 { 
   if(!b)

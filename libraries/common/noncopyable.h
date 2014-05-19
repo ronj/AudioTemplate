@@ -1,14 +1,16 @@
 #ifndef NONCOPYABLE_H
 #define NONCOPYABLE_H
 
-class noncopyable
+#include <common/config.hpp>
+
+class NonCopyable
 {
 public:
-  noncopyable() = default;
+  NonCopyable() CFG_DECL_DEFAULT;
 
 private:
-  noncopyable& operator=(const noncopyable&) = delete;
-  noncopyable(const noncopyable&) = delete;
+  NonCopyable& operator=(const NonCopyable&) CFG_DECL_DELETE;
+  NonCopyable(const NonCopyable&) CFG_DECL_DELETE;
 };
 
 #endif // NONCOPYABLE_H

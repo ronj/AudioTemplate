@@ -1,78 +1,85 @@
-/** ==========================================================================
-* 2010 by KjellKod.cc. This is PUBLIC DOMAIN to use at your own risk and comes
-* with no warranties. This code is yours to share, use and modify with no
-* strings attached and no restrictions or obligations.
-* ============================================================================
-*
-* Example of a normal std::queue protected by a mutex for operations,
-* making it safe for thread communication, using std::mutex from C++0x with
-* the help from the std::thread library from JustSoftwareSolutions
-* ref: http://www.stdthread.co.uk/doc/headers/mutex.html
-*
-* This exampel  was totally inspired by Anthony Williams lock-based data structures in
-* Ref: "C++ Concurrency In Action" http://www.manning.com/williams */
+#ifndef SHARED_QUEUE_H
+#define SHARED_QUEUE_H
 
-#pragma once
+#include <common/noncopyable.h>
 
-#include <queue>
-#include <mutex>
-#include <exception>
+#include <chrono>
 #include <condition_variable>
+#include <exception>
+#include <mutex>
+#include <queue>
 
-/** Multiple producer, multiple consumer thread safe queue
-* Since 'return by reference' is used this queue won't throw */
 template<typename T>
-class shared_queue
+class SharedQueue : public NonCopyable
 {
-  std::queue<T> queue_;
-  mutable std::mutex m_;
-  std::condition_variable data_cond_;
-
-  shared_queue& operator=(const shared_queue&) = delete;
-  shared_queue(const shared_queue& other) = delete;
-
 public:
-  shared_queue(){}
-
-  void push(T item){
-    {  
-      std::lock_guard<std::mutex> lock(m_);
-      queue_.push(std::move(item));
+  void push(T aItem)
+  {
+    {
+      std::lock_guard<std::mutex> lock(iMutex);
+      iQueue.push(std::move(aItem));
     }
-    data_cond_.notify_one();
+
+    iDataCondition.notify_one();
   }
 
-  /// \return immediately, with true if successful retrieval
-  bool try_and_pop(T& popped_item){
-    std::lock_guard<std::mutex> lock(m_);
-    if(queue_.empty()){
+  void pop(T& aItem)
+  {
+    std::unique_lock<std::mutex> lock(iMutex);
+    iDataCondition.wait(lock, [this]() { return !iQueue.empty(); });
+    moveAndPop(aItem);
+  }
+
+  bool pop_nowait(T& aItem)
+  {
+    std::lock_guard<std::mutex> lock(iMutex);
+
+    if (iQueue.empty())
+    {
       return false;
     }
-    popped_item=std::move(queue_.front());
-    queue_.pop();
+
+    moveAndPop(aItem);
+
     return true;
   }
 
-  /// Try to retrieve, if no items, wait till an item is available and try again
-  void wait_and_pop(T& popped_item){
-    std::unique_lock<std::mutex> lock(m_); 
-    while(queue_.empty())
-    { 
-       data_cond_.wait(lock);
-       //  This 'while' loop is equal to
-       //  data_cond_.wait(lock, [](bool result){return !queue_.empty();});
+  template <class Rep, class Period>
+  bool pop_wait_for(T& aItem, std::chrono::duration<Rep, Period> aWaitDuration)
+  {
+    std::unique_lock<std::mutex> lock(iMutex);
+    if (iDataCondition.wait_for(lock, aWaitDuration, [this]() { return !iQueue.empty(); }))
+    {
+      moveAndPop(aItem);
+      return true;
     }
-    popped_item=std::move(queue_.front());
-    queue_.pop();
+
+    return false;
   }
 
-  bool empty() const{
-    std::lock_guard<std::mutex> lock(m_);
-    return queue_.empty();
+  bool empty() const
+  {
+    std::lock_guard<std::mutex> lock(iMutex);
+    return iQueue.empty();
   }
 
-  unsigned size() const{
-    std::lock_guard<std::mutex> lock(m_);
-    return queue_.size();
+  std::size_t size() const
+  {
+    std::lock_guard<std::mutex> lock(iMutex);
+    return iQueue.size();
   }
+
+private:
+  void moveAndPop(T& aItem)
+  {
+    aItem = std::move(iQueue.front());
+    iQueue.pop();  
+  }
+
+private:
+  std::queue<T>           iQueue;
+  mutable std::mutex      iMutex;
+  std::condition_variable iDataCondition;
 };
+
+#endif // SHARED_QUEUE_H

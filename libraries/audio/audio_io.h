@@ -1,8 +1,9 @@
 #ifndef AUDIO_IO_H
 #define AUDIO_IO_H
 
-#include <RtAudio.h>
 #include <audio/samplerate_control.h>
+
+#include <RtAudio.h>
 
 #include <functional>
 #include <memory>

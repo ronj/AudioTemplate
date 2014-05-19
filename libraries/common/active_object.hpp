@@ -1,66 +1,51 @@
-/** ==========================================================================
- * 2010 by KjellKod.cc. This is PUBLIC DOMAIN to use at your own risk and comes
- * with no warranties. This code is yours to share, use and modify with no
- * strings attached and no restrictions or obligations.
- * ============================================================================
- *
- * Example of a Active Object, using C++11 std::thread mechanisms to make it
- * safe for thread communication.
- *
- * This was originally published at http://sites.google.com/site/kjellhedstrom2/active-object-with-cpp0x
- * and inspired from Herb Sutter's C++11 Active Object
- * http://herbsutter.com/2010/07/12/effective-concurrency-prefer-using-active-objects-instead-of-naked-threads
- *
- * Last update 2013-12-19 by Kjell Hedstrom,
- * e-mail: hedstrom at kjellkod dot cc
- * linkedin: http://linkedin.com/se/kjellkod */
-
-#pragma once
+#ifndef ACTIVE_OBJECT_H
+#define ACTIVE_OBJECT_H
 
 #include <thread>
 #include <functional>
 #include <memory>
 
-#include "shared_queue.hpp"
+#include <common/shared_queue.hpp>
+#include <common/noncopyable.h>
 
-namespace kjellkod {
-typedef std::function<void() > Callback;
+class ActiveObject : public NonCopyable
+{
+public:
+  typedef std::function<void()> Callback;
 
-class Active {
+public:
+   virtual ~ActiveObject()
+   {
+      send([this] { iDone = true; });
+      iThread.join();
+   }
+
+   void send(Callback aMessage) { iQueue.push(aMessage); }
+
+   static std::unique_ptr<ActiveObject> create()
+   {
+      std::unique_ptr<ActiveObject> obj(new ActiveObject());
+      obj->iThread = std::thread(&ActiveObject::run, obj.get());
+      return obj;
+   }
+
 private:
-   Active() : done_(false) {} // Construction ONLY through factory createActive();
-   Active(const Active&) = delete;
-   Active& operator=(const Active&) = delete;
+   ActiveObject() CFG_DECL_DEFAULT;
 
-   void run() {
-      while (!done_) {
+   void run()
+   {
+      while (!iDone)
+      {
          Callback func;
-         mq_.wait_and_pop(func);
+         iQueue.pop(func);
          func();
       }
    }
 
-   shared_queue<Callback> mq_;
-   std::thread thd_;
-   bool done_; 
-
-
-public:
-   virtual ~Active() {
-      send([this] { done_ = true;});
-      thd_.join();
-   }
-
-   void send(Callback msg_) { mq_.push(msg_); }
-
-  /// Factory: safe construction of object before thread start
-   static std::unique_ptr<Active> createActive() {
-      std::unique_ptr<Active> aPtr(new Active());
-      aPtr->thd_ = std::thread(&Active::run, aPtr.get());
-      return aPtr;
-   }
+private:
+   SharedQueue<Callback>  iQueue;
+   std::thread            iThread;
+   bool                   iDone = false; 
 };
 
-   
-
-} // kjellkod
+#endif // ACTIVE_OBJECT_H

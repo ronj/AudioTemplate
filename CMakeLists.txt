@@ -174,7 +174,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 # Find a clean way to detect SSE support.
 add_definitions(-DSSE_SUPPORT -DSSE3_SUPPORT)
 
-_PROJECT(AudioTemplate)
+_PROJECT(invent)
 
 set(EXTERNAL_DIR ${CMAKE_HOME_DIRECTORY}/external)
 
