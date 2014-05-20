@@ -29,7 +29,7 @@ TEST(LoggingTest, should_construct_logger_with_custom_sink)
   std::string logOutput;
   {
     auto logworker = g2::LogWorker::createWithNoSink();
-    auto sinkHandle = logworker->addSink(std2::make_unique<TestSink>(logOutput), &TestSink::write);
+    auto sinkHandle = logworker->addSink(std2::make_unique<TestSink>(std::ref(logOutput)), &TestSink::write);
     g2::initializeLogging(logworker.get());
 
     LOG(INFO) << "Hello, Logger!";

@@ -21,7 +21,7 @@ else()
   set(CRASH_HANDLER_SOURCE logging/crashhandler_unix.cpp)
 endif()
 
-add_library(common ${LIBRARY_TYPE} ${COMMON_SOURCES} ${CRASH_HANDLER_SOURCE})
+invent_add_library(common ${COMMON_SOURCES} ${CRASH_HANDLER_SOURCE})
 
 set(COMMON_LIBRARY common CACHE INTERNAL "Common library" FORCE)
 

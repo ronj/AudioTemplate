@@ -1,5 +1,5 @@
 _SUBDIRS(
-  kiss_fft130
-  rtaudio-4.0.12
+  kissfft-1.3.0
+  rtaudio-4.1.1
   mpadec
 )

@@ -1,7 +1,16 @@
 cmake_minimum_required(VERSION 2.8.7)
 
+project(invent)
+
 include(cmake/macros.cmake)
 include(CheckCXXCompilerFlag)
+
+## Set our own module path.
+#
+# If you define additional FindXXX.cmake files,
+# put them in this directory.
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
+
 
 ## Global options section.
 #
@@ -13,7 +22,6 @@ option(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors."                     
 option(STOP_ON_FIRST_ERROR      "Stop compilation on first error."                               ON)
 option(BUILD_EXAMPLES           "Build included example applications."                           ON)
 option(BUILD_TESTS              "Build included unit tests."                                     ON)
-option(HEADER_ONLY              "Whether to use supported libraries as a header-only libraries." OFF)
 option(STATIC_LIBRARIES         "Build libraries that are built by this project statically."     ON)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -22,12 +30,6 @@ if (NOT CMAKE_BUILD_TYPE)
       FORCE)
 endif()
 
-# TODO: This should move to global library macro.
-IF(STATIC_LIBRARIES)
-  SET(LIBRARY_TYPE STATIC)
-ELSE()
-  SET(LIBRARY_TYPE SHARED)
-ENDIF()
 
 ## Compiler options section.
 #
@@ -173,8 +175,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 
 # Find a clean way to detect SSE support.
 add_definitions(-DSSE_SUPPORT -DSSE3_SUPPORT)
-
-_PROJECT(invent)
 
 set(EXTERNAL_DIR ${CMAKE_HOME_DIRECTORY}/external)
 

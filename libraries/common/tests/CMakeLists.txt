@@ -8,6 +8,6 @@ if (NOT WIN32)
   target_link_libraries(test_common pthread)
 endif()
 
-TARGET_LINK_LIBRARIES(test_common ${COMMON_LIBRARY})
+target_link_libraries(test_common ${COMMON_LIBRARY})
 
-_ADD_UNIT_TESTS("${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_common" ${TEST_SOURCES})
+invent_add_unit_tests("${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_common" ${TEST_SOURCES})

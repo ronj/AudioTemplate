@@ -1,18 +1,17 @@
-INCLUDE_DIRECTORIES(${KISSFFT_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR})
+include_directories(${KISSFFT_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR})
 
-SET(DSP_SOURCES analysis/fft.cpp
+set(DSP_SOURCES analysis/fft.cpp
                 analysis/kiss_fft.cpp
                 analysis/beat_detector.cpp
                 effects/AudioFFT.cpp
                 effects/FFTConvolver.cpp
                 effects/Utilities.cpp)
 
-ADD_LIBRARY(dsp ${LIBRARY_TYPE} ${DSP_SOURCES})
+invent_add_library(dsp ${DSP_SOURCES})
+target_link_libraries(dsp ${KISSFFT_LIBRARY})
 
-TARGET_LINK_LIBRARIES(dsp ${KISSFFT_LIBRARY})
-
-SET(DSP_LIBRARY dsp CACHE INTERNAL "DSP library" FORCE)
+set(DSP_LIBRARY dsp CACHE INTERNAL "DSP library" FORCE)
 
 if (BUILD_TESTS)
-  _SUBDIRS(tests)
+  _subdirs(tests)
 endif()

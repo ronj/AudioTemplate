@@ -6,7 +6,7 @@
 # RAPID_JSON_INCLUDE_DIR
 #
 
-FIND_PATH(RAPID_JSON_INCLUDE_DIR rapidjson/rapidjson.h
+find_path(RAPID_JSON_INCLUDE_DIR rapidjson/rapidjson.h
         ${CMAKE_SOURCE_DIR}/external/rapidjson/include
         $ENV{PROGRAMFILES}/rapidjson/include
         ${COMPILER_PATH}/PlatformSDK/Include
@@ -18,7 +18,7 @@ FIND_PATH(RAPID_JSON_INCLUDE_DIR rapidjson/rapidjson.h
         /opt/local/include
         DOC "The directory where rapidjson/rapidjson.h resides")
 
-INCLUDE(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set RAPID_JSON_FOUND to TRUE if
-# all listed variables are TRUE
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(RAPID_JSON DEFAULT_MSG RAPID_JSON_INCLUDE_DIR)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(RAPID_JSON DEFAULT_MSG RAPID_JSON_INCLUDE_DIR)
+
+mark_as_advanced(RAPID_JSON_INCLUDE_DIR)
