@@ -32,6 +32,8 @@
 struct mp3dec_t {
   uint32_t size;
   mpadec_t mpadec;
+  mp3dec_virtual_io_t virtual_io;
+  void* user_data;
   int32_t fd;
   uint32_t flags;
   int64_t stream_offset;
@@ -48,4 +50,3 @@ struct mp3dec_t {
 };
 
 #endif
-

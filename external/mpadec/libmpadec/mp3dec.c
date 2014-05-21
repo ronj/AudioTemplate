@@ -28,7 +28,6 @@ mp3dec_t mp3dec_init(void)
   if (!mp3) return NULL;
   memset(mp3, 0, sizeof(struct mp3dec_t));
   mp3->size = sizeof(struct mp3dec_t);
-  mp3->fd = -1;
   mp3->mpadec = mpadec_init();
   if (!mp3->mpadec) {
     free(mp3);
@@ -37,53 +36,56 @@ mp3dec_t mp3dec_init(void)
   return mp3;
 }
 
-int mp3dec_init_file(mp3dec_t mp3dec, int fd, int64_t length, int nogap)
+int mp3dec_init_file(mp3dec_t mp3dec, int64_t length, int nogap, mp3dec_virtual_io_t vio, void* user_data)
 {
   struct mp3dec_t *mp3 = (struct mp3dec_t *)mp3dec;
   int64_t tmp; int r;
 
   if (!mp3 || (mp3->size != sizeof(struct mp3dec_t)) || !mp3->mpadec) return MP3DEC_RETCODE_INVALID_HANDLE;
-  if (fd < 0) {
+
+  mp3->virtual_io = vio;
+
+  if (mp3->virtual_io.read == NULL || mp3->virtual_io.seek == NULL) {
     mp3dec_reset(mp3);
     return MP3DEC_RETCODE_INVALID_PARAMETERS;
   }
-  if (mp3->flags & MP3DEC_FLAG_INITIALIZED) close(mp3->fd);
-  mp3->fd = fd;
+  if (mp3->flags & MP3DEC_FLAG_INITIALIZED) mp3->virtual_io.close(user_data);
+  mp3->user_data = user_data;
   mp3->flags = MP3DEC_FLAG_SEEKABLE;
   mp3->stream_offset = mp3->stream_size = mp3->stream_position = 0;
   mp3->in_buffer_offset = mp3->in_buffer_used = 0;
   mp3->out_buffer_offset = mp3->out_buffer_used = 0;
-  tmp = lseek(fd, 0, SEEK_CUR);
+  tmp = mp3->virtual_io.seek(0, SEEK_CUR, mp3->user_data);
   if (tmp >= 0) mp3->stream_offset = tmp; else mp3->flags &= ~MP3DEC_FLAG_SEEKABLE;
   if (mp3->flags & MP3DEC_FLAG_SEEKABLE) {
-    tmp = lseek(fd, 0, SEEK_END);
+    tmp = mp3->virtual_io.seek(0, SEEK_END, mp3->user_data);
     if (tmp >= 0) {
       mp3->stream_size = tmp;
-      lseek(fd, mp3->stream_offset, SEEK_SET);
+      mp3->virtual_io.seek(mp3->stream_offset, SEEK_SET, mp3->user_data);
     } else mp3->flags &= ~MP3DEC_FLAG_SEEKABLE;
   }
   if (mp3->stream_size > mp3->stream_offset) {
     mp3->stream_size -= mp3->stream_offset;
     if (length && (length < mp3->stream_size)) mp3->stream_size = length;
   } else mp3->stream_size = length;
-  r = read(fd, mp3->in_buffer, 4);
+  r = mp3->virtual_io.read(mp3->in_buffer, 4, mp3->user_data);
   if (r < 4) {
     mp3dec_reset(mp3);
     return ((r < 0) ? MP3DEC_RETCODE_INVALID_PARAMETERS : MP3DEC_RETCODE_NOT_MPEG_STREAM);
   } else mp3->in_buffer_used = r;
-  if (mp3->flags & MP3DEC_FLAG_SEEKABLE) tmp = lseek(fd, mp3->stream_offset, SEEK_SET); else tmp = -1;
+  if (mp3->flags & MP3DEC_FLAG_SEEKABLE) tmp = mp3->virtual_io.seek(mp3->stream_offset, SEEK_SET, mp3->user_data); else tmp = -1;
   if (tmp < 0) {
     int32_t n = sizeof(mp3->in_buffer) - mp3->in_buffer_used;
     mp3->flags &= ~MP3DEC_FLAG_SEEKABLE;
     if (mp3->stream_size && (n > (mp3->stream_size - mp3->in_buffer_used))) n = (int32_t)(mp3->stream_size - mp3->in_buffer_used);
-    n = read(fd, mp3->in_buffer + mp3->in_buffer_used, n);
+    n = mp3->virtual_io.read(mp3->in_buffer + mp3->in_buffer_used, n, mp3->user_data);
     if (n < 0) n = 0;
     mp3->in_buffer_used += n;
     mp3->stream_position = mp3->in_buffer_used;
   } else {
     int32_t n = sizeof(mp3->in_buffer);
     if (mp3->stream_size && (n > mp3->stream_size)) n = (int32_t)mp3->stream_size;
-    n = read(fd, mp3->in_buffer, n);
+    n = mp3->virtual_io.read(mp3->in_buffer, n, mp3->user_data);
     if (n < 0) n = 0;
     mp3->stream_position = mp3->in_buffer_used = n;
   }
@@ -105,7 +107,7 @@ int mp3dec_init_file(mp3dec_t mp3dec, int fd, int64_t length, int nogap)
     r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used, NULL, 0, &mp3->in_buffer_offset, NULL);
     t += mp3->in_buffer_offset;
     while ((r == MPADEC_RETCODE_NO_SYNC) && (t < MP3DEC_HEADER_SEEK_SIZE)) {
-      int32_t n = read(fd, mp3->in_buffer, sizeof(mp3->in_buffer));
+      int32_t n = mp3->virtual_io.read(mp3->in_buffer, sizeof(mp3->in_buffer), mp3->user_data);
       if (n < 0) n = 0;
       mp3->in_buffer_used = n;
       r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used, NULL, 0, &mp3->in_buffer_offset, NULL);
@@ -142,8 +144,7 @@ int mp3dec_uninit(mp3dec_t mp3dec)
   struct mp3dec_t *mp3 = (struct mp3dec_t *)mp3dec;
 
   if (!mp3 || (mp3->size != sizeof(struct mp3dec_t)) || !mp3->mpadec) return MP3DEC_RETCODE_INVALID_HANDLE;
-  if (mp3->flags & MP3DEC_FLAG_INITIALIZED) close(mp3->fd);
-  mp3->fd = -1;
+  if (mp3->flags & MP3DEC_FLAG_INITIALIZED) mp3->virtual_io.close(mp3->user_data);
   mp3->flags = 0;
   mpadec_uninit(mp3->mpadec);
   mp3->size = 0;
@@ -156,8 +157,7 @@ int mp3dec_reset(mp3dec_t mp3dec)
   struct mp3dec_t *mp3 = (struct mp3dec_t *)mp3dec;
 
   if (!mp3 || (mp3->size != sizeof(struct mp3dec_t)) || !mp3->mpadec) return MP3DEC_RETCODE_INVALID_HANDLE;
-  if (mp3->flags & MP3DEC_FLAG_INITIALIZED) close(mp3->fd);
-  mp3->fd = -1;
+  if (mp3->flags & MP3DEC_FLAG_INITIALIZED) mp3->virtual_io.close(mp3->user_data);
   mp3->flags = 0;
   mpadec_reset(mp3->mpadec);
   mp3->stream_offset = mp3->stream_size = mp3->stream_position = 0;
@@ -236,7 +236,7 @@ int mp3dec_decode(mp3dec_t mp3dec, uint8_t *buf, uint32_t bufsize, uint32_t *use
     mp3->in_buffer_offset = 0;
     n = sizeof(mp3->in_buffer) - mp3->in_buffer_used;
     if (mp3->stream_size && (n > (mp3->stream_size - mp3->stream_position))) n = (int32_t)(mp3->stream_size - mp3->stream_position);
-    if (n) r = read(mp3->fd, mp3->in_buffer + mp3->in_buffer_used, n); else r = 0;
+    if (n) r = mp3->virtual_io.read(mp3->in_buffer + mp3->in_buffer_used, n, mp3->user_data); else r = 0;
     if (r < 0) r = 0;
     mp3->in_buffer_used += r;
     mp3->stream_position += r;
@@ -256,7 +256,7 @@ int mp3dec_seek(mp3dec_t mp3dec, int64_t pos, int units)
   if (!(mp3->flags & MP3DEC_FLAG_SEEKABLE)) return MP3DEC_RETCODE_SEEK_FAILED;
   if (units == MP3DEC_SEEK_BYTES) {
     newpos = (pos < mp3->stream_size) ? pos : mp3->stream_size;
-    newpos = lseek(mp3->fd, mp3->stream_offset + newpos, SEEK_SET);
+    newpos = mp3->virtual_io.seek(mp3->stream_offset + newpos, SEEK_SET, mp3->user_data);
     if (newpos < 0) return MP3DEC_RETCODE_SEEK_FAILED;
     mp3->stream_position = newpos - mp3->stream_offset;
     mp3->in_buffer_offset = mp3->in_buffer_used = 0;
@@ -266,7 +266,7 @@ int mp3dec_seek(mp3dec_t mp3dec, int64_t pos, int units)
     newpos = (int64_t)((FLOAT)pos*fsize/(FLOAT)mp3->mpainfo.decoded_frame_samples);
     if (newpos > mp3->stream_size) newpos = mp3->stream_size;
     pos = (pos%mp3->mpainfo.decoded_frame_samples)*mp3->mpainfo.decoded_sample_size;
-    newpos = lseek(mp3->fd, mp3->stream_offset + newpos, SEEK_SET);
+    newpos = mp3->virtual_io.seek(mp3->stream_offset + newpos, SEEK_SET, mp3->user_data);
     if (newpos < 0) return MP3DEC_RETCODE_SEEK_FAILED;
     mp3->stream_position = newpos - mp3->stream_offset;
     mp3->in_buffer_offset = mp3->in_buffer_used = 0;
@@ -283,7 +283,7 @@ int mp3dec_seek(mp3dec_t mp3dec, int64_t pos, int units)
       else newpos = (mp3->taginfo.toc[n]*mp3->stream_size)/255;
     } else newpos = (pos*mp3->stream_size + (mp3->mpainfo.duration >> 1))/mp3->mpainfo.duration;
     if (newpos > mp3->stream_size) newpos = mp3->stream_size;
-    newpos = lseek(mp3->fd, mp3->stream_offset + newpos, SEEK_SET);
+    newpos = mp3->virtual_io.seek(mp3->stream_offset + newpos, SEEK_SET, mp3->user_data);
     if (newpos < 0) return MP3DEC_RETCODE_SEEK_FAILED;
     mp3->stream_position = newpos - mp3->stream_offset;
     mp3->in_buffer_offset = mp3->in_buffer_used = 0;

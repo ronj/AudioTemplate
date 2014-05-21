@@ -9,6 +9,25 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+namespace {
+
+ssize_t vf_read(uint8_t* data, size_t size, void* user_data)
+{
+  return read(*(int*)user_data, data, size);
+}
+
+int64_t vf_seek(int64_t offset, int whence, void* user_data)
+{
+  return lseek(*(int*)user_data, offset, whence);
+}
+
+void vf_close(void* user_data)
+{
+  close(*(int*)user_data);
+}
+
+}
+
 template <typename TSample>
 class MPADECCodec : public IAudioCodec<TSample>
 {
@@ -26,7 +45,7 @@ public:
     setFormat(iConfig);
 
     apiWrapper(mp3dec_configure, iDecoder, &iConfig);
-    apiWrapper(mp3dec_init_file, iDecoder, iFile, 0, FALSE);
+    apiWrapper(mp3dec_init_file, iDecoder, 0, FALSE, iVIO, &iFile);
     apiWrapper(mp3dec_get_info, iDecoder, iInfo.nativeHandle(), MPADEC_INFO_STREAM);
   }
 
@@ -93,6 +112,7 @@ private:
   mpadec_config_t        iConfig = { MPADEC_CONFIG_FULL_QUALITY, MPADEC_CONFIG_AUTO,
                                      MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
                                      MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
+  mp3dec_virtual_io_t    iVIO = { vf_read, vf_seek, vf_close };
   MPADECInfo             iInfo;
 };
 

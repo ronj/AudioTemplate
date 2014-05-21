@@ -38,12 +38,18 @@
 
 typedef void *mp3dec_t;
 
+typedef struct {
+  ssize_t (*read)(uint8_t* data, size_t size, void* user_data);
+  int64_t (*seek)(int64_t offset, int whence, void* user_data);
+  void (*close)(void* user_data);
+} mp3dec_virtual_io_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 mp3dec_t mp3dec_init(void);
-int mp3dec_init_file(mp3dec_t mp3dec, int fd, int64_t length, int nogap);
+int mp3dec_init_file(mp3dec_t mp3dec, int64_t length, int nogap, mp3dec_virtual_io_t vio, void* user_data);
 int mp3dec_uninit(mp3dec_t mp3dec);
 int mp3dec_reset(mp3dec_t mp3dec);
 int mp3dec_configure(mp3dec_t mp3dec, mpadec_config_t *cfg);
