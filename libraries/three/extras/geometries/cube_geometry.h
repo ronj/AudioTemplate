@@ -144,39 +144,39 @@ protected:
         // faceVertexUvs[ 0 ].push_back( std::move( uvs ) );
 
         auto a = ix + gridX1 * iy;
-        auto b = ix + gridX1 * ( iy + 1 );
-        auto c = ( ix + 1 ) + gridX1 * ( iy + 1 );
-        auto d = ( ix + 1 ) + gridX1 * iy;
+		auto b = ix + gridX1 * ( iy + 1 );
+		auto c = ( ix + 1 ) + gridX1 * ( iy + 1 );
+		auto d = ( ix + 1 ) + gridX1 * iy;
 
-        auto uva = Vector2( ix / gridX, 1 - iy / gridY );
-        auto uvb = Vector2( ix / gridX, 1 - ( iy + 1 ) / gridY );
-        auto uvc = Vector2( ( ix + 1 ) / gridX, 1 - ( iy + 1 ) / gridY );
-        auto uvd = Vector2( ( ix + 1 ) / gridX, 1 - iy / gridY );
+		auto uva = Vector2( ix / gridX, 1 - iy / gridY );
+		auto uvb = Vector2( ix / gridX, 1 - ( iy + 1 ) / gridY );
+		auto uvc = Vector2( ( ix + 1 ) / gridX, 1 - ( iy + 1 ) / gridY );
+		auto uvd = Vector2( ( ix + 1 ) / gridX, 1 - iy / gridY );
 
-        Face3 face( a + offset, b + offset, d + offset );
-        face.normal.copy( normal );
-        face.vertexNormals = { { normal.clone(), normal.clone(), normal.clone() } };
-        face.materialIndex = material;
+		Face3 face( a + offset, b + offset, d + offset );
+		face.normal.copy( normal );
+        face.vertexNormals = { normal.clone(), normal.clone(), normal.clone() };
+		face.materialIndex = material;
 
-        faces.push_back( face );
-        faceVertexUvs[ 0 ].push_back({ { uva, uvb, uvd } });
+		faces.push_back( face );
+          faceVertexUvs[ 0 ].push_back({ uva, uvb, uvd });
 
         face.a = b + offset;
         face.b = c + offset;
         face.c = d + offset;
-        face.normal.copy( normal );
-        face.vertexNormals = { { normal.clone(), normal.clone(), normal.clone() } };
-        face.materialIndex = material;
+		face.normal.copy( normal );
+        face.vertexNormals = { normal.clone(), normal.clone(), normal.clone() };
+		face.materialIndex = material;
 
-        faces.push_back( face );
-        faceVertexUvs[ 0 ].push_back({ { uvb.clone(), uvc, uvd.clone() } });
+		faces.push_back( face );
+        faceVertexUvs[ 0 ].push_back( { uvb.clone(), uvc, uvd.clone() } );
 
       }
 
     }
 
     computeCentroids();
-    mergeVertices();
+	mergeVertices();
 
   }
 

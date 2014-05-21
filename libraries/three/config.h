@@ -10,7 +10,7 @@
 // for it by defining THREE_DYN_LINK.
 # if defined(THREE_DYN_LINK)
 // Export if this is our own source, otherwise import.
-#  if defined(INVENT_SOURCE)
+#  if defined(THREE_SOURCE)
 #   define THREE_DECL __declspec(dllexport)
 #  else // defined(THREE_SOURCE)
 #   define THREE_DECL __declspec(dllimport)

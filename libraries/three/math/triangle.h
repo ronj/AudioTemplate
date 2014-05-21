@@ -145,14 +145,13 @@ public:
 
   inline float area() const {
 
-    auto v0 = Vector3();
-    auto v1 = Vector3();
-
-    v0.subVectors( c, b );
-    v1.subVectors( a, b );
-
-    return v0.cross( v1 ).length() * 0.5f;
-
+      auto v0 = Vector3();
+      auto v1 = Vector3();
+      
+      v0.subVectors( c, b );
+      v1.subVectors( a, b );
+          
+      return v0.cross( v1 ).length() * 0.5f;
   }
 
   inline Vector3 midpoint() const {
@@ -167,7 +166,7 @@ public:
 
   inline Vector3& midpoint( Vector3& target ) const {
 
-    return target.addVectors( a, b ).add( c ).multiplyScalar( 1 / 3 );
+    return target.addVectors( a, b ).add( c ).multiplyScalar( 1.f / 3.f );
 
   }
 
