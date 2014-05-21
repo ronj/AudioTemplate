@@ -1,6 +1,6 @@
 #include "yaffut.h"
 
-#include <common/shared_queue.hpp>
+#include <common/shared_queue.h>
 
 #include <thread>
 
@@ -13,7 +13,7 @@ TEST(SharedQueueTest, should_push_value)
 
   q.push(int());
   CHECK(!q.empty());
-  EQUAL(1, q.size());
+  EQUAL(1u, q.size());
 }
 
 TEST(SharedQueueTest, should_pop_value)
@@ -24,7 +24,7 @@ TEST(SharedQueueTest, should_pop_value)
   int val;
   CHECK(q.pop_nowait(val));
   CHECK(q.empty());
-  EQUAL(0, q.size());
+  EQUAL(0u, q.size());
 
   CHECK(!q.pop_nowait(val));
 }

@@ -1,7 +1,7 @@
 #ifndef NONCOPYABLE_H
 #define NONCOPYABLE_H
 
-#include <common/config.hpp>
+#include <common/config.h>
 
 class NonCopyable
 {

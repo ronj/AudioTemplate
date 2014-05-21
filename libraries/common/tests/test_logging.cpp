@@ -1,7 +1,7 @@
 #include "yaffut.h"
 
-#include <common/logging/g2log.hpp>
-#include <common/logging/g2logworker.hpp>
+#include <common/logging/log.h>
+#include <common/logging/logworker.h>
 
 struct LoggingTest {};
 

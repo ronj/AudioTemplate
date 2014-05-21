@@ -4,9 +4,9 @@
  * strings attached and no restrictions or obligations.
  * ============================================================================*/
 
-#include "crashhandler.hpp"
-#include "g2logmessage.hpp"
-#include "g2logmessagecapture.hpp"
+#include "crashhandler.h"
+#include "logmessage.h"
+#include "logmessagecapture.h"
 
 #include <csignal>
 #include <cstring>

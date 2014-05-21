@@ -4,9 +4,9 @@
  * strings attached and no restrictions or obligations.
  * ============================================================================*/
 
-#include "crashhandler.hpp"
-#include "g2logmessage.hpp"
-#include "g2logmessagecapture.hpp"
+#include "crashhandler.h"
+#include "logmessage.h"
+#include "logmessagecapture.h"
 
 #include <csignal>
 #include <cstring>
@@ -20,7 +20,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
-#include "g2loglevels.hpp"
+#include "loglevels.h"
 
 
 // Linux/Clang, OSX/Clang, OSX/gcc
@@ -36,7 +36,7 @@ namespace {
    // ALL thanks to this thread at StackOverflow. Pretty much borrowed from:
    // Ref: http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
 
-   void crashHandler(int signal_number, siginfo_t *info, void *unused_context) {
+   void crashHandler(int signal_number, siginfo_t *, void *) {
       using namespace g2::internal;
 
       std::ostringstream oss;

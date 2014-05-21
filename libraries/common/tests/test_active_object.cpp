@@ -1,6 +1,6 @@
 #include "yaffut.h"
 
-#include <common/active_object.hpp>
+#include <common/active_object.h>
 
 struct ActiveObjectTest {};
 

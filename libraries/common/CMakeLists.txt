@@ -7,13 +7,13 @@ if(USE_DYNAMIC_LOGLEVELS)
   add_definitions(-DG2_DYNAMIC_LOGGING)
 endif()
 
-set(COMMON_SOURCES logging/g2filesink.cpp
-                   logging/g2log.cpp
-                   logging/g2loglevels.cpp
-                   logging/g2logmessage.cpp
-                   logging/g2logmessagecapture.cpp
-                   logging/g2logworker.cpp
-                   logging/g2time.cpp)
+set(COMMON_SOURCES logging/filesink.cpp
+                   logging/log.cpp
+                   logging/loglevels.cpp
+                   logging/logmessage.cpp
+                   logging/logmessagecapture.cpp
+                   logging/logworker.cpp
+                   logging/time.cpp)
 
 if (WIN32 OR MINGW)
   set(CRASH_HANDLER_SOURCE logging/crashhandler_win.cpp)
