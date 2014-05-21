@@ -6,24 +6,41 @@
 #include "audio_codec.h"
 #include "mpadec_info.h"
 
-#include <fcntl.h>
-#include <unistd.h>
+#include <audio/sources/file_source.h>
 
 namespace {
 
-ssize_t vf_read(uint8_t* data, size_t size, void* user_data)
+size_t vf_read(unsigned char* data, std::size_t size, void* user_data)
 {
-  return read(*(int*)user_data, data, size);
+  FileSource* fs = (FileSource*)user_data;
+  return fs->read(data, size);
 }
 
-int64_t vf_seek(int64_t offset, int whence, void* user_data)
+size_t vf_seek(size_t offset, int whence, void* user_data)
 {
-  return lseek(*(int*)user_data, offset, whence);
+  FileSource* fs = (FileSource*)user_data;
+  if(!fs->seekable())
+    return -1;
+
+  switch (whence) {
+    case SEEK_SET:
+      // offset remains unchanged
+      break;
+    case SEEK_CUR:
+      //offset += inputSource.GetOffset();
+      break;
+    case SEEK_END:
+      //offset += inputSource.GetLength();
+      break;
+  }
+
+  return fs->seek(offset);
 }
 
 void vf_close(void* user_data)
 {
-  close(*(int*)user_data);
+  FileSource* fs = (FileSource*)user_data;
+  fs->close();
 }
 
 }
@@ -33,19 +50,21 @@ class MPADECCodec : public IAudioCodec<TSample>
 {
 public:
   MPADECCodec(const std::string& aFilename)
-    : iFile(open(aFilename.c_str(), O_RDONLY | O_BINARY))
-    , iDecoder(mp3dec_init())
+    : iDecoder(mp3dec_init())
+    , iSource(aFilename)
   {
     if (!iDecoder)
     {
-      close(iFile);
       throw std::bad_alloc();
     }
 
+    iSource.open();
+
     setFormat(iConfig);
 
+    mp3dec_virtual_io_t    iVIO = { vf_read, vf_seek, vf_close };
     apiWrapper(mp3dec_configure, iDecoder, &iConfig);
-    apiWrapper(mp3dec_init_file, iDecoder, 0, FALSE, iVIO, &iFile);
+    apiWrapper(mp3dec_init_file, iDecoder, 0, FALSE, iVIO, &iSource);
     apiWrapper(mp3dec_get_info, iDecoder, iInfo.nativeHandle(), MPADEC_INFO_STREAM);
   }
 
@@ -100,20 +119,17 @@ private:
     {
       mp3dec_uninit(iDecoder);
     }
-
-    close(iFile);
   }
 
   void setFormat(mpadec_config_t& aConfig);
 
 private:
-  int                    iFile = -1;
   mp3dec_t               iDecoder = nullptr;
   mpadec_config_t        iConfig = { MPADEC_CONFIG_FULL_QUALITY, MPADEC_CONFIG_AUTO,
                                      MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
                                      MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
-  mp3dec_virtual_io_t    iVIO = { vf_read, vf_seek, vf_close };
   MPADECInfo             iInfo;
+  FileSource             iSource;
 };
 
 template <typename TSample>

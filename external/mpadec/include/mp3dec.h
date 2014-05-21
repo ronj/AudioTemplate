@@ -39,8 +39,8 @@
 typedef void *mp3dec_t;
 
 typedef struct {
-  ssize_t (*read)(uint8_t* data, size_t size, void* user_data);
-  int64_t (*seek)(int64_t offset, int whence, void* user_data);
+  size_t (*read)(uint8_t* data, size_t size, void* user_data);
+  size_t (*seek)(size_t offset, int whence, void* user_data);
   void (*close)(void* user_data);
 } mp3dec_virtual_io_t;
 
