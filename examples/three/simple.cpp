@@ -7,8 +7,6 @@
 #include "three/extras/geometries/sphere_geometry.h"
 #include "three/materials/mesh_lambert_material.h"
 
-#include "examples/extras/stats.h"
-
 using namespace three;
 using namespace three_examples;
 

@@ -84,6 +84,8 @@ target_link_libraries(three_examples ${THREE_EXAMPLE_DEP_LIBS})
 
 set(THREE_EXAMPLE_LIBS ${THREE_EXAMPLE_DEP_LIBS} three_examples)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extras/)
+
 file(GLOB three_examples "three/*.cpp")
 
 foreach(example ${three_examples})
