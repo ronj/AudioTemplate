@@ -1,4 +1,4 @@
-#include "stats.h"
+#include "extras/stats.h"
 
 #include "three/console.h"
 #include "three/cameras/orthographic_camera.h"

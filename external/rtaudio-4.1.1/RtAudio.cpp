@@ -41,6 +41,7 @@
 // RtAudio: Version 4.1.1
 
 #include "RtAudio.h"
+#include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <cstring>

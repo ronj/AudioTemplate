@@ -1,11 +1,11 @@
-#include "sdl.h"
+#include "extras/sdl.h"
 
 #include "three/console.h"
 #include "three/core/clock.h"
 #include "three/renderers/renderer_parameters.h"
 #include "three/renderers/gl_renderer.h"
 
-#include "stats.h"
+#include "extras/stats.h"
 
 // TODO(jdduke): Include gles where appropriate.
 #include <SDL2/SDL_assert.h>

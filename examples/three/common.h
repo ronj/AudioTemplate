@@ -10,8 +10,8 @@
 #include "three/utils/conversion.h"
 #include "three/utils/template.h"
 
-#include "sdl.h"
-#include "stats.h"
+#include "extras/sdl.h"
+#include "extras/stats.h"
 
 namespace three_examples {
 
