@@ -57,8 +57,8 @@ namespace three {
 
 struct NumericalSort {
     template < typename T, typename U >
-    bool operator()( const std::pair<T, U>& a, const std::pair<T, U>& b ) {
-        return a.second - b.second;
+    inline bool operator()( const std::pair<T, U>& a, const std::pair<T, U>& b ) {
+        return a.second > b.second;
     }
 };
     
@@ -955,7 +955,10 @@ void GLRenderer::setParticleBuffers( Geometry& geometry, int hint, Object3D& obj
     typedef std::pair<float, int> SortPair;
 
     std::sort( sortArray.begin(),
-               sortArray.end(), NumericalSort() );
+              sortArray.end(),
+              []( const SortPair & a, const SortPair & b ) {
+                  return a.first > b.first;
+              }  );
 
     for ( int v = 0; v < vl; v ++ ) {
 

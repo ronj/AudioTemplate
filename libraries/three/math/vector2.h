@@ -36,7 +36,7 @@ public:
 
   }
 
-  inline const float operator[]( const int i ) const {
+  inline float operator[]( const int i ) const {
 
     return xy[i];
 

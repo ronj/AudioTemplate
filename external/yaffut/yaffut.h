@@ -469,6 +469,20 @@ void assert_throw(T* pt, void(T::*mf)(), const char* at = "")
 #define ASSERT_THROW YAFFUT_ASSERT_THROW
 #endif
 
+// Google test compatibility.
+
+#ifndef EXPECT_EQ
+#define EXPECT_EQ YAFFUT_EQUAL
+#endif
+
+#ifndef EXPECT_TRUE
+#define EXPECT_TRUE(e) YAFFUT_CHECK(e)
+#endif
+
+#ifndef EXPECT_THROW
+#define EXPECT_THROW YAFFUT_ASSERT_THROW
+#endif
+
 #ifdef YAFFUT_MAIN
 #include <iostream>
 int main(int argc, const char* argv[])

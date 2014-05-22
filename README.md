@@ -2,7 +2,7 @@ invent
 ======
 
 ### Status
-[![Build Status](https://travis-ci.org/ronj/invent.svg?branch=master)](https://travis-ci.org/ronj/invent.svg?branch=master)
+[![Build Status](https://travis-ci.org/ronj/invent.svg?branch=master)](https://travis-ci.org/ronj/invent?branch=master)
 
 #### Template for multi-media programming using C++11. ####
 

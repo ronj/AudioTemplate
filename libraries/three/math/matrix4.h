@@ -34,7 +34,7 @@ public:
     return elements[i];
   }
 
-  const float operator[]( const int i ) const {
+  float operator[]( const int i ) const {
     return elements[i];
   }
 

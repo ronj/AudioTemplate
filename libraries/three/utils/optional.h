@@ -28,7 +28,7 @@ public:
   T& operator*() { return *get(); }
   const T& operator*() const { return *get(); }
 
-  THREE_EXPLICIT operator bool() const { return is_set(); }
+  operator bool() const { return is_set(); }
 
   const T& value() const { return *get(); }
   T& value() { return *get(); }

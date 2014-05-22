@@ -38,8 +38,8 @@ public:
   FloatingPointHook<float, Euler> x;
   FloatingPointHook<float, Euler> y;
   FloatingPointHook<float, Euler> z;
-    
-  inline const enums::EulerRotationOrder order() const {
+
+  inline enums::EulerRotationOrder order() const {
 
     return _order;
 

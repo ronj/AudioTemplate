@@ -41,7 +41,7 @@ public:
     return xyz[i];
   }
 
-  const float operator[]( const int i ) const {
+  float operator[]( const int i ) const {
     return xyz[i];
   }
 

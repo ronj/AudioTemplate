@@ -20,7 +20,7 @@ public:
 
   float& operator[] (const int i) { return hsl[i]; }
 
-  const float operator[] (const int i) const { return hsl[i]; }
+  float operator[] (const int i) const { return hsl[i]; }
 
 };
 
@@ -41,7 +41,7 @@ public:
   : r ( r ), g ( g ), b ( b ) { }
 
   float& operator[] (const int i) { return rgb[i]; }
-  const float operator[] (const int i) const { return rgb[i]; }
+  float operator[] (const int i) const { return rgb[i]; }
 
   void set() {
     //Not implemented

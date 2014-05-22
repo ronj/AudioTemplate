@@ -18,13 +18,13 @@ namespace three {
 
 namespace Math {
 
-inline const float PI()   {
+inline float PI()   {
   return MATH_PI;
 }
-inline const float LN2()  {
+inline float LN2()  {
   return MATH_LN2;
 }
-inline const float INF()  {
+inline float INF()  {
   return std::numeric_limits<float>::max();
 }
 
