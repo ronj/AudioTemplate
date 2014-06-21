@@ -1,6 +1,3 @@
-#ifndef THREE_OBJECT3D_CPP
-#define THREE_OBJECT3D_CPP
-
 #include <three/core/object3d.h>
 
 #include <three/math/math.h>
@@ -9,27 +6,91 @@
 
 namespace three {
 
+namespace {
+
+unsigned nextObjectID() {
+  static unsigned int sObject3DIdCount = 0;
+  return ++sObject3DIdCount;
+}
+
+} // namespace
+
+Object3D::SyncedEulerQuaternion::SyncedEulerQuaternion()
+    : _lastMaybeUpdated( LastUpdatedRotationType::None ) {}
+
+Euler& Object3D::SyncedEulerQuaternion::rotation() {
+  synchronizeRotation();
+  _lastMaybeUpdated = LastUpdatedRotationType::Euler;
+  return _rotation;
+}
+
+const Euler& Object3D::SyncedEulerQuaternion::rotation() const {
+  synchronizeRotation();
+  return _rotation;
+}
+
+Quaternion& Object3D::SyncedEulerQuaternion::quaternion() {
+  synchronizeQuaternion();
+  _lastMaybeUpdated = LastUpdatedRotationType::Quaternion;
+  return _quaternion;
+}
+
+const Quaternion& Object3D::SyncedEulerQuaternion::quaternion() const {
+  synchronizeQuaternion();
+  return _quaternion;
+}
+
+void Object3D::SyncedEulerQuaternion::synchronizeRotation() const {
+  if ( _lastMaybeUpdated == LastUpdatedRotationType::Quaternion ) {
+
+     if ( ! _prevQuaternion.equals( _quaternion ) ) {
+       _rotation.setFromQuaternion( _quaternion );
+       _prevQuaternion.copy( _quaternion );
+       _prevRotation.copy( _rotation );
+     }
+
+     _lastMaybeUpdated = LastUpdatedRotationType::None;
+
+  }
+
+}
+
+void Object3D::SyncedEulerQuaternion::synchronizeQuaternion() const {
+
+  if ( _lastMaybeUpdated == LastUpdatedRotationType::Euler ) {
+
+     if ( ! _prevRotation.equals( _rotation ) ) {
+       _quaternion.setFromEuler( _rotation );
+       _prevRotation.copy( _rotation );
+       _prevQuaternion.copy( _quaternion );
+     }
+
+     _lastMaybeUpdated = LastUpdatedRotationType::None;
+
+  }
+
+}
+
 Object3D& Object3D::applyMatrix( Matrix4& matrix ) {
 
   matrix.multiplyMatrices( matrix, this->matrix );
-
-  matrix.decompose( position, _quaternion, scale );
+  matrix.decompose( position(), quaternion(), scale() );
 
   return *this;
 
 }
 
 Object3D& Object3D::setRotationFromAxisAngle( Vector3& axis, float angle ) {
-  
-  _quaternion.setFromAxisAngle( axis, angle );
+
+  quaternion().setFromAxisAngle( axis, angle );
 
   return *this;
 
 }
 
 Object3D& Object3D::setRotationFromEuler( Euler& euler ) {
-  
-  _quaternion.setFromEuler( euler, true );
+
+  quaternion().setFromEuler( euler );
 
   return *this;
 
@@ -39,7 +100,7 @@ Object3D& Object3D::setRotationFromMatrix( Matrix4& m ) {
 
   // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
 
-  _quaternion.setFromRotationMatrix( m );
+  quaternion().setFromRotationMatrix( m );
 
   return *this;
 
@@ -47,11 +108,11 @@ Object3D& Object3D::setRotationFromMatrix( Matrix4& m ) {
 
 Object3D& Object3D::setRotationFromQuaternion( Quaternion& q ) {
 
-    // assumes q is normalized
+  // assumes q is normalized
 
-    _quaternion.copy( q );
+  quaternion().copy( q );
 
-    return *this;
+  return *this;
 
 }
 
@@ -64,11 +125,11 @@ Object3D& Object3D::rotateOnAxis( const Vector3& axis, float angle ) {
 
   q1.setFromAxisAngle( axis, angle );
 
-  _quaternion.multiply( q1 );
+  quaternion().multiply( q1 );
 
   return *this;
 
-} 
+}
 
 Object3D& Object3D::rotateX( float angle ) {
 
@@ -103,25 +164,25 @@ Object3D& Object3D::translateOnAxis( const Vector3& axis, float distance ) {
 
   v1.copy( axis );
 
-  v1.applyQuaternion( _quaternion );
+  v1.applyQuaternion( quaternion() );
 
-  position.add( v1.multiplyScalar( distance ) );
+  position().add( v1.multiplyScalar( distance ) );
 
   return *this;
-  
+
 }
 
 Object3D& Object3D::translateX( float distance ) {
-    
+
   auto v = Vector3( 1, 0, 0 );
   translateOnAxis( v, distance );
-  
+
   return *this;
 
 }
 
 Object3D& Object3D::translateY( float distance ) {
-    
+
   auto v = Vector3( 0, 1, 0 );
   translateOnAxis( v, distance );
 
@@ -130,7 +191,7 @@ Object3D& Object3D::translateY( float distance ) {
 }
 
 Object3D& Object3D::translateZ( float distance ) {
-    
+
   auto v = Vector3( 0, 0, 1 );
   translateOnAxis( v, distance );
 
@@ -149,7 +210,7 @@ Vector3& Object3D::worldToLocal( Vector3& vector ) const {
   auto m1 = Matrix4();
 
   return vector.applyMatrix4( m1.getInverse( matrixWorld ) );
-  
+
 }
 
 void Object3D::lookAt( const Vector3& vector ) {
@@ -158,9 +219,9 @@ void Object3D::lookAt( const Vector3& vector ) {
   // @todo priv member
   auto m1 = Matrix4();
 
-  m1.lookAt( vector, position, up );
+  m1.lookAt( vector, position(), up() );
 
-  _quaternion.setFromRotationMatrix( m1 );
+  quaternion().setFromRotationMatrix( m1 );
 
 }
 
@@ -179,9 +240,8 @@ void Object3D::add( const Object3D::Ptr& object ) {
   }
 
   object->parent = this;
-  // TODO "EA: Dispatch event"
+  object->dispatchEvent( "added" );
 
-  //object.dispatchEvent( { type: 'added' } );
   children.push_back( object );
 
   // add to scene
@@ -206,10 +266,8 @@ void Object3D::remove( const Object3D::Ptr& object ) {
 
     object->parent = nullptr;
     children.erase( index );
-    
-    // TODO "EA: Dispatch event"
 
-    //object.dispatchEvent( { type: 'removed' } );
+    object->dispatchEvent( "removed" );
 
     // remove from scene
 
@@ -228,7 +286,7 @@ void Object3D::remove( const Object3D::Ptr& object ) {
 }
 
 Object3D& Object3D::traverse( const std::function<void(const Object3D&)> traverseCallback ) {
-  
+
   traverseCallback( *this );
 
   for ( auto it = children.begin(); it != children.end(); it++ ) {
@@ -240,7 +298,7 @@ Object3D& Object3D::traverse( const std::function<void(const Object3D&)> travers
 }
 
 Object3D::Ptr Object3D::getObjectById( unsigned int id, bool recursive ) const {
-  
+
   for ( size_t i = 0, l = children.size(); i < l; i ++ ) {
 
     auto& child = children[ i ];
@@ -309,7 +367,7 @@ std::vector<Object3D::Ptr>& Object3D::getDescendants(std::vector<Object3D::Ptr>&
 
 Object3D& Object3D::updateMatrix() {
 
-  matrix.compose( position, _quaternion, scale );
+  matrix.compose( position(), quaternion(), scale() );
 
   matrixWorldNeedsUpdate = true;
 
@@ -349,13 +407,17 @@ Object3D& Object3D::updateMatrixWorld( bool force ) {
 
 }
 
+Object3D::Ptr Object3D::clone( bool recursive ) const {
+  Ptr cloned;
+  __clone( cloned, recursive );
+  return cloned;
+}
+
 Object3D::Object3D( const Material::Ptr& material ,
                     const Geometry::Ptr& geometry )
-  : id( Object3DIdCount()++ ),
+  : id( nextObjectID() ),
     uuid( Math::generateUUID() ),
     parent( nullptr ),
-    up( 0, 1, 0 ),
-    scale( 1, 1, 1 ),
     renderDepth( 0 ),
     rotationAutoUpdate( true ),
     matrix( Matrix4() ),
@@ -371,15 +433,10 @@ Object3D::Object3D( const Material::Ptr& material ,
     boneTextureHeight( 0 ),
     morphTargetBase( -1 ),
     material( material ),
-    geometry( geometry ) { 
-      
-      _rotation = Euler();
-      _quaternion = Quaternion();
-
-      _rotation._quaternion = &_quaternion;
-      _quaternion._euler = &_rotation;
-
-    }
+    geometry( geometry ),
+    _up( 0, 1, 0 ),
+    _scale( 1, 1, 1 ) {
+}
 
 
 Object3D::~Object3D() { }
@@ -388,6 +445,48 @@ void Object3D::__addObject( const Ptr& object ) { }
 
 void Object3D::__removeObject( const Ptr& object ) { }
 
+void Object3D::__clone( Ptr& cloned, bool recursive ) const {
+
+  if ( !cloned ) {
+    THREE_ASSERT( type() == THREE::Object3D );
+    cloned = create();
+  }
+
+  auto& object = *cloned;
+
+  object.name = this->name;
+
+  object.up().copy( this->up() );
+  object.position().copy( this->position() );
+  object.quaternion().copy( this->quaternion() );
+  object.scale().copy( this->scale() );
+
+  object.renderDepth = this->renderDepth;
+
+  object.rotationAutoUpdate = this->rotationAutoUpdate;
+
+  object.matrix.copy( this->matrix );
+  object.matrixWorld.copy( this->matrixWorld );
+
+  object.matrixAutoUpdate = this->matrixAutoUpdate;
+  object.matrixWorldNeedsUpdate = this->matrixWorldNeedsUpdate;
+
+  object.visible = this->visible;
+
+  object.castShadow = this->castShadow;
+  object.receiveShadow = this->receiveShadow;
+
+  object.frustumCulled = this->frustumCulled;
+
+  // TODO
+  //target.userData = JSON.parse( JSON.stringify( this->userData ) );
+
+  if ( recursive ) {
+    for ( const auto& child : children )
+      object.add( child->clone( recursive ) );
+  }
+}
+
 void Object3D::render( const std::function<void( Object3D& )> renderCallback ) {
   if ( renderCallback ) {
     renderCallback( *this );
@@ -395,5 +494,3 @@ void Object3D::render( const std::function<void( Object3D& )> renderCallback ) {
 }
 
 } // namespace three
-
-#endif // THREE_OBJECT3D_CPP

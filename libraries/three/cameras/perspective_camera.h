@@ -12,9 +12,9 @@ class PerspectiveCamera : public Camera {
 
 public:
 
-  typedef std::shared_ptr<PerspectiveCamera> Ptr;
+  THREE_IMPL_OBJECT(PerspectiveCamera);
 
-  static Ptr create( float fov = 50, float aspect = 1, float near = 0.1f, float far = 2000 ) {
+  static Ptr create( float fov = 50.f, float aspect = 1.f, float near = 0.1f, float far = 2000.f ) {
 
     return make_shared<PerspectiveCamera>( fov, aspect, near, far );
 
@@ -28,9 +28,9 @@ public:
 
   float width, height;
 
-  void setLens( float focalLength, float frameHeight = 24 ) {
+  void setLens( float focalLength, float frameHeight = 24.f ) {
 
-    fov = 2.f * Math::radToDeg( Math::atan( frameHeight / ( focalLength * 2 ) ) );
+    fov = 2.f * Math::radToDeg( Math::atan( frameHeight / ( focalLength * 2.f ) ) );
 
     updateProjectionMatrix();
 
@@ -111,26 +111,6 @@ public:
 
   }
 
-  THREE_REVIEW("Correct cloning here?")
-  Ptr clone() {
-
-    Camera::Ptr camera = Camera::clone();
-
-    Ptr perspectiveCamera = std::static_pointer_cast<PerspectiveCamera>(camera);
-
-    perspectiveCamera->fov = fov;
-    perspectiveCamera->aspect = aspect;
-    perspectiveCamera->fullWidth = fullWidth;
-    perspectiveCamera->fullHeight = fullHeight;
-    perspectiveCamera->x = x;
-    perspectiveCamera->y = y;
-    perspectiveCamera->width = width;
-    perspectiveCamera->height = height;
-
-    return perspectiveCamera;
-
-  }
-
 protected:
 
   PerspectiveCamera( float fov, float aspect, float near, float far )
@@ -140,6 +120,25 @@ protected:
     updateProjectionMatrix();
 
   }
+
+  virtual void __clone( Object3D::Ptr& cloned, bool recursive ) const THREE_OVERRIDE {
+
+    if ( !cloned ) cloned = create();
+
+    Camera::__clone( cloned, recursive );
+
+    auto& camera = static_cast<PerspectiveCamera&>( *cloned );
+    camera.fov = fov;
+    camera.aspect = aspect;
+    camera.fullWidth = fullWidth;
+    camera.fullHeight = fullHeight;
+    camera.x = x;
+    camera.y = y;
+    camera.width = width;
+    camera.height = height;
+
+  }
+
 
 };
 

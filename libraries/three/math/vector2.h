@@ -7,7 +7,7 @@
 
 namespace three {
 
-class Vector2 {
+class THREE_DECL Vector2 {
 
 public:
 
@@ -36,7 +36,7 @@ public:
 
   }
 
-  inline float operator[]( const int i ) const {
+  inline const float operator[]( const int i ) const {
 
     return xy[i];
 
@@ -66,11 +66,11 @@ public:
 
   inline Vector2& setComponent (size_t index, float value ) {
 
-    if(index == 0) {
+    if (index == 0) {
 
       x = value;
 
-    } else if(index == 1) {
+    } else if (index == 1) {
 
       y = value;
 

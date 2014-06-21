@@ -57,15 +57,15 @@ using namespace three_examples;
 void shader( GLWindow& window, GLRenderer& renderer ) {
 
   auto camera = Camera::create();
-  camera->position.z = 1;
+  camera->position().z = 1;
 
   auto scene = Scene::create();
 
   float time = 1;
 
   Uniforms uniforms;
-  uniforms[ "time" ]       = Uniform( enums::f, time);
-  uniforms[ "resolution" ] = Uniform( enums::v2, Vector2( (float)renderer.width(),
+  uniforms[ "time" ]       = Uniform( THREE::f, time);
+  uniforms[ "resolution" ] = Uniform( THREE::v2, Vector2( (float)renderer.width(),
                                                           (float)renderer.height()) );
 
   auto material = ShaderMaterial::create(

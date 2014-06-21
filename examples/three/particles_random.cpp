@@ -16,7 +16,7 @@ void particles_random( GLWindow& window, GLRenderer& renderer ) {
   auto camera = PerspectiveCamera::create(
     75, ( float )renderer.width() / renderer.height(), 1.f, 3000
   );
-  camera->position.z = 1000;
+  camera->position().z = 1000;
 
   auto scene = Scene::create();
   scene->fog = FogExp2::create( 0x000000, .0007f );
@@ -35,7 +35,7 @@ void particles_random( GLWindow& window, GLRenderer& renderer ) {
 
     //materials[i] = new THREE.ParticleBasicMaterial( { color: color, size: size } );
     auto material = ParticleSystemMaterial::create(
-      Material::Parameters().add( "size", size * .5f )
+      Material::Parameters().add( "size", size )
     );
 
     materials.push_back( material );
@@ -43,9 +43,9 @@ void particles_random( GLWindow& window, GLRenderer& renderer ) {
 
     auto particles = ParticleSystem::create( geometry, material );
 
-    particles->rotation().set( Math::random() * 6,
-                               Math::random() * 6,
-                               Math::random() * 6);
+    particles->rotation() = Euler( Math::random() * 6,
+                                   Math::random() * 6,
+                                   Math::random() * 6 );
 
     scene->add( particles );
   };
@@ -86,13 +86,13 @@ void particles_random( GLWindow& window, GLRenderer& renderer ) {
 
     time += dt * .05f;
 
-    camera->position.x += ( -1000.f * mouseX - camera->position.x ) * 3 * dt;
-    camera->position.y += (  1000.f * mouseY - camera->position.y ) * 3 * dt;
-    camera->lookAt( scene->position );
+    camera->position().x += ( -1000.f * mouseX - camera->position().x ) * 3 * dt;
+    camera->position().y += (  1000.f * mouseY - camera->position().y ) * 3 * dt;
+    camera->lookAt( scene->position() );
 
     for ( size_t i = 0; i < scene->children.size(); ++i ) {
       auto& object = *scene->children[ i ];
-      if ( object.type() == enums::ParticleSystem ) {
+      if ( object.type() == THREE::ParticleSystem ) {
         object.rotation().y = time * ( i < 4 ? i + 1 : - ( (int)i + 1 ) );
       }
     }

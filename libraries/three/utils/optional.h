@@ -4,6 +4,7 @@
 #include <three/config.h>
 #include <type_traits>
 #include <new>
+#include <utility>
 
 namespace three {
 
@@ -28,7 +29,7 @@ public:
   T& operator*() { return *get(); }
   const T& operator*() const { return *get(); }
 
-  operator bool() const { return is_set(); }
+  THREE_EXPLICIT operator bool() const { return is_set(); }
 
   const T& value() const { return *get(); }
   T& value() { return *get(); }

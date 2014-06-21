@@ -12,11 +12,11 @@ namespace three {
 class Line : public Object3D {
 public:
 
-  typedef std::shared_ptr<Line> Ptr;
+  THREE_IMPL_OBJECT(Line);
 
   static Ptr create( const Geometry::Ptr& geometry,
                      const Material::Ptr& material,
-                     enums::LineType lineType = enums::LineStrip ) {
+                     THREE::LineType lineType = THREE::LineStrip ) {
     if ( material ) {
       return three::make_shared<Line>( geometry, material, lineType );
     } else {
@@ -24,13 +24,11 @@ public:
     }
   }
 
-  THREE_IMPL_OBJECT(Line)
-
-  enums::LineType lineType;
+  THREE::LineType lineType;
 
 protected:
 
-  Line( const Geometry::Ptr& geometry, const Material::Ptr& material, enums::LineType lineType )
+  Line( const Geometry::Ptr& geometry, const Material::Ptr& material, THREE::LineType lineType )
     : Object3D( material, geometry ), lineType( lineType ) {
 
     if ( geometry ) {
@@ -41,6 +39,9 @@ protected:
 
     }
   }
+
+  // TODO "Line::__clone"
+
 
   static Material::Ptr defaultMaterial() {
     return LineBasicMaterial::create(

@@ -1,14 +1,14 @@
-#ifndef THREE_MATRIX4_CPP
-#define THREE_MATRIX4_CPP
+#include <three/math/matrix4.h>
 
 #include <three/constants.h>
 
 #include <three/math/math.h>
 #include <three/math/vector4.h>
-#include <three/math/matrix4.h>
 #include <three/math/euler.h>
 #include <three/math/vector3.h>
 #include <three/math/quaternion.h>
+
+#include <three/utils/memory.h>
 
 #include <algorithm>
 
@@ -34,7 +34,7 @@ Matrix4::Matrix4( const Matrix4& other ) {
   copy( other );
 }
 
-Matrix4& Matrix4::operator= ( const Matrix4& other ) {
+Matrix4& Matrix4::operator=( const Matrix4& other ) {
   return copy( other );
 }
 
@@ -132,7 +132,7 @@ Matrix4& Matrix4::makeRotationFromEuler( const Euler& euler ) {
 
   auto order = euler.order();
 
-  if ( order == enums::EulerRotationOrder::XYZ ) {
+  if ( order == THREE::EulerRotationOrder::XYZ ) {
 
     auto ae = a * e, af = a * f, be = b * e, bf = b * f;
 
@@ -148,7 +148,7 @@ Matrix4& Matrix4::makeRotationFromEuler( const Euler& euler ) {
     te[6] = be + af * d;
     te[10] = a * c;
 
-  } else if ( order == enums::EulerRotationOrder::YXZ ) {
+  } else if ( order == THREE::EulerRotationOrder::YXZ ) {
 
     auto ce = c * e, cf = c * f, de = d * e, df = d * f;
 
@@ -164,7 +164,7 @@ Matrix4& Matrix4::makeRotationFromEuler( const Euler& euler ) {
     te[6] = df + ce * b;
     te[10] = a * c;
 
-  } else if ( order == enums::EulerRotationOrder::ZXY ) {
+  } else if ( order == THREE::EulerRotationOrder::ZXY ) {
 
     auto ce = c * e, cf = c * f, de = d * e, df = d * f;
 
@@ -180,7 +180,7 @@ Matrix4& Matrix4::makeRotationFromEuler( const Euler& euler ) {
     te[6] = b;
     te[10] = a * c;
 
-  } else if ( order == enums::EulerRotationOrder::ZYX ) {
+  } else if ( order == THREE::EulerRotationOrder::ZYX ) {
 
     auto ae = a * e, af = a * f, be = b * e, bf = b * f;
 
@@ -196,7 +196,7 @@ Matrix4& Matrix4::makeRotationFromEuler( const Euler& euler ) {
     te[6] = b * c;
     te[10] = a * c;
 
-  } else if ( order == enums::EulerRotationOrder::YZX ) {
+  } else if ( order == THREE::EulerRotationOrder::YZX ) {
 
     auto ac = a * c, ad = a * d, bc = b * c, bd = b * d;
 
@@ -212,7 +212,7 @@ Matrix4& Matrix4::makeRotationFromEuler( const Euler& euler ) {
     te[6] = ad * f + bc;
     te[10] = ac - bd * f;
 
-  } else if ( order == enums::EulerRotationOrder::XZY ) {
+  } else if ( order == THREE::EulerRotationOrder::XZY ) {
 
     auto ac = a * c, ad = a * d, bc = b * c, bd = b * d;
 
@@ -253,7 +253,7 @@ Matrix4& Matrix4::makeRotationFromQuaternion( const Quaternion& q ) {
 
   auto& te = elements;
 
-  auto x = q.x(), y = q.y(), z = q.z(), w = q.w();
+  float x = q.x, y = q.y, z = q.z, w = q.w;
   auto x2 = x + x, y2 = y + y, z2 = z + z;
   auto xx = x * x2, xy = x * y2, xz = x * z2;
   auto yy = y * y2, yz = y * z2, zz = z * z2;
@@ -632,21 +632,21 @@ Matrix4& Matrix4::getInverse( const Matrix4& m, bool throwOnInvertible ) {
   auto det = n11 * te[ 0 ] + n21 * te[ 4 ] + n31 * te[ 8 ] + n41 * te[ 12 ];
 
   if ( det == 0 ) {
-        
+
     auto msg = "Matrix4.getInverse(): can't invert matrix, determinant is 0";
-        
+
     if ( throwOnInvertible || false ) {
-            
+
       throw -1;
-            
+
     } else {
-    
+
       console().warn( msg );
-            
+
     }
-        
+
     identity();
-        
+
     return *this;
   }
 
@@ -773,7 +773,7 @@ Matrix4& Matrix4::decompose( Vector3& position, Quaternion& quaternion, Vector3&
 
   // @todo priv members
   auto vector = Vector3();
-  
+
   const auto& te = elements;
 
   auto sx = vector.set( te[0], te[1], te[2] ).length();
@@ -866,11 +866,11 @@ Matrix4& Matrix4::makeOrthographic( float left, float right, float top, float bo
   auto w = right - left;
   auto h = top - bottom;
   auto p = far - near;
-    
+
   auto x = ( right + left ) / w;
   auto y = ( top + bottom ) / h;
   auto z = ( far + near ) / p;
-    
+
   te[0] = 2 / w;	te[4] = 0;	te[8] = 0;	te[12] = -x;
   te[1] = 0;	te[5] = 2 / h;	te[9] = 0;	te[13] = -y;
   te[2] = 0;	te[6] = 0;	te[10] = -2/p;	te[14] = -z;
@@ -880,5 +880,3 @@ Matrix4& Matrix4::makeOrthographic( float left, float right, float top, float bo
 }
 
 } // namespace three
-
-#endif // THREE_MATRIX4_CPP

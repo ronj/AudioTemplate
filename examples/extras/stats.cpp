@@ -1,4 +1,4 @@
-#include "extras/stats.h"
+#include "stats.h"
 
 #include "three/console.h"
 #include "three/cameras/orthographic_camera.h"
@@ -84,8 +84,8 @@ void Stats::update( float deltaTime, bool render ) {
         impl->scene->add( mesh );
       }
 
-      mesh->position.x = 10.f;
-      mesh->position.y = renderer.height() - 30.f;
+      mesh->position().x = 10.f;
+      mesh->position().y = renderer.height() - 30.f;
 
       impl->camera->left   = 0;
       impl->camera->right  = (float)renderer.width();

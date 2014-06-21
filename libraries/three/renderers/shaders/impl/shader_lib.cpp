@@ -1,7 +1,5 @@
-#ifndef THREE_SHADER_LIB_CPP
-#define THREE_SHADER_LIB_CPP
-
 #include <three/renderers/shaders/shader_lib.h>
+
 #include <three/renderers/shaders/uniforms_lib.h>
 #include <three/renderers/shaders/uniforms_utils.h>
 #include <three/renderers/shaders/shader_chunk.h>
@@ -30,9 +28,9 @@ namespace three {
 
       Uniforms uniforms;
 
-      uniforms.add( "mNear",   Uniform( enums::f, 1.0f ) )
-      .add( "mFar",    Uniform( enums::f, 2000.0f ) )
-      .add( "opacity", Uniform( enums::f, 1.0f ) );
+      uniforms.add( "mNear",   Uniform( THREE::f, 1.0f ) )
+      .add( "mFar",    Uniform( THREE::f, 2000.0f ) )
+      .add( "opacity", Uniform( THREE::f, 1.0f ) );
 
       const char* vertexShader =
         "void main() {\n"
@@ -56,7 +54,7 @@ namespace three {
     static Shader normalCreate() {
 
       Uniforms uniforms;
-      uniforms.add( "opacity", Uniform( enums::f, 1.0f ) );
+      uniforms.add( "opacity", Uniform( THREE::f, 1.0f ) );
 
       std::stringstream vss;
       vss <<
@@ -168,55 +166,55 @@ namespace three {
 
       auto uniforms = UniformsUtils::merge( sourceUniforms );
 
-      uniforms.add( "scale",   Uniform( enums::f, 1.0f ) )
-              .add( "dashSize",    Uniform( enums::f, 1.0f ) )
-              .add( "totalSize", Uniform( enums::f, 2.0f ) );
+      uniforms.add( "scale",   Uniform( THREE::f, 1.0f ) )
+              .add( "dashSize",    Uniform( THREE::f, 1.0f ) )
+              .add( "totalSize", Uniform( THREE::f, 2.0f ) );
 
        std::stringstream vss;
-        vss << 
-        "uniform float scale;" << std::endl << 
-        "attribute float lineDistance;" << std::endl << 
+        vss <<
+        "uniform float scale;" << std::endl <<
+        "attribute float lineDistance;" << std::endl <<
 
-        "varying float vLineDistance;" << std::endl << 
+        "varying float vLineDistance;" << std::endl <<
 
-        ShaderChunk::color_pars_vertex() << std::endl << 
+        ShaderChunk::color_pars_vertex() << std::endl <<
 
-        "void main() {" << std::endl << 
+        "void main() {" << std::endl <<
 
-          ShaderChunk::color_vertex() << std::endl << 
+          ShaderChunk::color_vertex() << std::endl <<
 
-          "vLineDistance = scale * lineDistance;" << std::endl << 
+          "vLineDistance = scale * lineDistance;" << std::endl <<
 
-          "vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );" << std::endl << 
-          "gl_Position = projectionMatrix * mvPosition;" << std::endl << 
+          "vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );" << std::endl <<
+          "gl_Position = projectionMatrix * mvPosition;" << std::endl <<
 
         "}" << std::endl;
 
        std::stringstream fss;
-        fss << 
-        "uniform vec3 diffuse;" << std::endl << 
-        "uniform float opacity;" << std::endl << 
+        fss <<
+        "uniform vec3 diffuse;" << std::endl <<
+        "uniform float opacity;" << std::endl <<
 
-        "uniform float dashSize;" << std::endl << 
-        "uniform float totalSize;" << std::endl << 
+        "uniform float dashSize;" << std::endl <<
+        "uniform float totalSize;" << std::endl <<
 
-        "varying float vLineDistance;" << std::endl << 
+        "varying float vLineDistance;" << std::endl <<
 
-        ShaderChunk::color_pars_fragment() << std::endl << 
-        ShaderChunk::fog_pars_fragment() << std::endl << 
+        ShaderChunk::color_pars_fragment() << std::endl <<
+        ShaderChunk::fog_pars_fragment() << std::endl <<
 
-        "void main() {" << std::endl << 
+        "void main() {" << std::endl <<
 
-          "if ( mod( vLineDistance, totalSize ) > dashSize ) {" << std::endl << 
+          "if ( mod( vLineDistance, totalSize ) > dashSize ) {" << std::endl <<
 
-            "discard;" << std::endl << 
+            "discard;" << std::endl <<
 
-          "}" << std::endl << 
+          "}" << std::endl <<
 
-          "gl_FragColor = vec4( diffuse, opacity );" << std::endl << 
+          "gl_FragColor = vec4( diffuse, opacity );" << std::endl <<
 
-          ShaderChunk::color_fragment() << std::endl << 
-          ShaderChunk::fog_fragment() << std::endl << 
+          ShaderChunk::color_fragment() << std::endl <<
+          ShaderChunk::fog_fragment() << std::endl <<
 
         "}" << std::endl;
 
@@ -233,9 +231,9 @@ namespace three {
       };
 
       auto uniforms = UniformsUtils::merge( sourceUniforms );
-      uniforms.add( "ambient",  Uniform( enums::c, Color( 0xffffff ) ) )
-      .add( "emissive", Uniform( enums::c, Color( 0x000000 ) ) )
-      .add( "wrapRGB",  Uniform( enums::v3, Vector3( 1, 1, 1 ) ) );
+      uniforms.add( "ambient",  Uniform( THREE::c, Color( 0xffffff ) ) )
+      .add( "emissive", Uniform( THREE::c, Color( 0x000000 ) ) )
+      .add( "wrapRGB",  Uniform( THREE::v3, Vector3( 1, 1, 1 ) ) );
 
       std::stringstream vss;
       vss <<
@@ -340,11 +338,11 @@ namespace three {
       };
 
       auto uniforms = UniformsUtils::merge( sourceUniforms );
-      uniforms.add( "ambient",   Uniform( enums::c, Color( 0xffffff ) ) )
-      .add( "emissive",  Uniform( enums::c, Color( 0x000000 ) ) )
-      .add( "specular",  Uniform( enums::c, Color( 0x111111 ) ) )
-      .add( "shininess", Uniform( enums::f, 30.f ) )
-      .add( "wrapRGB",   Uniform( enums::v3, Vector3( 1, 1, 1 ) ) );
+      uniforms.add( "ambient",   Uniform( THREE::c, Color( 0xffffff ) ) )
+      .add( "emissive",  Uniform( THREE::c, Color( 0x000000 ) ) )
+      .add( "specular",  Uniform( THREE::c, Color( 0x111111 ) ) )
+      .add( "shininess", Uniform( THREE::f, 30.f ) )
+      .add( "wrapRGB",   Uniform( THREE::v3, Vector3( 1, 1, 1 ) ) );
 
       std::stringstream vss;
       vss <<
@@ -548,47 +546,45 @@ namespace three {
       }
 
   } // namespace detail
-    
+
     const Shader& ShaderLib::depth() {
         static Shader sShader = detail::depthCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::normal() {
         static Shader sShader = detail::normalCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::basic() {
         static Shader sShader = detail::basicCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::dashed() {
         static Shader sShader = detail::dashedCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::lambert() {
         static Shader sShader = detail::lambertCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::phong() {
         static Shader sShader = detail::phongCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::particleBasic() {
         static Shader sShader = detail::particleBasicCreate();
         return sShader;
     }
-    
+
     const Shader& ShaderLib::depthRGBA() {
         static Shader sShader = detail::depthRGBACreate();
         return sShader;
     }
 
 } // namespace three
-
-#endif // THREE_SHADER_LIB_CPP

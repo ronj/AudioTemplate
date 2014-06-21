@@ -13,9 +13,9 @@ class OrthographicCamera : public Camera {
 
 public:
 
-  typedef std::shared_ptr<OrthographicCamera> Ptr;
+  THREE_IMPL_OBJECT(OrthographicCamera);
 
-  static Ptr create( float left, float right, float top, float bottom, float near = 0.1f, float far = 2000 ) {
+  static Ptr create( float left, float right, float top, float bottom, float near = 0.1f, float far = 2000.f ) {
 
     return make_shared<OrthographicCamera>( left, right, top, bottom, near, far );
 
@@ -31,28 +31,26 @@ public:
 
   }
 
-  THREE_REVIEW("Correct cloning here?")
-  Ptr clone() {
-
-    Camera::Ptr camera = Camera::clone();
-
-    Ptr orthographicCamera = std::static_pointer_cast<OrthographicCamera>(camera);
-
-    orthographicCamera->left = left;
-    orthographicCamera->right = right;
-    orthographicCamera->top = top;
-    orthographicCamera->bottom = bottom;
-
-    return orthographicCamera;
-
-  }
-
 protected:
 
   OrthographicCamera( float left, float right, float top, float bottom, float near, float far )
     : Camera( near, far ), left( left ), right( right ), top( top ), bottom( bottom ) {
 
     updateProjectionMatrix();
+
+  }
+
+  virtual void __clone( Object3D::Ptr& cloned, bool recursive ) const THREE_OVERRIDE {
+
+    if ( !cloned ) cloned = create( left, right, top, bottom );
+
+    Camera::__clone( cloned, recursive );
+
+    auto& camera = static_cast<OrthographicCamera&>( *cloned );
+    camera.left = left;
+    camera.right = right;
+    camera.top = top;
+    camera.bottom = bottom;
 
   }
 

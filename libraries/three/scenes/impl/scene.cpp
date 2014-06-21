@@ -1,6 +1,3 @@
-#ifndef THREE_SCENE_CPP
-#define THREE_SCENE_CPP
-
 #include <three/scenes/scene.h>
 
 #include <three/visitor.h>
@@ -17,23 +14,10 @@ namespace three {
 
 Scene::Scene()
   : Object3D(),
-    overrideMaterial( nullptr ),
     autoUpdate( true ),
     matrixAutoUpdate( false ) { }
 
 Scene::~Scene() { }
-
-void Scene::visit( Visitor& v )            {
-  v( *this );
-}
-
-void Scene::visit( ConstRawPointerVisitor& v ) const {
-  v( &*this );
-}
-
-void Scene::visit( ConstVisitor& v ) const {
-  v( *this );
-}
 
 namespace detail {
 
@@ -95,8 +79,7 @@ struct Remove : public FallbackVisitor {
   }
 
   void operator()( Light& light ) {
-    if(light.type() == enums::DirectionalLight) {
-      THREE_REVIEW("Works? :) wtb tests")
+    if(light.type() == THREE::DirectionalLight) {
       auto& directionalLight = static_cast<DirectionalLight&>(light);
       for(auto& shadowCascadeLight : directionalLight.shadowCascadeArray) {
         Remove(s, shadowCascadeLight);
@@ -119,6 +102,10 @@ void Scene::__addObject( const Object3D::Ptr& object ) {
   detail::Add objectAdd( *this, object );
   object->visit( objectAdd );
 
+
+  dispatchEvent( Event("objectAdded", object.get()) );
+  object->dispatchEvent( Event("addedToScene", this) );
+
   for ( auto& child : object->children ) {
     __addObject( child );
   }
@@ -136,6 +123,19 @@ void Scene::__removeObject( const Object3D::Ptr& object ) {
   }
 }
 
-} // namespace three
+void Scene::__clone( Object3D::Ptr& cloned, bool recursive ) const {
 
-#endif // THREE_SCENE_CPP
+  if ( !cloned ) cloned = create();
+
+  Object3D::__clone( cloned, recursive );
+
+  auto& scene = static_cast<Scene&>( *cloned );
+
+  if ( fog ) scene.fog = fog->clone();
+  if ( overrideMaterial ) scene.overrideMaterial = overrideMaterial->clone();
+  scene.autoUpdate = autoUpdate;
+  scene.matrixAutoUpdate = matrixAutoUpdate;
+
+}
+
+} // namespace three

@@ -9,7 +9,7 @@
 #include <three/math/vector3.h>
 #include <three/math/matrix4.h>
 #include <three/core/interfaces.h>
-#include <three/core/event.h>
+#include <three/events/event.h>
 
 #include <three/scenes/scene.h>
 #include <three/materials/material.h>
@@ -32,7 +32,7 @@ typedef std::vector<std::string>     Identifiers;
 struct ProgramParameters;
 struct RendererParameters;
 
-class GLRenderer {
+class THREE_DECL GLRenderer {
 public:
 
   typedef std::shared_ptr<GLRenderer> Ptr;
@@ -67,8 +67,8 @@ public:
 
   bool shadowMapEnabled;
   bool shadowMapAutoUpdate;
-  enums::ShadowTypes shadowMapType;
-  enums::CullFace shadowMapCullFrontFace;
+  THREE::ShadowTypes shadowMapType;
+  THREE::CullFace shadowMapCullFrontFace;
   bool shadowMapDebug;
   bool shadowMapCascade;
 
@@ -94,7 +94,7 @@ public:
   bool supportsCompressedTextureS3TC() const { return _glExtensionCompressedTextureS3TC; }
 
   float getMaxAnisotropy() const { return _maxAnisotropy; }
-  enums::PrecisionType getPrecision() const { return _precision; }
+  THREE::PrecisionType getPrecision() const { return _precision; }
 
   void setSize( int width, int height );
   void setViewport( int x = 0, int y = 0, int width = -1, int height = -1 );
@@ -141,13 +141,13 @@ private:
 
   // Events
 
-  void onGeometryDispose( Event& event );
-  void onTextureDispose( Event& event );
-  void onRenderTargetDispose( Event& event );
-  void onMaterialDispose( Event& event );
+  void onGeometryDispose( const Event& event );
+  void onTextureDispose( const Event& event );
+  void onRenderTargetDispose( const Event& event );
+  void onMaterialDispose( const Event& event );
 
   // Buffer allocation
-  
+
   void createParticleBuffers( Geometry& geometry );
   void createLineBuffers( Geometry& geometry );
   void createMeshBuffers( GeometryGroup& geometryGroup );
@@ -164,8 +164,8 @@ private:
   void initMeshBuffers( GeometryGroup& geometryGroup, Mesh& object );
   Material* getBufferMaterial( Object3D& object, GeometryBuffer* geometryBuffer );
   bool materialNeedsSmoothNormals( const Material* material );
-  enums::Shading bufferGuessNormalType( const Material* material );
-  enums::Colors bufferGuessVertexColorType( const Material* material );
+  THREE::Shading bufferGuessNormalType( const Material* material );
+  THREE::Colors bufferGuessVertexColorType( const Material* material );
   bool bufferGuessUVType( const Material* material );
   void initDirectBuffers( Geometry& geometry );
 
@@ -188,8 +188,8 @@ private:
 
   // Rendering
   void renderPlugins( std::vector<IPlugin::Ptr>& plugins, Scene& scene, Camera& camera );
-  void renderObjects( RenderList& renderList, bool reverse, enums::RenderType materialType, Camera& camera, Lights& lights, IFog* fog, bool useBlending, Material* overrideMaterial = nullptr );
-  void renderObjectsImmediate( RenderList& renderList, enums::RenderType materialType, Camera& camera, Lights& lights, IFog* fog, bool useBlending, Material* overrideMaterial = nullptr );
+  void renderObjects( RenderList& renderList, bool reverse, THREE::RenderType materialType, Camera& camera, Lights& lights, IFog* fog, bool useBlending, Material* overrideMaterial = nullptr );
+  void renderObjectsImmediate( RenderList& renderList, THREE::RenderType materialType, Camera& camera, Lights& lights, IFog* fog, bool useBlending, Material* overrideMaterial = nullptr );
   void renderImmediateObject( Camera& camera, Lights& lights, IFog* fog, Material& material, Object3D& object );
   void unrollImmediateBufferMaterial( Scene::GLObject& globject );
   void unrollBufferMaterial( Scene::GLObject& globject );
@@ -242,16 +242,16 @@ private:
 
 
   // GL state setting
-  void setFaceCulling( enums::CullFace cullFace = enums::CullFaceNone, enums::FrontFaceDirection frontFace = enums::FrontFaceDirectionCW );
+  void setFaceCulling( THREE::CullFace cullFace = THREE::CullFaceNone, THREE::FrontFaceDirection frontFace = THREE::FrontFaceDirectionCW );
   void setMaterialFaces( Material& material );
   void setDepthTest( bool depthTest );
   void setDepthWrite( bool depthWrite );
   void setLineWidth( float width );
   void setPolygonOffset( bool polygonoffset, float factor, float units );
-  void setBlending( enums::Blending blending,
-                    enums::BlendEquation blendEquation = enums::AddEquation,
-                    enums::BlendFactor blendSrc = enums::OneFactor,
-                    enums::BlendFactor blendDst = enums::OneFactor );
+  void setBlending( THREE::Blending blending,
+                    THREE::BlendEquation blendEquation = THREE::AddEquation,
+                    THREE::BlendFactor blendSrc = THREE::OneFactor,
+                    THREE::BlendFactor blendDst = THREE::OneFactor );
 
   // Defines
   std::string generateDefines ( const Material::Defines& defines ) const;
@@ -263,14 +263,13 @@ private:
                              const Uniforms& uniforms,
                              const Attributes& attributes,
                              const Material::Defines& defines,
-                             ProgramParameters& parameters/*,
-                             const std::string& index0AttributeName = ""*/);
+                             ProgramParameters& parameters);
 
   // Shader parameters cache
   void cacheUniformLocations( Program& program, const Identifiers& identifiers );
   void cacheAttributeLocations( Program& program, const Identifiers& identifiers );
   static std::string addLineNumbers( const std::string& string );
-  Buffer getShader( enums::ShaderType type, const std::string& source );
+  Buffer getShader( THREE::ShaderType type, const std::string& source );
 
 
   // Textures
@@ -295,7 +294,7 @@ private:
 
     }
 
-    if ( _glExtensionTextureFilterAnisotropic && texture.dataType != enums::FloatType ) {
+    if ( _glExtensionTextureFilterAnisotropic && texture.dataType != THREE::FloatType ) {
       if ( texture.anisotropy > 1 || texture.__oldAnisotropy ) {
         _gl.TexParameterf( textureType, TEXTURE_MAX_ANISOTROPY_EXT, Math::min( texture.anisotropy, _maxAnisotropy ) );
         texture.__oldAnisotropy = texture.anisotropy;
@@ -320,7 +319,7 @@ private:
   // Fallback filters for non-power-of-2 textures
   static int filterFallback( int f );
 
-  // Map enums::cpp constants to WebGL constants
+  // Map THREE::cpp constants to WebGL constants
   static int paramThreeToGL( int p );
 
   // Allocations
@@ -339,7 +338,7 @@ protected:
 private:
 
   int _width, _height;
-  enums::PrecisionType _precision;
+  THREE::PrecisionType _precision;
   bool _alpha;
   bool _premultipliedAlpha;
   bool _antialias;
@@ -493,11 +492,11 @@ private:
   /*
   // default plugins (order is important)
 
-  shadowMapPlugin = new enums::ShadowMapPlugin();
+  shadowMapPlugin = new THREE::ShadowMapPlugin();
   addPrePlugin( shadowMapPlugin );
 
-  addPostPlugin( new enums::SpritePlugin() );
-  addPostPlugin( new enums::LensFlarePlugin() );
+  addPostPlugin( new THREE::SpritePlugin() );
+  addPostPlugin( new THREE::LensFlarePlugin() );
   */
 
 private:

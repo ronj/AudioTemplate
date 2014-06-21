@@ -1,16 +1,35 @@
-#ifndef THREE_MATERIAL_CPP
-#define THREE_MATERIAL_CPP
-
 #include <three/materials/material.h>
+
 #include <three/materials/attribute.h>
 
-#include <vector>
+#include <three/utils/conversion.h>
 
 namespace three {
 
+namespace {
+
+int nextMaterialID() {
+  static int sMaterialCount = 0;
+  return ++sMaterialCount;
+}
+
+} // namespace
+
 typedef std::pair<std::string, any> Parameter;
 
-Material& Material::clone( Material& material ) const {
+Material::Ptr Material::clone() const {
+  Ptr cloned;
+  __clone( cloned );
+  THREE_ASSERT( cloned );
+  return cloned;
+}
+
+void Material::__clone( Ptr& cloned ) const {
+
+  if ( !cloned )
+    cloned = create();
+
+  Material& material = *cloned;
 
   material.name                = name;
 
@@ -98,21 +117,19 @@ Material& Material::clone( Material& material ) const {
   material.gapSize         = shadowPass;
   material.dashSize        = shadowPass;
 
-  return material;
-
 }
 
 
 Material::Material( )
-  : id( MaterialCount()++ ),
+  : id( nextMaterialID() ),
     uuid( Math::generateUUID() ),
-    side( enums::FrontSide ),
+    side( THREE::FrontSide ),
     opacity( 1 ),
     transparent( false ),
-    blending( enums::NormalBlending ),
-    blendSrc( enums::SrcAlphaFactor ),
-    blendDst( enums::OneMinusSrcAlphaFactor ),
-    blendEquation( enums::AddEquation ),
+    blending( THREE::NormalBlending ),
+    blendSrc( THREE::SrcAlphaFactor ),
+    blendDst( THREE::OneMinusSrcAlphaFactor ),
+    blendEquation( THREE::AddEquation ),
     depthTest( true ),
     depthWrite( true ),
     polygonOffset( false ),
@@ -129,15 +146,14 @@ Material::Material( )
     shininess( 30 ),
     size( 1.f ),
     sizeAttenuation( true ),
-    shading( enums::NoShading ),
-    vertexColors( enums::NoColors ),
+    shading( THREE::NoShading ),
+    vertexColors( THREE::NoColors ),
     skinning( false ),
     morphTargets( false ),
     morphNormals( false ),
-    index0AttributeName( "position" ),
     reflectivity( 1.f ),
     refractionRatio( 0.98f ),
-    combine( enums::MultiplyOperation ),
+    combine( THREE::MultiplyOperation ),
     metal( false ),
     perPixel( true ),
     wrapAround( false ),
@@ -145,8 +161,8 @@ Material::Material( )
     wireframe( false ),
     wireframeLinewidth( 1 ),
     linewidth( 1 ),
-    linecap( enums::Round ),
-    linejoin( enums::Round ),
+    linecap( THREE::Round ),
+    linejoin( THREE::Round ),
     numSupportedMorphTargets( 0 ),
     numSupportedMorphNormals( 0 ),
     fragmentShader( "void main() { }" ),
@@ -160,12 +176,14 @@ Material::Material( )
     gapSize ( 1.0f ),
     dashSize( 3.0f ) {
 
-      // TODO not for every material...
-      defaultAttributeValues["color"] = {1,1,1};
-      defaultAttributeValues["uv"] = {0,0};
-      defaultAttributeValues["uv2"] = {0,0};
+  // TODO not for every material...
+  defaultAttributeValues["color"] = toVector( 1.f, 1.f, 1.f );
+  defaultAttributeValues["uv"] = toVector( 0.f, 0.f );
+  defaultAttributeValues["uv2"] = toVector( 0.f, 0.f );
+}
 
-    }
+Material::~Material() {}
+
 
 template < typename T >
 inline bool load( const std::unordered_map<std::string, any>& parameters,
@@ -264,5 +282,3 @@ void Material::setParameters( const Parameters& parameters,
 #undef PARAM_LOAD
 
 } // namespace three
-
-#endif // THREE_MATERIAL_H

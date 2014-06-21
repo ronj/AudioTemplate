@@ -1,9 +1,10 @@
-#ifndef enums_TEXTURE_H
-#define enums_TEXTURE_H
+#ifndef THREE_TEXTURE_H
+#define THREE_TEXTURE_H
 
 #include <three/common.h>
 #include <three/constants.h>
 #include <three/utils/memory.h>
+#include <three/core/event_dispatcher.h>
 #include <three/math/vector2.h>
 #include <three/textures/texture_buffer.h>
 
@@ -27,13 +28,13 @@ struct Image {
 
 struct TextureDesc {
   explicit TextureDesc( Image image,
-                        enums::PixelFormat format = enums::RGBAFormat,
-                        enums::Mapping mapping    = enums::UVMapping,
-                        enums::Wrapping wrapS     = enums::ClampToEdgeWrapping,
-                        enums::Wrapping wrapT     = enums::ClampToEdgeWrapping,
-                        enums::Filter magFilter   = enums::LinearFilter,
-                        enums::Filter minFilter   = enums::LinearMipMapLinearFilter,
-                        enums::DataType dataType  = enums::UnsignedByteType,
+                        THREE::PixelFormat format = THREE::RGBAFormat,
+                        THREE::Mapping mapping    = THREE::UVMapping,
+                        THREE::Wrapping wrapS     = THREE::ClampToEdgeWrapping,
+                        THREE::Wrapping wrapT     = THREE::ClampToEdgeWrapping,
+                        THREE::Filter magFilter   = THREE::LinearFilter,
+                        THREE::Filter minFilter   = THREE::LinearMipMapLinearFilter,
+                        THREE::DataType dataType  = THREE::UnsignedByteType,
                         float anisotropy          = 1 )
     : image( std::move( image ) ),
       mapping( mapping ),
@@ -46,15 +47,15 @@ struct TextureDesc {
       anisotropy( anisotropy ) { }
 
   Image image;
-  enums::Mapping mapping;
-  enums::Wrapping wrapS, wrapT;
-  enums::Filter magFilter, minFilter;
-  enums::PixelFormat format;
-  enums::DataType dataType;
+  THREE::Mapping mapping;
+  THREE::Wrapping wrapS, wrapT;
+  THREE::Filter magFilter, minFilter;
+  THREE::PixelFormat format;
+  THREE::DataType dataType;
   float anisotropy;
 };
 
-class Texture : public TextureBuffer {
+class Texture : public TextureBuffer, public DefaultEventDispatcher {
 
 public:
 
@@ -74,15 +75,15 @@ public:
 
   std::vector<Image> image;
 
-  enums::Mapping mapping;
+  THREE::Mapping mapping;
 
-  enums::Wrapping wrapS, wrapT;
+  THREE::Wrapping wrapS, wrapT;
 
-  enums::Filter magFilter, minFilter;
+  THREE::Filter magFilter, minFilter;
 
-  enums::PixelFormat format;
+  THREE::PixelFormat format;
 
-  enums::DataType dataType;
+  THREE::DataType dataType;
 
   float anisotropy;
 
@@ -95,9 +96,9 @@ public:
 
   std::function<void( void )> onUpdate;
 
-  virtual enums::TextureType type() const {
+  virtual THREE::TextureType type() const {
 
-    return enums::Texture;
+    return THREE::Texture;
 
   }
 
@@ -119,23 +120,18 @@ public:
 
   }
 
-  // TODO "dispatcher"
+  inline void update()  {
 
-  inline void update() const {
-
-    //this.dispatchEvent( { type: 'update' } );
+     dispatchEvent( "update" );
 
   }
 
-  // TODO "dispatcher"
+  inline void dispose() {
 
-  inline void dispose() const {
-
-    //this.dispatchEvent( { type: 'dispose' } );
+    dispatchEvent( "dispose" );
 
   }
 
-  THREE_REVIEW("Why a vector with Image?")
   Texture::Ptr clone( ) const {
 
     auto texture = create( TextureDesc( image[0] ) );

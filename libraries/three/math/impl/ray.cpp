@@ -1,7 +1,6 @@
-#ifndef THREE_RAY_CPP
-#define THREE_RAY_CPP
-
 #include <three/math/ray.h>
+
+#include <three/math/math.h>
 #include <three/math/plane.h>
 #include <three/math/box3.h>
 
@@ -411,10 +410,8 @@ bool Ray::equals( const Ray& ray ) const {
   return ray.origin.equals( this->origin ) && ray.direction.equals( this->direction );
 }
 
-Ray Ray::clone() {
+Ray Ray::clone() const {
   return *this;
 }
 
 } // namespace three
-
-#endif // THREE_RAY_CPP

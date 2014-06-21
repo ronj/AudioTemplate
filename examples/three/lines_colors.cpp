@@ -68,7 +68,7 @@ void lines_colors( GLWindow& window, GLRenderer& renderer ) {
   auto camera = PerspectiveCamera::create(
     33, (float)renderer.width() / renderer.height(), 1, 10000
   );
-  camera->position.z = 700;
+  camera->position().z = 700;
 
   auto geometry  = Geometry::create(),
        geometry2 = Geometry::create(),
@@ -108,14 +108,14 @@ void lines_colors( GLWindow& window, GLRenderer& renderer ) {
                           .add( "linewidth", 1.5f )
   );
 
-  material->vertexColors = enums::VertexColors;
+  material->vertexColors = THREE::VertexColors;
 
   auto scene = Scene::create();
 
   auto addLine = [&scene]( Vector3 pos, float scale, Geometry::Ptr geometry, Material::Ptr material ) {
     auto line = Line::create( geometry, material );
-    line->scale.x = line->scale.y = line->scale.z = scale;
-    line->position = pos;
+    line->scale() = Vector3( scale );
+    line->position() = pos;
     scene->add( line );
   };
 
@@ -140,13 +140,13 @@ void lines_colors( GLWindow& window, GLRenderer& renderer ) {
 
     time += dt;
 
-    camera->position.x += ( -500.f * mouseX - camera->position.x ) * 3 * dt;
-    camera->position.y += (  500.f * mouseY - camera->position.y ) * 3 * dt;
-    camera->lookAt( scene->position );
+    camera->position().x += ( -500.f * mouseX - camera->position().x ) * 3 * dt;
+    camera->position().y += (  500.f * mouseY - camera->position().y ) * 3 * dt;
+    camera->lookAt( scene->position() );
 
     for ( size_t i = 0; i < scene->children.size(); i++ ) {
-      if (scene->children[i]->type() == enums::Line )
-        scene->children[i]->rotation().y = time * ( i % 2 ? 1 : -1);
+      if (scene->children[i]->type() == THREE::Line )
+        scene->children[i]->rotation(). y = time * ( i % 2 ? 1 : -1);
     }
 
     renderer.render( *scene, *camera );

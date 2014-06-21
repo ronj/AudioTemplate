@@ -21,18 +21,18 @@ public:
 
   }
 
-  virtual enums::FogType type() const { return enums::Fog; }
+  virtual THREE::FogType type() const THREE_OVERRIDE { return THREE::Fog; }
 
-  Ptr clone() {
+  virtual IFog::Ptr clone() const THREE_OVERRIDE {
 
     return Fog::create(color.getHex(), near, far);
-    
+
   }
 
   std::string name;
 
   Color color;
-  
+
   float near;
   float far;
 

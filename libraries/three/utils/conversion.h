@@ -50,6 +50,68 @@ inline std::string toString( const std::pair<T, U>& p ) {
   return ss.str();
 }
 
+#if THREE_HAS_VARIADIC_TEMPLATES
+template < typename T, typename... Ts >
+std::vector<T> toVector( const T& t0, const Ts&... ts ) {
+	return std::vector<T> { t0, ts... };
+}
+#else
+template < typename T >
+std::vector<T> toVector( const T& t0 ) {
+	return std::vector<T>( 1, t0 );
+}
+template < typename T >
+std::vector<T> toVector( const T& t0, const T& t1 ) {
+	std::vector<T> result;
+	result.reserve(2);
+	result.push_back(t0);
+	result.push_back(t1);
+	return result;
+}
+template < typename T >
+std::vector<T> toVector( const T& t0, const T& t1, const T& t2 ) {
+	std::vector<T> result;
+	result.reserve(3);
+	result.push_back(t0);
+	result.push_back(t1);
+	result.push_back(t2);
+	return result;
+}
+template < typename T >
+std::vector<T> toVector( const T& t0, const T& t1, const T& t2, const T& t3 ) {
+	std::vector<T> result;
+	result.reserve(4);
+	result.push_back(t0);
+	result.push_back(t1);
+	result.push_back(t2);
+	result.push_back(t3);
+	return result;
+}
+template < typename T >
+std::vector<T> toVector( const T& t0, const T& t1, const T& t2, const T& t3, const T& t4 ) {
+	std::vector<T> result;
+	result.reserve(5);
+	result.push_back(t0);
+	result.push_back(t1);
+	result.push_back(t2);
+	result.push_back(t3);
+	result.push_back(t4);
+	return result;
+}
+template < typename T >
+std::vector<T> toVector( const T& t0, const T& t1, const T& t2, const T& t3, const T& t4, const T& t5 ) {
+	std::vector<T> result;
+	result.reserve(6);
+	result.push_back(t0);
+	result.push_back(t1);
+	result.push_back(t2);
+	result.push_back(t3);
+	result.push_back(t4);
+	result.push_back(t5);
+	return result;
+}
+#endif
+
 } // namespace three
 
-#endif // THREE_UTILS_H
+#endif // THREE_CONVERSION_UTILS_H

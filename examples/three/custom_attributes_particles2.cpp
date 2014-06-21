@@ -18,10 +18,11 @@ const std::string vertexShader =
 "attribute vec3 ca;\n"
 "varying vec3 vColor;\n"
 "void main() {\n"
-"  vColor = ca;\n"
-"  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n"
-"  gl_PointSize = size * ( 300.0 / length( mvPosition.xyz ) );\n"
-"  gl_Position = projectionMatrix * mvPosition;\n"
+"    vColor = ca;\n"
+"    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n"
+"    //gl_PointSize = size;\n"
+"    gl_PointSize = size * ( 300.0 / length( mvPosition.xyz ) );\n"
+"    gl_Position = projectionMatrix * mvPosition;\n"
 "}\n";
 
 const std::string fragmentShader =
@@ -41,20 +42,19 @@ void shader( GLWindow& window, GLRenderer& renderer ) {
  auto camera = PerspectiveCamera::create(
     45, ( float )renderer.width() / renderer.height(), 1, 10000
   );
-  camera->position.z = 300;
+  camera->position().z = 300;
 
   auto scene = Scene::create();
   auto texture = ImageUtils::loadTexture( threeDataPath( "textures/sprites/disc.png" ) );
 
   Uniforms uniforms;
-  uniforms[ "amplitude" ]   = Uniform( enums::f, 1.0 );
-  uniforms[ "color" ]   = Uniform( enums::c, Color( 0xffffff ) );
-  uniforms[ "texture" ] = Uniform( enums::t, texture.get() );
-  texture->wrapS = texture->wrapT = enums::RepeatWrapping;
+  uniforms[ "color" ]   = Uniform( THREE::c, Color( 0xffffff ) );
+  uniforms[ "texture" ] = Uniform( THREE::t, texture.get() );
+  texture->wrapS = texture->wrapT = THREE::RepeatWrapping;
 
   Attributes attributes;
-  attributes[ "size" ] = Attribute( enums::f );
-  attributes[ "ca" ]   = Attribute( enums::c );
+  attributes[ "size" ] = Attribute( THREE::f );
+  attributes[ "ca" ]   = Attribute( THREE::c );
 
   auto shaderMaterial = ShaderMaterial::create(
     vertexShader,
@@ -124,7 +124,8 @@ void shader( GLWindow& window, GLRenderer& renderer ) {
   window.animate( [&]( float dt ) -> bool {
 
     time += dt;
-    sphere->rotation().set( 0, time * .03f, time * .03f );
+    sphere->rotation().y = time * .03f;
+    sphere->rotation().z = time * .03f;
 
     auto& sizes = size.value.cast<std::vector<float>>();
     for( size_t i = 0; i < sizes.size(); i++ ) {

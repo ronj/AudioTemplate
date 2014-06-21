@@ -1,10 +1,10 @@
-#ifndef THREE_RAYCASTER_CPP
-#define THREE_RAYCASTER_CPP
+#include <three/core/raycaster.h>
 
 #include <three/core/buffer_geometry.h>
-#include <three/core/raycaster.h>
+#include <three/core/object3d.h>
 #include <three/materials/mesh_face_material.h>
 #include <three/math/plane.h>
+#include <three/objects/mesh.h>
 #include <three/objects/sprite.h>
 #include <three/objects/LOD.h>
 #include <three/objects/line.h>
@@ -74,13 +74,13 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
     impl.matrixPosition.setFromMatrixPosition( object->matrixWorld );
     float distance = raycaster.ray.distanceToPoint( impl.matrixPosition );
 
-    if ( distance > object->scale.x ) {
+    if ( distance > object->scale().x ) {
 
       return;
 
     }
 
-    auto position = object->position;
+    auto position = object->position();
 
     intersects.push_back(Intersect(
                            distance,
@@ -133,11 +133,11 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
 
     }
 
-    if ( geometry->type() == enums::BufferGeometry ) {
+    if ( geometry->type() == THREE::BufferGeometry ) {
 
       visitMeshBufferGeometry( object, (BufferGeometry*) geometry.get() );
 
-    } else if ( geometry->type() == enums::Geometry ) {
+    } else if ( geometry->type() == THREE::Geometry ) {
 
       visitMeshGeometry( object, (Geometry*) geometry.get() );
 
@@ -152,7 +152,6 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
     if ( material == nullptr ) return;
     if ( geometry->dynamic == false ) return;
 
-    int a, b, c;
     float precision = raycaster.precision;
 
     if ( geometry->attributes.contains( AttributeKey::index() ) ) {
@@ -170,9 +169,9 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
 
         for ( size_t i = start, il = start + count; i < il; i += 3 ) {
 
-          a = index + (int)indices[ i ];
-          b = index + (int)indices[ i + 1 ];
-          c = index + (int)indices[ i + 2 ];
+          int a = index + (int)indices[ i ];
+          int b = index + (int)indices[ i + 1 ];
+          int c = index + (int)indices[ i + 2 ];
 
           impl.vA.set(
             positions[ a * 3 ],
@@ -191,13 +190,13 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
           );
 
           optional<Vector3> intersectionPoint;
-          if ( material->side == enums::BackSide ) {
+          if ( material->side == THREE::BackSide ) {
 
             intersectionPoint = impl.localRay.intersectTriangle( impl.vC, impl.vB, impl.vA, true );
 
           } else {
 
-            intersectionPoint = impl.localRay.intersectTriangle( impl.vA, impl.vB, impl.vC, material->side != enums::DoubleSide );
+            intersectionPoint = impl.localRay.intersectTriangle( impl.vA, impl.vB, impl.vC, material->side != THREE::DoubleSide );
 
           }
 
@@ -228,9 +227,9 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
 
       for ( size_t i = 0; i < offsets.size(); i += 3 ) {
 
-        a = i;
-        b = i + 1;
-        c = i + 2;
+        const auto a = i;
+        const auto b = i + 1;
+        const auto c = i + 2;
 
         impl.vA.set(
           positions[ a * 3 ],
@@ -250,13 +249,13 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
 
 
         optional<Vector3> intersectionPoint;
-        if ( material->side == enums::BackSide ) {
+        if ( material->side == THREE::BackSide ) {
 
           intersectionPoint = impl.localRay.intersectTriangle( impl.vC, impl.vB, impl.vA, true );
 
         } else {
 
-          intersectionPoint = impl.localRay.intersectTriangle( impl.vA, impl.vB, impl.vC, material->side != enums::DoubleSide );
+          intersectionPoint = impl.localRay.intersectTriangle( impl.vA, impl.vB, impl.vC, material->side != THREE::DoubleSide );
 
         }
 
@@ -284,7 +283,7 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
 
   void visitMeshGeometry( const Mesh* object, const Geometry* geometry ) {
 
-    bool isFaceMaterial = object->material->type() == enums::MeshFaceMaterial;
+    bool isFaceMaterial = object->material->type() == THREE::MeshFaceMaterial;
     auto& objectMaterials = ((MeshFaceMaterial*)object)->materials;
 
     Vector3 a, b, c;
@@ -346,13 +345,13 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
       }
 
       optional<Vector3> intersectionPoint;
-      if ( material->side == enums::BackSide ) {
+      if ( material->side == THREE::BackSide ) {
 
         intersectionPoint = impl.localRay.intersectTriangle( c, b, a, true );
 
       } else {
 
-        intersectionPoint = impl.localRay.intersectTriangle( a, b, c, material->side != enums::DoubleSide );
+        intersectionPoint = impl.localRay.intersectTriangle( a, b, c, material->side != THREE::DoubleSide );
 
       }
 
@@ -399,7 +398,7 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
     impl.inverseMatrix.getInverse( object->matrixWorld );
     impl.localRay.copy( raycaster.ray ).applyMatrix4( impl.inverseMatrix );
 
-    if ( geometry->type() == enums::Geometry ) {
+    if ( geometry->type() == THREE::Geometry ) {
 
       const auto& vertices = geometry->vertices;
 
@@ -407,7 +406,7 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
       Vector3 interSegment;
       Vector3 interRay;
 
-      int step = object->lineType == enums::LineStrip ? 1 : 2;
+      int step = object->lineType == THREE::LineStrip ? 1 : 2;
 
       for ( size_t i = 0; i < nbVertices - 1; i = i + step ) {
 
@@ -441,7 +440,7 @@ struct IntersectObjectVisitor : public ConstRawPointerVisitor {
 }; // end namespace detail
 
 
-Raycaster::Raycaster( Vector3& origin, Vector3& direction, float near, float far)
+Raycaster::Raycaster( const Vector3& origin, const Vector3& direction, float near, float far)
   : ray( Ray( origin, direction ) ), near( near ), far( far ), impl( new Impl() ) { }
 
 Raycaster& Raycaster::set( const Vector3& origin, const Vector3& direction ) {
@@ -519,5 +518,3 @@ void Raycaster::_intersectObject( const Object3D::Ptr& object, Intersects& inter
 }
 
 } // end namespace
-
-#endif // THREE_RAYCASTER_CPP

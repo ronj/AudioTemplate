@@ -7,7 +7,6 @@
 
 namespace three {
 
-THREE_REVIEW("Unfortunate bloat here, due to 'required' inheritance of Material")
 class MeshFaceMaterial : public Material {
 
 public:
@@ -22,14 +21,11 @@ public:
     return three::make_shared<MeshFaceMaterial>( materials );
   }
 
-  virtual enums::MaterialType type() const {
-    return enums::MeshFaceMaterial;
+  virtual THREE::MaterialType type() const {
+    return THREE::MeshFaceMaterial;
   }
 
   std::vector<Material::Ptr> materials;
-
-  // TODO "MeshFaceMaterial::clone"
-
 
 protected:
 
@@ -37,6 +33,13 @@ protected:
 
   MeshFaceMaterial( const std::vector<Material::Ptr>& materialsIn )
     : materials( materialsIn ) {}
+
+  virtual void __clone( Material::Ptr& target ) const THREE_OVERRIDE {
+    if ( !target )
+      target = create( materials );
+
+    Material::__clone( target );
+  }
 
 };
 

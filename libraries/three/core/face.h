@@ -44,17 +44,16 @@ public:
 
   Vector3 centroid;
 
-  enums::FaceType type() const {
-    return enums::Face3;
+  THREE::FaceType type() const {
+    return THREE::Face3;
   }
 
   int size() const {
     return 3;
   }
 
-  THREE_REVIEW("EA: Does this do a deep copy?")
   Face clone() const {
-    return Face( *this );
+    return *this;
   }
 
 private:

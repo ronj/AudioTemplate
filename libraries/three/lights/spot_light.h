@@ -11,17 +11,11 @@ class SpotLight : public Light {
 
 public:
 
-  typedef std::shared_ptr<SpotLight> Ptr;
+  THREE_IMPL_OBJECT(SpotLight);
 
   static Ptr create( int hex, float intensity = 1, float distance = 0, float angle = Math::PI() / 3, float exponent = 10 ) {
 
     return make_shared<SpotLight>( hex, intensity, distance, angle, exponent );
-
-  }
-
-  virtual enums::Type type() const {
-
-    return enums::SpotLight;
 
   }
 
@@ -59,7 +53,36 @@ protected:
       shadowMapWidth( 512 ),
       shadowMapHeight( 512 ) {
 
-    position.set( 0, 1, 0 );
+    position().set( 0, 1, 0 );
+
+  }
+
+  virtual void __clone( Object3D::Ptr& cloned, bool recursive ) const THREE_OVERRIDE {
+
+    if ( !cloned ) cloned = create( 0 );
+
+    Light::__clone( cloned, recursive );
+
+    auto& light = static_cast<SpotLight&>( *cloned );
+    light.angle = angle;
+    light.exponent = exponent;
+
+    light.shadowCameraNear = shadowCameraNear;
+    light.shadowCameraFar = shadowCameraFar;
+    light.shadowCameraFov = shadowCameraFov;
+
+    light.shadowCameraVisible = shadowCameraVisible;
+
+    light.shadowBias = shadowBias;
+    light.shadowDarkness = shadowDarkness;
+
+    light.shadowMapWidth = shadowMapWidth;
+    light.shadowMapHeight = shadowMapHeight;
+
+    light.shadowMap = shadowMap;
+    light.shadowMapSize = shadowMapSize;
+    light.shadowCamera = shadowCamera;
+    light.shadowMatrix = shadowMatrix;
 
   }
 

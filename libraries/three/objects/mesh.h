@@ -12,14 +12,12 @@
 
 namespace three {
 
-class Mesh : public Object3D {
+class THREE_DECL Mesh : public Object3D {
 public:
 
-  typedef std::shared_ptr<Mesh> Ptr;
+  THREE_IMPL_OBJECT(Mesh)
 
   static Ptr create( const Geometry::Ptr& geometry, const Material::Ptr& material );
-
-  THREE_IMPL_OBJECT(Mesh)
 
   float boundRadius;
   int morphTargetBase;
@@ -33,6 +31,8 @@ public:
 protected:
 
   Mesh( const Geometry::Ptr& geometry, const Material::Ptr& material );
+
+  // TODO "Mesh::__clone"
 
 };
 

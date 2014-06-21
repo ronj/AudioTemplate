@@ -1,13 +1,11 @@
-#include "yaffut.h"
-#include "test_constants.h"
+#include "gtest/gtest.h"
+#include <tests/test_constants.h>
 
 #include <three/math/sphere.h>
-#include <three/math/impl/sphere.cpp>
 #include <three/math/box3.h>
+#include <three/math/matrix4.h>
 
 using namespace three;
-
-struct math_sphere_test {};
 
 TEST(math_sphere_test, constructor) {
 	auto a = Sphere();

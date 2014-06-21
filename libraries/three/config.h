@@ -9,6 +9,11 @@
 // We need to import/export our code only if the user has specifically asked
 // for it by defining THREE_DYN_LINK.
 # if defined(THREE_DYN_LINK)
+// WARNING: Shared library support is very much experimental, and will likely
+// break horribly in practice... You've been warned.
+#  if defined(_MSC_VER)
+#   pragma warning(disable : 4251)
+#  endif
 // Export if this is our own source, otherwise import.
 #  if defined(THREE_SOURCE)
 #   define THREE_DECL __declspec(dllexport)
@@ -42,7 +47,15 @@
 #endif
 
 // C++11 support
-#if defined(__GNUC__)
+#if defined(__clang__)
+#  define THREE_HAS_VARIADIC_TEMPLATES __has_feature(cxx_variadic_templates)
+#  define THREE_HAS_DELETED_FUNCTIONS  __has_feature(cxx_deleted_functions)
+#  define THREE_HAS_RVALUE_REFERENCES  __has_feature(cxx_rvalue_references)
+#  define THREE_HAS_RANGE_FOR          __has_feature(cxx_range_for)
+#  define THREE_HAS_ALIAS_TEMPLATES    __has_feature(cxx_alias_templates)
+#  define THREE_HAS_OVERRIDE           __has_feature(cxx_override_control)
+#  define THREE_HAS_EXPLICIT_CONVERSION_OPERATORS __has_feature(cxx_explicit_conversions)
+#elif defined(__GNUC__)
 #  define GCC_VERSION (__GNUC__ * 10000 \
                      + __GNUC_MINOR__ * 100 \
                      + __GNUC_PATCHLEVEL__)
@@ -60,15 +73,9 @@
 #    define THREE_HAS_RANGE_FOR 1
 #  endif
 #  if GCC_VERSION >= 40700
+#    define THREE_HAS_OVERRIDE 1
 #    define THREE_HAS_ALIAS_TEMPLATES 1
 #  endif
-#elif defined(__clang__)
-#  define THREE_HAS_VARIADIC_TEMPLATES __has_feature(cxx_variadic_templates)
-#  define THREE_HAS_DELETED_FUNCTIONS  __has_feature(cxx_deleted_functions)
-#  define THREE_HAS_RVALUE_REFERENCES  __has_feature(cxx_rvalue_references)
-#  define THREE_HAS_RANGE_FOR          __has_feature(cxx_range_for)
-#  define THREE_HAS_ALIAS_TEMPLATES    __has_feature(cxx_alias_templates)
-#  define THREE_HAS_EXPLICIT_CONVERSION_OPERATORS __has_feature(cxx_explicit_conversions)
 #elif defined(_MSC_VER)
 // No variadics, no deleted functions, no fun :(
 #  if _MSC_VER > 1500
@@ -102,12 +109,15 @@
 #if !defined(THREE_HAS_ALIAS_TEMPLATES)
 # define THREE_HAS_ALIAS_TEMPLATES 0
 #endif
+#if !defined(THREE_HAS_OVERRIDE)
+# define THREE_HAS_OVERRIDE 0
+#endif
 
 #if !THREE_HAS_RANGE_FOR
-//#  error Range-based for loop support required
+#  error Range-based for loop support required
 #endif
 #if !THREE_HAS_RVALUE_REFERENCES
-//#  error R-value reference support required
+#  error R-value reference support required
 #endif
 
 #if THREE_HAS_DELETED_FUNCTIONS
@@ -122,6 +132,12 @@
 #  define THREE_EXPLICIT explicit
 #else
 #  define THREE_EXPLICIT
+#endif
+
+#if THREE_HAS_OVERRIDE
+#  define THREE_OVERRIDE override
+#else
+#  define THREE_OVERRIDE
 #endif
 
 #endif // THREE_CONFIG_H

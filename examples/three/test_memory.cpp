@@ -41,13 +41,13 @@ void test_memory( GLWindow& window, GLRenderer& renderer ) {
   auto camera = PerspectiveCamera::create(
     60, (float)renderer.width() / renderer.height(), 1, 10000
   );
-  camera->position.z = 200;
+  camera->position().z = 200;
 
   auto scene = Scene::create();
 
   // Lights
   auto pointLight = PointLight::create( 0xFFFFFF );
-  pointLight->position = Vector3( 10, 50, 130 );
+  pointLight->position() = Vector3( 10, 50, 130 );
   scene->add( pointLight );
 
   window.animate ( [&]( float ) -> bool {
@@ -56,7 +56,7 @@ void test_memory( GLWindow& window, GLRenderer& renderer ) {
                                             Math::random() * 64,
                                             Math::random() * 32 );
 
-    auto texture = Texture::create( TextureDesc( createImage(), enums::RGBFormat ) );
+    auto texture = Texture::create( TextureDesc( createImage(), THREE::RGBFormat ) );
     texture->needsUpdate( true );
 
     auto material = //MeshPhongMaterial::create(

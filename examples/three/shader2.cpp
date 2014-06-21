@@ -107,21 +107,21 @@ void shader2( GLWindow& window, GLRenderer& renderer ) {
   auto camera = PerspectiveCamera::create(
     40, (float)renderer.width() / renderer.height(), 1, 3000
   );
-  camera->position.z = 6;
+  camera->position().z = 6;
 
   auto scene = Scene::create();
 
   float time = 1;
 
   auto texture = ImageUtils::loadTexture( threeDataPath("textures/disturb.jpg") );
-  texture->wrapS = texture->wrapT = enums::RepeatWrapping;
+  texture->wrapS = texture->wrapT = THREE::RepeatWrapping;
 
   Uniforms uniforms1;
-  uniforms1.add( "time", Uniform( enums::f, time) );
+  uniforms1.add( "time", Uniform( THREE::f, time) );
 
   Uniforms uniforms2;
-  uniforms2.add( "time", Uniform( enums::f, time) )
-           .add( "texture", Uniform( enums::t, texture.get() ) );
+  uniforms2.add( "time", Uniform( THREE::f, time) )
+           .add( "texture", Uniform( THREE::t, texture.get() ) );
 
   std::vector<Material::Ptr> mlib;
   std::vector<Mesh::Ptr> meshes;
@@ -141,8 +141,8 @@ void shader2( GLWindow& window, GLRenderer& renderer ) {
 
     auto mesh = Mesh::create( BoxGeometry::create( size, size, size ),
                              MeshFaceMaterial::create(std::vector<Material::Ptr>( 6, material ) ) );
-    mesh->position.x = x;
-    mesh->position.y = y;
+    mesh->position().x = x;
+    mesh->position().y = y;
     scene->add( mesh );
 
     meshes.push_back( mesh );
@@ -167,9 +167,9 @@ void shader2( GLWindow& window, GLRenderer& renderer ) {
 
   window.animate( [&]( float dt ) -> bool {
 
-    camera->position.x += (-2.f * mouseX - camera->position.x ) * 3 * dt;
-    camera->position.y += ( 2.f * mouseY - camera->position.y ) * 3 * dt;
-    camera->lookAt( scene->position );
+    camera->position().x += (-2.f * mouseX - camera->position().x ) * 3 * dt;
+    camera->position().y += ( 2.f * mouseY - camera->position().y ) * 3 * dt;
+    camera->lookAt( scene->position() );
 
     time += dt;
 

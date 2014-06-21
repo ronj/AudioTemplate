@@ -12,7 +12,7 @@ struct Offset {
   int start, count, index;
 };
 
-class BufferGeometry : public Geometry {
+class THREE_DECL BufferGeometry : public Geometry {
 public:
 
   typedef std::shared_ptr<BufferGeometry> Ptr;
@@ -21,8 +21,8 @@ public:
     return make_shared<BufferGeometry>();
   }
 
-  virtual enums::GeometryType type() const {
-    return enums::BufferGeometry;
+  virtual THREE::GeometryType type() const {
+    return THREE::BufferGeometry;
   }
 
   std::vector<Offset> offsets;

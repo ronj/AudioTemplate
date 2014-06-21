@@ -11,7 +11,7 @@ class AreaLight : public Light {
 
 public:
 
-	typedef std::shared_ptr<AreaLight> Ptr;
+  THREE_IMPL_OBJECT(AreaLight);
 
   static Ptr create( int hex , float intensity = 1 ) {
 
@@ -29,23 +29,37 @@ public:
   float linearAttenuation;
   float quadraticAttenuation;
 
-  virtual enums::Type type() const { 
-
-    return enums::AreaLight;
-
-  }
-
 protected:
 
-  AreaLight( int hex , float intensity ) 
-    : Light( hex, intensity ), 
-      normal( 0, -1, 0 ), 
-      right( 1, 0, 0 ), 
-      width( 1 ), 
-      height( 1 ), 
+  AreaLight( int hex , float intensity )
+    : Light( hex, intensity ),
+      normal( 0, -1, 0 ),
+      right( 1, 0, 0 ),
+      width( 1 ),
+      height( 1 ),
       constantAttenuation( 1.5 ),
-      linearAttenuation( 0.5 ), 
+      linearAttenuation( 0.5 ),
       quadraticAttenuation( 0.1 ) {}
+
+
+  virtual void __clone( Object3D::Ptr& cloned, bool recursive ) const THREE_OVERRIDE {
+
+    if ( !cloned ) cloned = create( 0 );
+
+    Light::__clone( cloned, recursive );
+
+    auto light = static_cast<AreaLight&>( *cloned );
+    light.normal = normal;
+    light.right = right;
+
+    light.right = width;
+    light.right = height;
+
+    light.constantAttenuation = constantAttenuation;
+    light.linearAttenuation = linearAttenuation;
+    light.quadraticAttenuation = quadraticAttenuation;
+
+  }
 
 };
 

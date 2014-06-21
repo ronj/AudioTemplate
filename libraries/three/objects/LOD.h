@@ -10,38 +10,36 @@
 namespace three {
 
 struct DistanceObject {
-    DistanceObject( float distanceIn, Object3D::Ptr objectIn )
-    : distance( distanceIn ), object( objectIn ) {}
-            
-    float distance;
-    Object3D::Ptr object;
-            
+  DistanceObject( float distanceIn, Object3D::Ptr objectIn )
+      : distance( distanceIn ), object( objectIn ) {}
+
+  float distance;
+  Object3D::Ptr object;
 };
 
-class LOD : public Object3D {
+class THREE_DECL LOD : public Object3D {
 
 public:
 
-	typedef std::shared_ptr<LOD> Ptr;
+  THREE_IMPL_OBJECT(LOD);
 
-	static Ptr create() {
-		return three::make_shared<LOD>();
-	}
+  static Ptr create() {
+    return three::make_shared<LOD>();
+  }
 
-	std::vector<DistanceObject> objects;
+  std::vector<DistanceObject> objects;
 
-	LOD& addLevel( const Object3D::Ptr& object, float distance = 0 );
+  LOD& addLevel( const Object3D::Ptr& object, float distance = 0 );
 
-	Object3D::Ptr getObjectForDistance( float distance ) const;
+  Object3D::Ptr getObjectForDistance( float distance ) const;
 
-	void update( const Camera::Ptr& camera ) const;
-
-	// TODO "LOD::Clone"
-
+  void update( const Camera::Ptr& camera ) const;
 
 protected:
 
-	LOD() {}
+  LOD() {}
+
+  // TODO "LOD::__clone"
 
 };
 

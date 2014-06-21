@@ -1,6 +1,3 @@
-#ifndef THREE_FONT_CPP
-#define THREE_FONT_CPP
-
 #include <three/extras/utils/font.h>
 
 #include <three/gl.h>
@@ -20,14 +17,20 @@ namespace detail {
 
 inline std::vector<unsigned char> load( const std::string& file ) {
   FILE* fp = fopen( file.c_str(), "rb" );
+  size_t result;
   if (!fp) return std::vector<unsigned char>();
 
   fseek( fp, 0, SEEK_END );
-  int size = ftell( fp );
+  long int size = ftell( fp );
   fseek( fp, 0, SEEK_SET );
 
   std::vector<unsigned char> buffer( size );
-  fread( buffer.data(), 1, size, fp );
+  
+  result = fread( buffer.data(), 1, size, fp );
+  if ((long int)result != size) {
+    fputs ("Reading error", stderr); exit (1);
+  }
+  
   fclose( fp );
   return buffer;
 }
@@ -258,7 +261,7 @@ bool Font::initialize( const std::string& ttf,
                         impl->characterData.data() );
   impl->texture = Texture::create(
                     TextureDesc( Image(texels, textureWidth, textureHeight),
-                                 enums::AlphaFormat )
+                                 THREE::AlphaFormat )
                   );
 
   return !!impl->texture;
@@ -269,5 +272,3 @@ const Texture::Ptr& Font::texture() const {
 }
 
 } // namespace three
-
-#endif // THREE_FONT2_CPP

@@ -16,19 +16,19 @@ namespace three {
 
 struct GLInterfaceWrapper;
 
-class Uniform {
+class THREE_DECL Uniform {
 
 public:
 
   Uniform( );
   Uniform( Uniform&& );
   Uniform( const Uniform& );
-  explicit Uniform( enums::UniformType type, any value = any() );
+  explicit Uniform( THREE::UniformType type, any value = any() );
   Uniform& operator=( Uniform );
 
   void load( const GLInterfaceWrapper& gl, int location );
 
-  enums::UniformType type;
+  THREE::UniformType type;
   any value;
 
 private:

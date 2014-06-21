@@ -11,17 +11,11 @@ class DirectionalLight : public Light {
 
 public:
 
-  typedef std::shared_ptr<DirectionalLight> Ptr;
+  THREE_IMPL_OBJECT(DirectionalLight);
 
   static Ptr create( int hex, float intensity = 1, float distance = 0 ) {
 
     return make_shared<DirectionalLight>( hex, intensity, distance );
-
-  }
-
-  virtual enums::Type type() const {
-
-    return enums::DirectionalLight;
 
   }
 
@@ -81,16 +75,50 @@ protected:
 
     target = Object3D::create();
 
-    position.set( 0, 1, 0 );
+    position().set( 0, 1, 0 );
 
   }
 
-  virtual void visit( Visitor& v ) {
-    v( *this );
-  }
+  virtual void __clone( Object3D::Ptr& cloned, bool recursive ) const THREE_OVERRIDE {
 
-  virtual void visit( ConstVisitor& v ) const {
-    v( *this );
+    if ( !cloned ) cloned = create( 0 );
+
+    Light::__clone( cloned, recursive );
+
+    auto& light = static_cast<DirectionalLight&>( *cloned );
+    light.shadowCameraNear = shadowCameraNear;
+    light.shadowCameraFar = shadowCameraFar;
+
+    light.shadowCameraLeft = shadowCameraLeft;
+    light.shadowCameraRight = shadowCameraRight;
+    light.shadowCameraTop = shadowCameraTop;
+    light.shadowCameraBottom = shadowCameraBottom;
+
+    light.shadowCameraVisible = shadowCameraVisible;
+
+    light.shadowBias = shadowBias;
+    light.shadowDarkness = shadowDarkness;
+
+    light.shadowMapWidth = shadowMapWidth;
+    light.shadowMapHeight = shadowMapHeight;
+
+    light.shadowCascadeOffset = shadowCascadeOffset;
+    light.shadowCascadeCount = light.shadowCascadeCount;
+
+    light.shadowCascadeBias = shadowCascadeBias;
+    light.shadowCascadeWidth = shadowCascadeWidth;
+    light.shadowCascadeHeight = shadowCascadeHeight;
+
+    light.shadowCascadeNearZ = shadowCascadeNearZ;
+    light.shadowCascadeFarZ = shadowCascadeFarZ;
+
+    light.shadowCascadeArray = shadowCascadeArray;
+
+    light.shadowMap = shadowMap;
+    light.shadowMapSize = shadowMapSize;
+    light.shadowCamera = shadowCamera;
+    light.shadowMatrix = shadowMatrix;
+
   }
 
 };

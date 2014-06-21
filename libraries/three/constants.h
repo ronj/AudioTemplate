@@ -1,11 +1,15 @@
 #ifndef THREE_CONSTANTS_H
 #define THREE_CONSTANTS_H
 
+#include <string>
+
 namespace three {
 
 typedef unsigned Buffer;
 
-namespace enums {
+typedef std::string EventType;
+
+namespace THREE {
 
 enum Side {
   NoSide     = -1,
@@ -153,6 +157,8 @@ enum Type {
   ImmediateRenderObject,
   Bone,
   Camera,
+  OrthographicCamera,
+  PerspectiveCamera,
   Light,
   AmbientLight,
   AreaLight,
@@ -169,6 +175,7 @@ enum Type {
   SkinnedMesh,
   Ribbon,
   Line,
+  LOD,
   Vector3,
   Box3,
   Sphere

@@ -19,11 +19,12 @@ const std::string vertexShader =
 "attribute vec4 ca;\n"
 "varying vec4 vColor;\n"
 "void main() {\n"
-"  vColor = ca;\n"
-"  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n"
-"  gl_PointSize = size * ( 150.0 / length( mvPosition.xyz ) );\n"
-"  gl_Position = projectionMatrix * mvPosition;\n"
+"    vColor = ca;\n"
+"    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n"
+"    gl_PointSize = size * ( 150.0 / length( mvPosition.xyz ) );\n"
+"    gl_Position = projectionMatrix * mvPosition;\n"
 "}\n";
+
 
 const std::string fragmentShader =
 "uniform vec3 color;\n"
@@ -47,20 +48,20 @@ void custom_attributes_particles3( GLWindow& window, GLRenderer& renderer ) {
  auto camera = PerspectiveCamera::create(
     40, ( float )renderer.width() / renderer.height(), 1, 1000
   );
-  camera->position.z = 500;
+  camera->position().z = 500;
 
   auto scene = Scene::create();
 
   auto texture = ImageUtils::loadTexture( threeDataPath( "textures/sprites/ball.png" ) );
-  texture->wrapS = texture->wrapT = enums::RepeatWrapping;
+  texture->wrapS = texture->wrapT = THREE::RepeatWrapping;
 
   Attributes attributes;
-  attributes[ "size" ] = Attribute( enums::f );
-  attributes[ "ca" ]   = Attribute( enums::c );
+  attributes[ "size" ] = Attribute( THREE::f );
+  attributes[ "ca" ]   = Attribute( THREE::c );
 
   Uniforms uniforms;
-  uniforms[ "color" ]      = Uniform( enums::c, Color( 0xffffff ) );
-  uniforms[ "texture" ]    = Uniform( enums::t, texture.get() );
+  uniforms[ "color" ]      = Uniform( THREE::c, Color( 0xffffff ) );
+  uniforms[ "texture" ]    = Uniform( THREE::t, texture.get() );
 
   auto shaderMaterial = ShaderMaterial::create(
     vertexShader,
@@ -100,9 +101,8 @@ void custom_attributes_particles3( GLWindow& window, GLRenderer& renderer ) {
 
   auto addGeo = [&]( const Geometry::Ptr& geo, float x, float y, float z, float ry ) {
     auto m = Mesh::create( geo, dummyMaterial );
-    m->position.set( x, y, z );
+    m->position().set( x, y, z );
     m->rotation().y = ry;
-
     GeometryUtils::merge( *geometry, *m );
   };
 
@@ -182,7 +182,8 @@ void custom_attributes_particles3( GLWindow& window, GLRenderer& renderer ) {
   window.animate( [&]( float dt ) -> bool {
 
     time += dt;
-    object->rotation().set( 0, 0.02f * time, 0.02f * time );
+    object->rotation().y = 0.02f * time;
+    object->rotation().z = 0.02f * time;
 
     auto& sizes = size.value.cast<std::vector<float>>();
     for( size_t i = 0; i < sizes.size(); i++ ) {

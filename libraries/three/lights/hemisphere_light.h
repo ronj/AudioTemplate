@@ -8,20 +8,14 @@
 namespace three {
 
 class HemisphereLight : public Light {
-  
+
 public:
 
-  typedef std::shared_ptr<HemisphereLight> Ptr;
+  THREE_IMPL_OBJECT(HemisphereLight);
 
   static Ptr create( int skyColorHex, int groundColorHex, float intensity = 1 ) {
 
     return make_shared<HemisphereLight>( skyColorHex, groundColorHex, intensity );
-
-  }
-
-  virtual enums::Type type() const { 
-
-    return enums::HemisphereLight; 
 
   }
 
@@ -33,7 +27,17 @@ protected:
     : Light( skyColorHex, intensity ),
       groundColor( groundColorHex ) {
 
-    position.set( 0, 100, 0 );
+    position().set( 0, 100, 0 );
+
+  }
+
+  virtual void __clone( Object3D::Ptr& cloned, bool recursive ) const THREE_OVERRIDE {
+
+    if ( !cloned ) cloned = create( 0, 0 );
+
+    Light::__clone( cloned, recursive );
+
+    static_cast<HemisphereLight&>( *cloned ).groundColor = groundColor;
 
   }
 

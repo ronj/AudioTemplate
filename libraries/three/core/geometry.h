@@ -25,7 +25,7 @@
 
 namespace three {
 
-class Geometry : public IGeometry, public GeometryBuffer {
+class THREE_DECL Geometry : public IGeometry, public GeometryBuffer {
 
 public:
 
@@ -43,8 +43,8 @@ public:
     return make_shared<Geometry>();
   }
 
-  virtual enums::GeometryType type() const {
-    return enums::Geometry;
+  virtual THREE::GeometryType type() const {
+    return THREE::Geometry;
   }
 
   int id;

@@ -1,11 +1,11 @@
-#include "extras/sdl.h"
+#include "sdl.h"
 
 #include "three/console.h"
 #include "three/core/clock.h"
 #include "three/renderers/renderer_parameters.h"
 #include "three/renderers/gl_renderer.h"
 
-#include "extras/stats.h"
+#include "stats.h"
 
 // TODO(jdduke): Include gles where appropriate.
 #include <SDL2/SDL_assert.h>
@@ -39,10 +39,15 @@ GLWindow::GLWindow( const RendererParameters& parameters )
     : window( nullptr ),
       context( nullptr ),
       renderStats( true ) {
+          
+  if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_EVENTS ) < 0 ) {
+    console().error() << "Unable to initialize SDL: " << SDL_GetError();
+    return;
+  }
 
-  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
-  SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
 
   if ( parameters.vsync )
     SDL_GL_SetSwapInterval( 1 );
@@ -84,10 +89,6 @@ GLWindow::~GLWindow() {
 
 three::GLInterface GLWindow::createGLInterface() {
   return SDLGLInterface();
-}
-
-void GLWindow::addEventListener( EventType eventType, EventListener eventListener ) {
-  listeners[ eventType ].emplace_back( std::move(eventListener) );
 }
 
 void GLWindow::animate( Update update ) {
@@ -146,12 +147,16 @@ bool GLWindow::processEvents() {
       };
     }
 
-    auto eventTypeListenersIt = listeners.find( static_cast<EventType>( event.type ) );
-    if ( eventTypeListenersIt == listeners.end() )
+    auto type = (unsigned int)event.type;
+      
+    auto eventTypeListenersIt = listeners.find( type  );
+    if ( eventTypeListenersIt == listeners.end() ) {
       continue;
-
-    for ( const auto& listener : eventTypeListenersIt->second )
+    }
+      
+    for ( const auto& listener : eventTypeListenersIt->second ) {
       listener( event );
+    }
   }
   return true;
 }

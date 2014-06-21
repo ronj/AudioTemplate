@@ -4,6 +4,7 @@
 #include <three/common.h>
 
 #include <three/core/interfaces.h>
+#include <three/core/event_dispatcher.h>
 
 #include <three/math/color.h>
 #include <three/math/vector3.h>
@@ -27,7 +28,7 @@
 
 namespace three {
 
-class Material : public NonCopyable {
+class THREE_DECL Material : public NonCopyable, public DefaultEventDispatcher {
 
 public:
 
@@ -43,9 +44,13 @@ public:
     return make_shared<Material>( );
   }
 
-  virtual enums::MaterialType type() const {
-    return enums::Material;
+  virtual ~Material();
+
+  virtual THREE::MaterialType type() const {
+    return THREE::Material;
   }
+
+  Ptr clone() const;
 
 public:
 
@@ -54,16 +59,16 @@ public:
 
   std::string name;
 
-  enums::Side side;
+  THREE::Side side;
 
   float opacity;
   bool transparent;
 
-  enums::Blending blending;
+  THREE::Blending blending;
 
-  enums::BlendFactor blendSrc;
-  enums::BlendFactor blendDst;
-  enums::BlendEquation blendEquation;
+  THREE::BlendFactor blendSrc;
+  THREE::BlendFactor blendDst;
+  THREE::BlendEquation blendEquation;
 
   bool depthTest;
   bool depthWrite;
@@ -74,7 +79,6 @@ public:
 
   float alphaTest;
 
-  THREE_REVIEW("Needed? Also: changed to float in r65, was bool in r50.")
   float overdraw; // Overdrawn pixels (typically between 0 and 1) for fixing antialiasing gaps in CanvasRenderer
 
   bool visible;
@@ -89,8 +93,8 @@ public:
   float size;
   bool sizeAttenuation;
 
-  enums::Shading shading;
-  enums::Colors vertexColors;
+  THREE::Shading shading;
+  THREE::Colors vertexColors;
 
   bool skinning;
   bool morphTargets;
@@ -102,13 +106,9 @@ public:
   //// use these default values in WebGL. This avoids errors when buffer data is missing.
   std::unordered_map<std::string, std::vector<float> > defaultAttributeValues;
 
-  //// By default, bind position to attribute index 0. In WebGL, attribute 0
-  //// should always be used to avoid potentially expensive emulation.
-  std::string index0AttributeName;
-
   float reflectivity;
   float refractionRatio;
-  enums::TextureConstant combine;
+  THREE::TextureConstant combine;
 
   bool metal;
   bool perPixel;
@@ -118,7 +118,7 @@ public:
   bool wireframe;
   float wireframeLinewidth;
   float linewidth;
-  enums::LineEndType linecap, linejoin;
+  THREE::LineEndType linecap, linejoin;
 
   int numSupportedMorphTargets;
   int numSupportedMorphNormals;
@@ -152,22 +152,13 @@ public:
 
   Material& clone( Material& material ) const;
 
-  // TODO "Implement"
-
   void dispose() {
-    //this.dispatchEvent( { type: 'dispose' } );
+    dispatchEvent( "dispose" );
   };
 
 protected:
 
-  Material( );
-
-  template < typename MaterialType >
-  static std::shared_ptr<MaterialType> clone( const MaterialType& src ) {
-    auto material = MaterialType::create();
-    static_cast<const Material&>( src ).clone( *material );
-    return material;
-  }
+  Material();
 
   static const ParameterKeys& defaultKeys() {
     static std::array<std::string, 15> sKeys = {
@@ -191,12 +182,9 @@ protected:
     return sKeysSet;
   }
 
-private:
+  virtual void __clone( Ptr& cloned ) const;
 
-  static int& MaterialCount() {
-    static int sMaterialCount = 0;
-    return sMaterialCount;
-  }
+private:
 
 };
 

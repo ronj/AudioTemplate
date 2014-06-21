@@ -3,6 +3,8 @@
 
 #include <three/common.h>
 
+#include <three/core/geometry.h>
+#include <three/core/event_dispatcher.h>
 
 #include <three/math/vector3.h>
 #include <three/math/quaternion.h>
@@ -11,11 +13,12 @@
 #include <three/math/matrix4.h>
 
 #include <three/materials/material.h>
-#include <three/core/geometry.h>
 
 #include <three/utils/memory.h>
 #include <three/utils/noncopyable.h>
 #include <three/utils/macros.h>
+
+#include <three/visitor.h>
 
 #include <algorithm>
 #include <functional>
@@ -25,22 +28,20 @@
 
 namespace three {
 
-class Object3D : NonCopyable {
+class THREE_DECL Object3D : public DefaultEventDispatcher, NonCopyable {
 public:
 
   typedef std::shared_ptr<Object3D> Ptr;
 
-  static Ptr create() {
-    return three::make_shared<Object3D>();
-  }
+  static Ptr create() { return three::make_shared<Object3D>(); }
 
-  virtual enums::Type type() const {
-    return enums::Object3D;
-  }
-  virtual void visit( Visitor& v ) { };
-  virtual void visit( ConstVisitor& v ) const { };
-  virtual void visit( ConstRawPointerVisitor& v ) const { };
   virtual ~Object3D();
+
+  virtual THREE::Type type() const { return THREE::Object3D; }
+
+  virtual void visit( Visitor& v ) { }
+  virtual void visit( ConstVisitor& v ) const { }
+  virtual void visit( ConstRawPointerVisitor& v ) const { }
 
   unsigned int id;
 
@@ -50,12 +51,6 @@ public:
 
   Object3D* parent;
   std::vector<Object3D::Ptr> children;
-
-  Vector3 up;
-
-  Vector3 position;
-
-  Vector3 scale;
 
   float renderDepth;
 
@@ -77,39 +72,20 @@ public:
   // TODO
   //this.userdata = {};
 
-  inline Euler& rotation() {
+  inline const Vector3& position() const { return _position; }
+  inline Vector3& position() { return _position; }
 
-    return _rotation;
+  inline const Vector3& scale() const { return _scale; }
+  inline Vector3& scale() { return _scale; }
 
-  }
+  inline const Vector3& up() const { return _up; }
+  inline Vector3& up() { return _up; }
 
-  inline Object3D& rotation( Euler& value ) {
+  inline const Euler& rotation() const { return _transform.rotation(); }
+  inline Euler& rotation() { return _transform.rotation(); }
 
-    _rotation = value;
-    _rotation._quaternion->copy(_quaternion);
-    _quaternion._euler->copy(_rotation);
-    _rotation._updateQuaternion();
-
-    return *this;
-
-  }
-
-  inline Quaternion& quaternion() {
-
-    return _quaternion;
-
-  }
-
-  inline Object3D& quaternion( Quaternion& value ) {
-
-    _quaternion = value;
-    _quaternion._euler->copy(_rotation);
-    _rotation._quaternion->copy(_quaternion);
-    _quaternion._updateEuler();
-
-    return *this;
-
-  }
+  inline const Quaternion& quaternion() const { return _transform.quaternion(); }
+  inline Quaternion& quaternion() { return _transform.quaternion(); }
 
   Object3D& applyMatrix( Matrix4& m );
 
@@ -158,12 +134,11 @@ public:
   Object3D& updateMatrix();
   Object3D& updateMatrixWorld( bool force = false );
 
-  
-  
+  Ptr clone( bool recursive = true ) const;
+
   bool sortParticles;
 
   bool useVertexTexture;
-  // TODO "Bone shouldnt be a pointer"
   std::vector<Bone*> bones;
   std::vector<Matrix4> boneMatrices;
   Texture::Ptr boneTexture;
@@ -175,7 +150,7 @@ public:
   Material::Ptr material;
   Geometry::Ptr geometry;
 
-  struct GLData {
+  struct THREE_DECL GLData {
     GLData() : __glInit( false ), __glActive( false ) { }
 
     bool __glInit;
@@ -194,14 +169,11 @@ public:
       __glActive = false;
       _modelViewMatrix.identity();
       _normalMatrix.identity();
-      //_normalMatrixArray.clear();
-      //_modelViewMatrixArray.clear();
-      //_modelMatrixArray.clear();
       __glMorphTargetInfluences.clear();
     }
   } glData;
 
-  struct ImmediateGLData {
+  struct THREE_DECL ImmediateGLData {
     ImmediateGLData()
       : count( 0 ),
         hasPositions( false ), hasNormals( false ), hasUvs( false ), hasColors( false ),
@@ -226,18 +198,41 @@ protected:
   // Fallback implementation. Used in scene
   virtual void __addObject( const Ptr& object );
   virtual void __removeObject( const Ptr& object );
+  virtual void __clone( Ptr& cloned, bool recursive ) const;
 
 private:
 
-  Euler _rotation;
-  Quaternion _quaternion;
-  //this._rotation._quaternion = this.quaternion;
-  //this._quaternion._euler = this.rotation;
+  class THREE_DECL SyncedEulerQuaternion {
+  public:
+    SyncedEulerQuaternion();
 
-  static unsigned & Object3DIdCount() {
-    static unsigned int sObject3DIdCount = 0;
-    return sObject3DIdCount;
-  }
+    Euler& rotation();
+    const Euler& rotation() const;
+
+    Quaternion& quaternion();
+    const Quaternion& quaternion() const;
+
+  private:
+
+    void synchronizeRotation() const;
+    void synchronizeQuaternion() const;
+
+    enum class LastUpdatedRotationType {
+        None,
+        Euler,
+        Quaternion,
+    } mutable _lastMaybeUpdated;
+
+    mutable Euler _rotation;
+    mutable Euler _prevRotation;
+    mutable Quaternion _quaternion;
+    mutable Quaternion _prevQuaternion;
+
+  } _transform;
+
+  Vector3 _up;
+  Vector3 _position;
+  Vector3 _scale;
 
 };
 

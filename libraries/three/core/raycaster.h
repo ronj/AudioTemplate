@@ -6,18 +6,17 @@
 #include <three/math/math.h>
 #include <three/math/vector3.h>
 #include <three/math/ray.h>
-#include <three/core/face.h>
 #include <three/core/object3d.h>
 
 namespace three {
 
-  struct Intersect;
+struct Intersect;
 
-  typedef std::vector<Intersect> Intersects;
+typedef std::vector<Intersect> Intersects;
 
-  struct DescSort;
+struct DescSort;
 
-class Raycaster : public NonCopyable {
+class THREE_DECL Raycaster : public NonCopyable {
 
 public:
 
@@ -26,7 +25,7 @@ public:
 
   struct Impl;
 
-  Raycaster( Vector3& origin, Vector3& direction, float near = 0.f, float far = Math::INF() );
+  Raycaster( const Vector3& origin, const Vector3& direction, float near = 0.f, float far = Math::INF() );
 
   Ray ray;
 
@@ -35,9 +34,8 @@ public:
 
   Raycaster& set( const Vector3& origin, const Vector3& direction );
 
-  Intersects intersectObject ( const Object3D::Ptr& object, bool recursive = false );
-
-  Intersects intersectObjects ( const std::vector<Object3D::Ptr>& objects, bool recursive = false );
+  Intersects intersectObject( const Object3D::Ptr& object, bool recursive = false );
+  Intersects intersectObjects( const std::vector<Object3D::Ptr>& objects, bool recursive = false );
 
 protected:
 

@@ -1,10 +1,7 @@
-#ifndef THREE_BUFFER_GEOMETRY_CPP
-#define THREE_BUFFER_GEOMETRY_CPP
+#include <three/core/buffer_geometry.h>
 
-#include <three/common.h>
 #include <three/console.h>
 
-#include <three/core/buffer_geometry.h>
 #include <three/math/matrix4.h>
 #include <three/core/geometry.h>
 
@@ -150,7 +147,7 @@ void BufferGeometry::computeVertexNormals( bool areaWeighted ) {
 
     } else {
 
-      attributes.add( AttributeKey::normal(), Attribute( enums::v3, nVertexElements ) );
+      attributes.add( AttributeKey::normal(), Attribute( THREE::v3, nVertexElements ) );
 
     }
 
@@ -249,7 +246,7 @@ void BufferGeometry::computeTangents() {
 
   if ( !attributes.contains( AttributeKey::tangent() ) ) {
     const auto nTangentElements = 4 * nVertices;
-    attributes[ AttributeKey::tangent() ] = Attribute( enums::v4, nTangentElements );
+    attributes[ AttributeKey::tangent() ] = Attribute( THREE::v4, nTangentElements );
   }
 
   auto& tangents = attributes[ AttributeKey::tangent() ].array;
@@ -412,5 +409,3 @@ BufferGeometry::BufferGeometry()
 }
 
 } // namespace three
-
-#endif // THREE_BUFFER_GEOMETRY_CPP

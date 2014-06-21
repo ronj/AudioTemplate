@@ -39,25 +39,25 @@ void shader( GLWindow& window, GLRenderer& renderer ) {
  auto camera = PerspectiveCamera::create(
     60, ( float )renderer.width() / renderer.height(), 1, 10000
   );
-  camera->position.z = 300;
+  camera->position().z = 300;
 
   auto scene = Scene::create();
   auto texture = ImageUtils::loadTexture( threeDataPath( "textures/sprites/spark1.png" ) );
 
   Uniforms uniforms;
-  uniforms[ "color" ]      = Uniform( enums::c, Color( 0xffffff ) );
-  uniforms[ "texture" ]    = Uniform( enums::t, texture.get() );
+  uniforms[ "color" ]      = Uniform( THREE::c, Color( 0xffffff ) );
+  uniforms[ "texture" ]    = Uniform( THREE::t, texture.get() );
 
   Attributes attributes;
-  attributes[ "size" ]        = Attribute( enums::f );
-  attributes[ "customColor" ] = Attribute( enums::c );
+  attributes[ "size" ]        = Attribute( THREE::f );
+  attributes[ "customColor" ] = Attribute( THREE::c );
 
   auto shaderMaterial = ShaderMaterial::create(
     vertexShader,
     fragmentShader,
     uniforms,
     attributes,
-    Material::Parameters().add( "blending", enums::AdditiveBlending )
+    Material::Parameters().add( "blending", THREE::AdditiveBlending )
                           .add( "depthTest", false )
                           .add( "transparent", true )
   );
@@ -124,7 +124,7 @@ void shader( GLWindow& window, GLRenderer& renderer ) {
   window.animate( [&]( float dt ) -> bool {
 
     time += dt;
-    sphere->rotation().z = time * .03f;
+    sphere->rotation().z = time * 0.03f;
 
     auto& sizes = size.value.cast<std::vector<float>>();
     for( size_t i = 0; i < sizes.size(); i++ ) {

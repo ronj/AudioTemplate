@@ -8,7 +8,7 @@
 
 namespace three {
 
-class Vector4 {
+class THREE_DECL Vector4 {
 
 public:
 
@@ -34,7 +34,7 @@ public:
     return xyzw[i];
   }
 
-  float operator[]( const int i ) const {
+  const float operator[]( const int i ) const {
     return xyzw[i];
   }
 

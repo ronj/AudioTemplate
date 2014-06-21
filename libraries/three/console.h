@@ -9,7 +9,7 @@
 
 namespace three {
 
-class Console {
+class THREE_DECL Console {
 private:
   class LogProxy;
 
@@ -37,7 +37,7 @@ private:
 
   LogP output;
 
-  class LogProxy {
+  class THREE_DECL LogProxy {
   public:
     LogProxy( LogProxy && other );
     ~LogProxy();
@@ -54,9 +54,9 @@ private:
 
     explicit LogProxy( LogP log, const char* msg = nullptr );
 
-    LogProxy& operator= ( LogProxy && other )     THREE_DECL_DELETE;
-    LogProxy( const LogProxy& other )             THREE_DECL_DELETE;
-    LogProxy& operator= ( const LogProxy& other ) THREE_DECL_DELETE;
+    LogProxy& operator=( LogProxy && other )     THREE_DECL_DELETE;
+    LogProxy( const LogProxy& other )            THREE_DECL_DELETE;
+    LogProxy& operator=( const LogProxy& other ) THREE_DECL_DELETE;
 
     std::unique_ptr<std::stringstream> stream;
     LogP log;
@@ -66,7 +66,7 @@ private:
   Console();
 };
 
-Console& console();
+THREE_DECL Console& console();
 
 } // namespace three
 

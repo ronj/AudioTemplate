@@ -1,14 +1,10 @@
-#ifndef THREE_VECTOR4_CPP
-#define THREE_VECTOR4_CPP
+#include <three/math/vector4.h>
 
 #include <three/math/vector3.h>
-#include <three/math/vector4.h>
 #include <three/math/matrix4.h>
 #include <three/math/quaternion.h>
 
 namespace three {
-
-
 
 Vector4& Vector4::applyMatrix4( const Matrix4& m ) {
 
@@ -27,18 +23,18 @@ Vector4& Vector4::applyMatrix4( const Matrix4& m ) {
 Vector4& Vector4::setAxisAngleFromQuaternion( const Quaternion& q ) {
   // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm
   // q is assumed to be normalized
-  w = 2 * Math::acos( q.w() );
+  w = 2.f * Math::acos( q.w );
 
-  auto s = Math::sqrt( 1.f - q.w() * q.w() );
+  auto s = Math::sqrt( 1.f - q.w * q.w );
 
   if ( s < 0.0001f ) {
     x = 1.f;
     y = 0.f;
     z = 0.f;
   } else {
-    x = q.x() / s;
-    y = q.y() / s;
-    z = q.z() / s;
+    x = q.x / s;
+    y = q.y / s;
+    z = q.z / s;
   }
   return *this;
 }
@@ -169,5 +165,3 @@ Vector4& Vector4::setAxisAngleFromRotationMatrix( const Matrix4& m ) {
 }
 
 } // namespace three
-
-#endif // THREE_VECTOR4_CPP
