@@ -1,36 +1,39 @@
 #ifndef DSP_MATH_H
 #define DSP_MATH_H
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
+#include <common/config.h>
+
 template <typename T>
-constexpr T pi()
+CFG_CONSTEXPR T pi()
 {
   static_assert(std::is_floating_point<T>::value, "PI is only defined for floating point values.");
   return std::atan(T(1.0)) * T(4.0);
 }
 
 template <typename T>
-constexpr T square(T x)
+CFG_CONSTEXPR T square(T x)
 {
   return x * x;
 }
 
 template <typename T>
-constexpr T sinc(T x)
+CFG_CONSTEXPR T sinc(T x)
 {
   return x == T(0) ? T(1.0) : std::sin(x * pi<T>()) / x * pi<T>();
 }
 
 template <typename T>
-constexpr T sinh(T x)
+CFG_CONSTEXPR T sinh(T x)
 {
   return (std::exp(x) - std::exp(-x)) / 2;
 }
 
 template <typename T>
-T clamp(T value, T min, T max)
+CFG_CONSTEXPR T clamp(T value, T min, T max)
 {
   return std::max(min, std::min(value, max));
 }
@@ -71,7 +74,7 @@ namespace taylor {
 //  n: number of taylor series terms
 //  k: current term
 template <typename T>
-constexpr T sin(T xx, unsigned int n, unsigned int k)
+CFG_CONSTEXPR T sin(T xx, unsigned int n, unsigned int k)
 {
   static_assert(std::is_floating_point<T>::value, "");
   return k == n ? 1 : 1 - sin(xx, n, k + 1) * xx / (2 * k * (2 * k + 1));
@@ -79,7 +82,7 @@ constexpr T sin(T xx, unsigned int n, unsigned int k)
 
 // sin(x) using n taylor series terms
 template <typename T>
-constexpr T sin(T x, unsigned int n = 10) 
+CFG_CONSTEXPR T sin(T x, unsigned int n = 10)
 {
   static_assert(std::is_floating_point<T>::value, "");
   return x * sin(x * x, n, 1);
@@ -87,10 +90,14 @@ constexpr T sin(T x, unsigned int n = 10)
 
 } //! namespace taylor
 
-constexpr long double operator "" _pi(long double x)
+#if CFG_HAS_STRING_LITERALS
+
+CFG_CONSTEXPR long double operator "" _pi(long double x)
 { return x * pi<long double>(); }
 
-constexpr long double operator "" _pi(unsigned long long int x)
+CFG_CONSTEXPR long double operator "" _pi(unsigned long long int x)
 { return x * pi<long double>(); }
+
+#endif //! CFG_HAS_STRING_LITERALS
 
 #endif // DSP_MATH_H

@@ -41,10 +41,11 @@ typedef unsigned int     uint32_t;
 typedef int64_t  intptr_t;
 typedef uint64_t uintptr_t;
 #else
-typedef signed long      int32_t;
-typedef unsigned long    uint32_t;
-typedef int32_t  intptr_t;
-typedef uint32_t uintptr_t;
+//typedef signed long      int32_t;
+//typedef unsigned long    uint32_t;
+//typedef int32_t  intptr_t;
+//typedef uint32_t uintptr_t;
+#include <stdint.h>
 #endif
 #endif
 

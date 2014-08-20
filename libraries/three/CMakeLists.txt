@@ -71,7 +71,9 @@ set(THREE_LIB_SOURCE_FILES ${THREE_SOURCES})
 set(THREE_LIB three CACHE INTERNAL "three library" FORCE)
 invent_add_library(${THREE_LIB} ${THREE_LIB_SOURCE_FILES})
 
-set_target_properties(${THREE_LIB} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+if (NOT WIN32)
+	set_target_properties(${THREE_LIB} PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter")
+endif()
 
 if (BUILD_TESTS)
   #_subdirs(tests)

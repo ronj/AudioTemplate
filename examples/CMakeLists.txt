@@ -9,14 +9,11 @@ foreach(example ${audio_examples})
   add_executable(${example_name} ${example})
   target_link_libraries(${example_name} ${AUDIO_LIBRARY} ${DSP_LIBRARY})
   invent_link_if_needed(${example_name})
+  set_target_properties(${example_name} PROPERTIES FOLDER Examples/Audio)
 endforeach()
 
 
 ## Three examples
-
-#ADD_EXECUTABLE(audio_shader audio_shader.cpp)
-#TARGET_LINK_LIBRARIES(audio_shader ${THREE_DEP_LIBS} ${AUDIO_LIBRARY} ${DSP_LIBRARY})
-
 
 set(CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH};${EXTERNAL_DIR}")
 set(CMAKE_PREFIX_PATH ${EXTERNAL_DIR}/rapidjson ${CMAKE_PREFIX_PATH})
@@ -86,6 +83,9 @@ set(THREE_EXAMPLE_LIBS ${THREE_EXAMPLE_DEP_LIBS} three_examples)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+add_executable(audio_shader audio_shader.cpp)
+target_link_libraries(audio_shader three_examples ${AUDIO_LIBRARY} ${DSP_LIBRARY})
+
 file(GLOB three_examples "three/*.cpp")
 
 foreach(example ${three_examples})
@@ -93,4 +93,5 @@ foreach(example ${three_examples})
   add_executable(${example_name} ${example})
   target_link_libraries(${example_name} three_examples)
   invent_link_if_needed(${example_name})
+  set_target_properties(${example_name} PROPERTIES FOLDER Examples/Three)
 endforeach()

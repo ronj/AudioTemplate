@@ -7,8 +7,8 @@
 #include "three/core/event_dispatcher.h"
 #include "three/renderers/renderer_parameters.h"
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
+#include <SDL.h>
+#include <SDL_events.h>
 
 #include <functional>
 #include <map>

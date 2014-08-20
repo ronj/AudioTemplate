@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.10)
 
 project(invent)
 
@@ -10,6 +10,19 @@ include(CheckCXXCompilerFlag)
 # If you define additional FindXXX.cmake files,
 # put them in this directory.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
+
+
+## Install support with CPack
+#
+
+set(CPACK_GENERATOR "WIX")
+include(CPack)
+
+
+## Global properties section.
+#
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 
 ## Global options section.

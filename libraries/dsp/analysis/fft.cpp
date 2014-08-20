@@ -67,10 +67,18 @@ void Fft::setWindowType(fftWindowType windowType) {
     }
   } else if(windowType == OF_FFT_WINDOW_HANN) {
     for(int i = 0; i < signalSize; i++)
+#if CFG_HAS_STRING_LITERALS
       window[i] = .5 * (1 - cos((2_pi * i) / (signalSize - 1)));
+#else
+	  window[i] = .5 * (1 - cos((2.0 * pi<double>() * i) / (signalSize - 1)));
+#endif
   } else if(windowType == OF_FFT_WINDOW_HAMMING) {
     for(int i = 0; i < signalSize; i++)
+#if CFG_HAS_STRING_LITERALS
       window[i] = .54 - .46 * cos((2_pi * i) / (signalSize - 1));
+#else
+	  window[i] = .54 - .46 * cos((2.0 * pi<double>() * i) / (signalSize - 1));
+#endif
   } else if(windowType == OF_FFT_WINDOW_SINE) {
     for(int i = 0; i < signalSize; i++)
       window[i] = sin((pi<double>() * i) / (signalSize - 1));

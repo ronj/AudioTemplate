@@ -8,10 +8,12 @@
 
 #ifdef __GNUC__
 #include <cxxabi.h>
+#include <unistd.h>
 #elif _MSC_VER
 #pragma warning (disable: 4786)
 #endif
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -20,7 +22,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstring>
-#include <unistd.h>
 
 namespace yaffut {
 

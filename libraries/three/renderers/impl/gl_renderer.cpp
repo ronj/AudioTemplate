@@ -5387,6 +5387,8 @@ int GLRenderer::paramThreeToGL( int p ) {
     return GL_RGB;
   case THREE::RGBAFormat:
     return GL_RGBA;
+  case THREE::RedFormat:
+	return GL_RED;
 #if !defined(THREE_GLES)
   case THREE::BGRFormat:
     return GL_BGR;

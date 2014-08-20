@@ -1,15 +1,16 @@
 #include "yaffut.h"
 
+#include <array>
 #include <vector>
 
 #include <dsp/common/dsp_algorithm.h>
 
 struct algorithm_test
 {
-  int data_a[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-  std::vector<int> data_b = { 1000, 1005, 1010 };
-  std::vector<double> data_c = { 123.4, 567.8 };
-  std::vector<double> data_d = { -2.0, -3.0, 3, 1.0, 2.0, 0, -1.0 };
+  std::array<int, 10> data_a = { { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } };
+  std::vector<int> data_b = { { 1000, 1005, 1010 } };
+  std::vector<double> data_c = { { 123.4, 567.8 } };
+  std::vector<double> data_d = { { -2.0, -3.0, 3, 1.0, 2.0, 0, -1.0 } };
 };
 
 TEST(algorithm_test, should_calculate_mean)

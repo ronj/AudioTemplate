@@ -2,7 +2,10 @@
 #define CODEC_REPOSITORY_H
 
 #include <audio/codecs/mpadec_codec.h>
+
+#if HAS_SNDFILE
 #include <audio/codecs/sndfile_codec.h>
+#endif
 
 #include <exception>
 #include <functional>
@@ -24,7 +27,9 @@ class CodecRepository
 public:
   CodecRepository()
   {
+#if HAS_SNDFILE
     registerCodec<SndFileCodec<T>>();
+#endif
     registerCodec<MPADECCodec<T>>();
   }
 

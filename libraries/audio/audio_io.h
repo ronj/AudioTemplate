@@ -1,8 +1,6 @@
 #ifndef AUDIO_IO_H
 #define AUDIO_IO_H
 
-#include <audio/samplerate_control.h>
-
 #include <RtAudio.h>
 
 #include <functional>
@@ -10,6 +8,9 @@
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+
+#include <audio/samplerate_control.h>
+#include <common/config.h>
 
 template <typename T>
 class AudioIO
@@ -22,8 +23,8 @@ public:
                                            sample_iterator,
                                            sample_iterator)>;
 
-  static constexpr std::size_t DefaultBufferSize = 512;
-  static constexpr float DefaultSamplerate = 44100.0f;
+  static CFG_CONSTEXPR std::size_t DefaultBufferSize = 512;
+  static CFG_CONSTEXPR int DefaultSamplerate = 44100;
 
 public:
   template <typename Method, typename Instance>

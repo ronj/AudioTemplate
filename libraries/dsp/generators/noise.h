@@ -1,6 +1,7 @@
 #ifndef NOISE_H
 #define NOISE_H
 
+#include <array>
 #include <random>
 
 template <typename RandomGenerator = std::default_random_engine>
@@ -73,8 +74,8 @@ private:
 
 private:
   WhiteNoise<RandomGenerator> iNoise;
-  double iTemp = 0.0;
   std::array<float, HistorySize> iHistory;
+  double iTemp = 0.0;
   unsigned long iIndex = 0;
 };
 

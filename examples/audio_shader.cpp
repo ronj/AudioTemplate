@@ -1,3 +1,5 @@
+#include "three/common.h"
+
 #include <audio/audio_io.h>
 #include <audio/codec_repository.h>
 
@@ -6,17 +8,16 @@
 
 #include <dsp/analysis/fft.h>
 
-#include <three/config.hpp>
-#include <three/extras/anim.hpp>
-#include <three/extras/glew.hpp>
-#include <three/extras/sdl.hpp>
-#include <three/renderers/gl_renderer.hpp>
-#include <three/renderers/renderer_parameters.hpp>
-#include <three/core/geometry.hpp>
-#include <three/cameras/camera.hpp>
-#include <three/objects/mesh.hpp>
-#include <three/extras/geometries/plane_geometry.hpp>
-#include <three/materials/shader_material.hpp>
+#include "three/core/geometry.h"
+#include "three/cameras/perspective_camera.h"
+#include "three/objects/mesh.h"
+#include "three/materials/shader_material.h"
+#include "three/materials/mesh_face_material.h"
+#include "three/renderers/renderer_parameters.h"
+#include "three/renderers/gl_renderer.h"
+
+#include "three/extras/image_utils.h"
+#include "three/extras/geometries/plane_geometry.h"
 
 #include <iostream>
 #include <random>
@@ -27,6 +28,7 @@
 
 using Audio = AudioIO<float>;
 using namespace three;
+using namespace three_examples;
 
 // http://forum.libcinder.org/topic/passing-audio-data-to-pixel-shader
 // https://gist.github.com/paulhoux/7544133
@@ -49,6 +51,9 @@ void main() { \
   gl_Position = vec4(position, 1.0); \
 }";
 
+moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q(2);
+std::string shader_url;
+
 Texture::Ptr createAudioTexture()
 {
   unsigned width = 512;
@@ -57,20 +62,20 @@ Texture::Ptr createAudioTexture()
   std::vector<unsigned char> data(size, 0);
 
   auto texture = Texture::create(
-    TextureDesc(Image(data, width, height), THREE::LuminanceFormat)
+    TextureDesc(Image(data, width, height), THREE::RedFormat)
   );
 
   return texture;
 }
 
-void audioShader(GLRenderer::Ptr renderer, moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>>& q, const std::string& shader)
+void audioShader(GLWindow& window, GLRenderer& renderer)
 {
   std::shared_ptr<Fft> fft = Fft::create();
   auto audioTexture = createAudioTexture();
   std::vector<Audio::sample_type> leftChannelData(Audio::DefaultBufferSize);
 
   auto camera = Camera::create();
-  camera->position.z = 1;
+  camera->position().z = 1;
 
   auto scene = Scene::create();
 
@@ -78,23 +83,24 @@ void audioShader(GLRenderer::Ptr renderer, moodycamel::ReaderWriterQueue<std::ve
 
   Uniforms uniforms;
   uniforms["time"]       = Uniform(THREE::f, time);
-  uniforms["resolution"] = Uniform(THREE::v2, Vector2((float)renderer->width(),
-                                                      (float)renderer->height()));
+  uniforms["resolution"] = Uniform(THREE::v2, Vector2((float)renderer.width(),
+                                                      (float)renderer.height()));
   uniforms["texture"]    = Uniform(THREE::t, audioTexture.get());
 
-  auto material = ShaderMaterial::create(vertexShader, get_file_contents(shader), uniforms);
+  auto material = ShaderMaterial::create(vertexShader, get_file_contents(shader_url), uniforms);
   auto mesh = Mesh::create(PlaneGeometry::create(2, 2), material);
   scene->add(mesh);
 
   auto running = true;
-  sdl::addEventListener(SDL_KEYDOWN, [&](const sdl::Event&) {
-    running = false;
-  });
-  sdl::addEventListener(SDL_QUIT, [&](const sdl::Event&) {
+  window.addEventListener(SDL_KEYDOWN, [&](const SDL_Event&) {
     running = false;
   });
 
-  anim::gameLoop([&](float dt) -> bool {
+  window.addEventListener(SDL_QUIT, [&](const SDL_Event&) {
+    running = false;
+  });
+
+  window.animate([&](float dt) -> bool {
     time += dt;
     material->uniforms["time"].value = time;
     std::vector<Audio::sample_type> audioData;
@@ -118,10 +124,10 @@ void audioShader(GLRenderer::Ptr renderer, moodycamel::ReaderWriterQueue<std::ve
         audioTexture->image[0].data[512 + i] = static_cast<unsigned char>((leftChannelData[i] * 0.5f + 0.5f) * 254.0f);
       }
 
-      audioTexture->needsUpdate = true;
+      audioTexture->needsUpdate(true);
     }
 
-    renderer->render(*scene, *camera);
+    renderer.render(*scene, *camera);
 
     return running;
   });
@@ -129,34 +135,18 @@ void audioShader(GLRenderer::Ptr renderer, moodycamel::ReaderWriterQueue<std::ve
 
 int main(int argc, char* argv[])
 {
-  if (argc < 2)
+  if (argc < 3)
   {
-    std::cout << "Usage: " << argv[0] << " file.[mp3|ogg|flac|wav|aiff]" << std::endl;
+    std::cout << "Usage: " << argv[0] << " file.[mp3|ogg|flac|wav|aiff] shader.glsl" << std::endl;
     return -1;
-  }
-
-  auto onQuit = defer(sdl::quit);
-
-  RendererParameters parameters;
-  parameters.antialias = true;
-
-  if (!sdl::init(parameters) || !glew::init(parameters))
-  {
-    return -2;
-  }
-
-  auto renderer = GLRenderer::create(parameters);
-  if (!renderer)
-  {
-    return -3;
   }
 
   CodecRepository<Audio::sample_type> codecs;
   auto codec = codecs.open(argv[1]);
+  shader_url = argv[2];
 
   std::vector<Audio::sample_type> decodingBuffer(Audio::DefaultBufferSize * codec->info().channels());
   std::vector<Audio::sample_type> audioData(decodingBuffer.capacity());
-  moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q(2);
 
   Audio audio([&](Audio::sample_iterator aInBegin,
                   Audio::sample_iterator aInEnd,
@@ -179,11 +169,9 @@ int main(int argc, char* argv[])
   audio.play();
 
   std::cout << "Stream opened with a buffer size of " << audio.bufferSize()
-            << " samples, and a stream latency of " << audio.streamLatency()
-            << " samples (" << (audio.streamLatency() / audio.samplerateControl().getSamplerate()) * 1000. << " ms.)" << std::endl
+	          << " samples, and a stream latency of " << audio.streamLatency()
+	          << " samples (" << (audio.streamLatency() / audio.samplerateControl().getSamplerate()) * 1000. << " ms.)" << std::endl
             << "Playing back " << argv[1] << ", which is " << codec->info().toString() << std::endl;
 
-  audioShader(renderer, q, argv[2]);
-
-  return 0;
+  return RunExample(audioShader);
 }

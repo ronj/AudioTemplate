@@ -12,13 +12,21 @@ int main(int argc, char* argv[])
   std::shared_ptr<Fft> fft = Fft::create();
   std::vector<float> signal(512);
   double theta = 0;
+#if CFG_HAS_STRING_LITERALS
   float deltaTheta = 2_pi * (440.0 / 44100.0);
+#else
+  float deltaTheta = 2.0 * pi<double>() * (440.0 / 44100.0);
+#endif
 
   for (int i = 0; i < signal.size(); i++)
   {
     signal[i] = sin(theta);
     theta += deltaTheta;
+#if CFG_HAS_STRING_LITERALS
     if (theta > 2_pi) theta = theta - 2_pi;
+#else
+	if (theta > 2 * pi<double>()) theta = theta - 2.0 * pi<double>();
+#endif
   }
 
   fft->setSignal(signal);

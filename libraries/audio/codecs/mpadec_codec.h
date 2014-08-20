@@ -62,9 +62,9 @@ public:
 
     setFormat(iConfig);
 
-    mp3dec_virtual_io_t    iVIO = { vf_read, vf_seek, vf_close };
+    mp3dec_virtual_io_t virtualIO = { vf_read, vf_seek, vf_close };
     apiWrapper(mp3dec_configure, iDecoder, &iConfig);
-    apiWrapper(mp3dec_init_file, iDecoder, 0, FALSE, iVIO, &iSource);
+	apiWrapper(mp3dec_init_file, iDecoder, 0, FALSE, virtualIO, &iSource);
     apiWrapper(mp3dec_get_info, iDecoder, iInfo.nativeHandle(), MPADEC_INFO_STREAM);
   }
 
@@ -126,8 +126,8 @@ private:
 private:
   mp3dec_t               iDecoder = nullptr;
   mpadec_config_t        iConfig = { MPADEC_CONFIG_FULL_QUALITY, MPADEC_CONFIG_AUTO,
-                                     MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
-                                     MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
+	                                   MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
+	                                   MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
   MPADECInfo             iInfo;
   FileSource             iSource;
 };

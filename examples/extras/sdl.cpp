@@ -8,8 +8,8 @@
 #include "stats.h"
 
 // TODO(jdduke): Include gles where appropriate.
-#include <SDL2/SDL_assert.h>
-#include <SDL2/SDL_timer.h>
+#include <SDL_assert.h>
+#include <SDL_timer.h>
 
 #define M_CONC(A, B) M_CONC_(A, B)
 #define M_CONC_(A, B) A##B
@@ -45,19 +45,17 @@ GLWindow::GLWindow( const RendererParameters& parameters )
     return;
   }
 
-  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2 );
-  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+  SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
   SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
 
   if ( parameters.vsync )
     SDL_GL_SetSwapInterval( 1 );
 
-  /*
   if ( parameters.antialias ) {
     SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 1 );
     SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 4 );
   }
-  */
 
   unsigned flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
   window = SDL_CreateWindow( "three.cpp",

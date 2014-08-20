@@ -12,13 +12,21 @@ std::vector<float> createSignal(std::size_t aSize, float aFrequency, float aAmpl
 {
   std::vector<float> signal(aSize, 0.0f);
   double theta = 0;
+#if CFG_HAS_STRING_LITERALS
   float deltaTheta = 2_pi * (aFrequency / aSamplerate);
+#else
+  float deltaTheta = 2.0 * pi<double>() * (aFrequency / aSamplerate);
+#endif
 
   for (std::size_t i = 0; i < aSize; i++)
   {
     signal[i] = std::sin(theta) * aAmplitude;
     theta += deltaTheta;
+#if CFG_HAS_STRING_LITERALS
     if (theta > 2_pi) theta = theta - 2_pi;
+#else
+	if (theta > 2.0 * pi<double>()) theta = theta - 2.0 * pi<double>();
+#endif
   }
 
   return signal;

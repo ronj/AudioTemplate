@@ -12,7 +12,7 @@ uniform sampler2D texture;
 
 void main( void ) {
   vec2 c = gl_FragCoord.xy / resolution.xy;
-  vec4 s = texture2D(texture, c * .5);
+  vec4 s = texture2D(texture, c * .5).rrra;
   c = vec2(0., A*s.y*sin((c.x*W+time*V)* 2.5)) + (c*2.-1.);
   float g = max(abs(s.y/(pow(c.y, 2.1*sin(s.x*PI))))*T,
                 abs(.1/(c.y+EPS)));

@@ -127,6 +127,7 @@ enum PixelFormat {
   // JD - Added
   BGRFormat            = 1024,
   BGRAFormat           = 1025,
+  RedFormat            = 1026,
 
   RGB_S3TC_DXT1_Format  = 2001,
   RGBA_S3TC_DXT1_Format = 2002,

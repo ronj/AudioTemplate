@@ -21,14 +21,14 @@ float f(float x)
 	if (x<0.0)
 	{
 		x = x/7.0+1.0;
-		q = texture2D(texture,vec2(x,1.0)).y-.5;
-		q*= texture2D(texture,vec2(0.0,0.0)).y*2.0;
+		q = texture2D(texture,vec2(x,1.0)).r-.5;
+		q*= texture2D(texture,vec2(0.0,0.0)).r*2.0;
 	}
 	else
 	{
 		x=x/7.0;
 		x=pow(x*.82+.18,4.0);
-		q = texture2D(texture,vec2(x,0.0)).y-.5;
+		q = texture2D(texture,vec2(x,0.0)).r-.5;
 	}
 	q*=4.0;
 	return q;
