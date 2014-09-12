@@ -60,6 +60,10 @@ public:
 
     iSource.open();
 
+	iConfig = { MPADEC_CONFIG_FULL_QUALITY, MPADEC_CONFIG_AUTO,
+		        MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
+		        MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
+
     setFormat(iConfig);
 
     mp3dec_virtual_io_t virtualIO = { vf_read, vf_seek, vf_close };
@@ -125,9 +129,7 @@ private:
 
 private:
   mp3dec_t               iDecoder = nullptr;
-  mpadec_config_t        iConfig = { MPADEC_CONFIG_FULL_QUALITY, MPADEC_CONFIG_AUTO,
-	                                   MPADEC_CONFIG_FLOAT, MPADEC_CONFIG_LITTLE_ENDIAN,
-	                                   MPADEC_CONFIG_REPLAYGAIN_NONE, TRUE, TRUE, TRUE, 0.0 };
+  mpadec_config_t        iConfig;
   MPADECInfo             iInfo;
   FileSource             iSource;
 };
