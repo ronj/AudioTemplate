@@ -27,8 +27,6 @@
 #define MP3DEC_FLAG_INITIALIZED 1
 #define MP3DEC_FLAG_SEEKABLE    2
 
-#define MP3DEC_HEADER_SEEK_SIZE 1024 * 1024 * 10
-
 struct mp3dec_t {
   uint32_t size;
   mpadec_t mpadec;

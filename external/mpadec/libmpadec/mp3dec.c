@@ -68,6 +68,19 @@ int mp3dec_init_file(mp3dec_t mp3dec, int64_t length, int nogap, mp3dec_virtual_
     mp3->stream_size -= mp3->stream_offset;
     if (length && (length < mp3->stream_size)) mp3->stream_size = length;
   } else mp3->stream_size = length;
+    // check for ID3 tag
+  {
+    char hdr[10];
+	mp3->virtual_io.seek(0, SEEK_SET, mp3->user_data);
+    r = mp3->virtual_io.read(&hdr, 10, mp3->user_data);
+    if(hdr[0] == 'I' && hdr[1] == 'D' && hdr[2] == '3'){
+      /* A*2^21+B*2^14+C*2^7+D=A*2097152+B*16384+C*128+D*/
+      mp3->stream_offset = hdr[6]*2097152+hdr[7]*16384+hdr[8]*128+hdr[9] + 10;
+      fprintf(stderr, "==== found ID3 tag, skipping %d bytes ==== \n", 
+              mp3->stream_offset);
+	  tmp = mp3->virtual_io.seek(mp3->stream_offset, SEEK_SET, mp3->user_data);
+	} else tmp = mp3->virtual_io.seek(mp3->stream_offset, SEEK_SET, mp3->user_data);
+  }
   r = mp3->virtual_io.read(mp3->in_buffer, 4, mp3->user_data);
   if (r < 4) {
     mp3dec_reset(mp3);
@@ -103,16 +116,8 @@ int mp3dec_init_file(mp3dec_t mp3dec, int64_t length, int nogap, mp3dec_virtual_
     }
   } else mpadec_reset(mp3->mpadec);
   if (!mp3->out_buffer_used) {
-    int32_t t = 0;
-    r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used, NULL, 0, &mp3->in_buffer_offset, NULL);
-    t += mp3->in_buffer_offset;
-    while ((r == MPADEC_RETCODE_NO_SYNC) && (t < MP3DEC_HEADER_SEEK_SIZE)) {
-      int32_t n = mp3->virtual_io.read(mp3->in_buffer, sizeof(mp3->in_buffer), mp3->user_data);
-      if (n < 0) n = 0;
-      mp3->in_buffer_used = n;
-      r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used, NULL, 0, &mp3->in_buffer_offset, NULL);
-      t += mp3->in_buffer_offset;
-    }
+    r = mpadec_decode(mp3->mpadec, mp3->in_buffer, mp3->in_buffer_used,
+                      NULL, 0, &mp3->in_buffer_offset, NULL);
     mp3->in_buffer_used -= mp3->in_buffer_offset;
     if (r != MPADEC_RETCODE_OK) {
       mp3dec_reset(mp3);
