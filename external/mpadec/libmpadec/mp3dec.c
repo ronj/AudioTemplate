@@ -76,8 +76,6 @@ int mp3dec_init_file(mp3dec_t mp3dec, int64_t length, int nogap, mp3dec_virtual_
     if(hdr[0] == 'I' && hdr[1] == 'D' && hdr[2] == '3'){
       /* A*2^21+B*2^14+C*2^7+D=A*2097152+B*16384+C*128+D*/
       mp3->stream_offset = hdr[6]*2097152+hdr[7]*16384+hdr[8]*128+hdr[9] + 10;
-      fprintf(stderr, "==== found ID3 tag, skipping %d bytes ==== \n", 
-              mp3->stream_offset);
 	  tmp = mp3->virtual_io.seek(mp3->stream_offset, SEEK_SET, mp3->user_data);
 	} else tmp = mp3->virtual_io.seek(mp3->stream_offset, SEEK_SET, mp3->user_data);
   }

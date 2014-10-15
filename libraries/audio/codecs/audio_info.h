@@ -23,14 +23,6 @@ public:
   virtual std::string toString() const = 0;
 
 protected:
-  template <typename T>
-  std::string Stringify(T aConvert) const
-  {
-    std::stringstream ss;
-    ss << aConvert;
-    return ss.str();
-  }
-
   std::string channelsToString() const
   {
     switch (channels())
@@ -44,12 +36,12 @@ protected:
 
   std::string bitrateToString() const
   {
-    return Stringify(bitrate()) + " Kbps";
+    return std::to_string(bitrate()) + " Kbps";
   }
 
   std::string samplerateToString() const
   {
-    return Stringify(samplerate()) + " Hz";
+	  return std::to_string(samplerate()) + " Hz";
   }
 
   std::string durationToString() const

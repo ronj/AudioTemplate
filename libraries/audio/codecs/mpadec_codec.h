@@ -7,19 +7,20 @@
 #include "mpadec_info.h"
 
 #include <audio/sources/file_source.h>
+#include <audio/sources/source.h>
 
 namespace {
 
 size_t vf_read(unsigned char* data, std::size_t size, void* user_data)
 {
-  FileSource* fs = (FileSource*)user_data;
-  return fs->read(data, size);
+  ISource* source = static_cast<ISource*>(user_data);
+  return source->read(data, size);
 }
 
 size_t vf_seek(size_t offset, int whence, void* user_data)
 {
-  FileSource* fs = (FileSource*)user_data;
-  if(!fs->seekable())
+  ISource* source = static_cast<ISource*>(user_data);
+  if(!source->seekable())
     return -1;
 
   switch (whence) {
@@ -27,20 +28,20 @@ size_t vf_seek(size_t offset, int whence, void* user_data)
       // offset remains unchanged
       break;
     case SEEK_CUR:
-      //offset += inputSource.GetOffset();
+      //offset += source.GetOffset();
       break;
     case SEEK_END:
-      //offset += inputSource.GetLength();
+      //offset += source.GetLength();
       break;
   }
 
-  return fs->seek(offset);
+  return source->seek(offset);
 }
 
 void vf_close(void* user_data)
 {
-  FileSource* fs = (FileSource*)user_data;
-  fs->close();
+  ISource* source = static_cast<ISource*>(user_data);
+  source->close();
 }
 
 }

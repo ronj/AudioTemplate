@@ -65,9 +65,9 @@ int main(int argc, char* argv[])
                   std::copy(leftChannelBegin, leftChannelEnd, leftChannelData.begin());
                   float* fdata[1];
                   fdata[0] = leftChannelData.data();
-
+				  
                   //f.process(Audio::DefaultBufferSize, fdata);
-                  std::copy(leftChannelData.begin(), leftChannelData.end(), leftChannelBegin);
+                  //std::copy(leftChannelData.begin(), leftChannelData.end(), leftChannelBegin);
                   std::copy(audioData.cbegin(), audioData.cend(), aOutBegin);
                 }
               });
