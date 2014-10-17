@@ -1,9 +1,9 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 
 #include <algorithm>
 #include <iostream>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 int main(int argc, char* argv[])
 {

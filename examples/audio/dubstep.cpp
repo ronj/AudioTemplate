@@ -1,4 +1,4 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <dsp/generators/oscillator.h>
 #include <dsp/generators/waveforms.h>
 #include <dsp/generators/noise.h>
@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <iostream>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 float mtof(int midiNote) {
   return 440.0 * std::exp(0.057762265 * (midiNote - 69.0));

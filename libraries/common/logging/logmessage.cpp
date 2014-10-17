@@ -37,38 +37,39 @@ namespace {
 namespace g2 {
 
    std::string LogMessage::toString() const {
-      std::ostringstream oss;
-      oss << "\n" << timestamp() << "." << microseconds() << "\t";
-      oss << level() << " [" << file();
-      oss << " L: " << line() << "]\t";
+      std::string out;
+      out.append("\n" + timestamp() + "." + microseconds() +  "\t"
+              + level() + " [" + file() + " L: " + line() + "]\t");
 
       // Non-fatal Log Message
       if (false == wasFatal()) {
-         oss << '"' << message() << '"';
-         return oss.str();
+         out.append('"' + message() + '"');
+         return out;
       }
 
       if (internal::FATAL_SIGNAL.value == _level.value) {
-         oss.str(""); // clear any previous text and formatting
-         oss << "\n" << timestamp() << "." << microseconds();
-         oss << "\n\n***** FATAL SIGNAL RECEIVED ******* " << std::endl;
-         oss << '"' << message() << '"';
-         return oss.str();
+         out.clear(); // clear any previous text and formatting
+         out.append("\n" + timestamp() + "." + microseconds() 
+                 + "\n\n***** FATAL SIGNAL RECEIVED ******* \n"
+                 + '"' + message() + '"');
+         return out;
       }
 
       // Not crash scenario but LOG or CONTRACT
       auto level_value = _level.value;
       if (FATAL.value == level_value) {
-         oss << "\n\t*******\tEXIT trigger caused by LOG(FATAL) entry: \n\t";
-         oss << '"' << message() << '"';
+         static const std::string fatalExitReason = {"EXIT trigger caused by LOG(FATAL) entry: "};
+         out.append("\n\t*******\t " + fatalExitReason + "\n\t" + '"' + message() + '"');
       } else if (internal::CONTRACT.value == level_value) {
-         oss << "\n\t  *******\tEXIT trigger caused by broken Contract: CHECK(" << _expression << ")\n\t";
-         oss << '"' << message() << '"';
+         static const std::string contractExitReason = {"EXIT trigger caused by broken Contract:"};
+         out.append("\n\t*******\t " + contractExitReason + " CHECK(" + _expression + ")\n\t" 
+                 + '"' + message() + '"');
       } else {
-         oss << "\n\t*******\tUNKNOWN Log Message Type\n" << '"' << message() << '"';
+         static const std::string errorUnknown = {"UNKNOWN Log Message Type"};
+         out.append("\n\t*******" + errorUnknown + "\t\n" + '"' + message() + '"');
       }
-
-      return oss.str();
+ 
+      return out;
    }
 
      std::string LogMessage::timestamp(const std::string & time_look) const {
@@ -78,8 +79,12 @@ namespace g2 {
    LogMessage::LogMessage(const std::string &file, const int line,
            const std::string& function, const LEVELS& level)
    : _timestamp(g2::systemtime_now())
+   , _call_thread_id(std::this_thread::get_id())
    , _microseconds(microsecondsCounter())
-   , _file(splitFileName(file)), _line(line), _function(function), _level(level)
+   , _file(splitFileName(file))
+   , _line(line)
+   , _function(function)
+   , _level(level)
 {}
 
 
@@ -90,6 +95,7 @@ namespace g2 {
    
    LogMessage::LogMessage(const LogMessage& other) 
    : _timestamp(other._timestamp)
+   , _call_thread_id(other._call_thread_id)
    , _microseconds(other._microseconds)
    , _file(other._file)
    , _line(other._line)
@@ -103,6 +109,7 @@ namespace g2 {
   
    LogMessage::LogMessage(LogMessage&& other)
    : _timestamp(other._timestamp)
+   , _call_thread_id(other._call_thread_id)
    , _microseconds(other._microseconds)
    , _file(std::move(other._file))
    , _line(other._line)
@@ -111,6 +118,13 @@ namespace g2 {
    , _expression(std::move(other._expression))
    , _message(std::move(other._message)) {
    }    
+   
+   
+   std::string LogMessage::threadID() const {
+      std::ostringstream oss;
+      oss << _call_thread_id;
+      return oss.str();
+   }
 
    FatalMessage::FatalMessage(const LogMessage& details, int signal_id) 
    : LogMessage(details), _signal_id(signal_id) { }

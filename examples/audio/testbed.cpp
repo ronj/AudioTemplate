@@ -1,4 +1,4 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <audio/codec_repository.h>
 
 #include <dsp/analysis/fft.h>
@@ -14,7 +14,7 @@
 #include <chrono>
 #include <functional>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 class Playback
 {

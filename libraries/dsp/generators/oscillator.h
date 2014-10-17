@@ -20,7 +20,7 @@ public:
 
       for (std::size_t n = 0; n < N; ++n)
       {
-        sTable[n] = w(n * (1.0 / N));
+        sTable.push_back(w(n * (1.0 / N)));
       }
     }
 
@@ -42,7 +42,7 @@ public:
     double alpha = iTime - iIndex;
     iTime += iRate;
 
-    return sTable[iIndex] * (1 - alpha) + sTable[iIndex + 1] * alpha;
+    return sTable[iIndex] * (1 - alpha) + sTable[std::min(iIndex + 1, sTable.size() - 1)] * alpha;
   }
 
   void setFrequency(double aFrequency)

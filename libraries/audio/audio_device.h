@@ -13,7 +13,7 @@
 #include <common/config.h>
 
 template <typename T>
-class AudioIO
+class AudioDevice
 {
 public:
   using sample_type = T;
@@ -39,7 +39,7 @@ public:
   }
 
 public:
-  explicit AudioIO(callback_type aCallback)
+  explicit AudioDevice(callback_type aCallback)
     : iCallback(aCallback)
     , iBufferSize(DefaultBufferSize)
     , iSamplerateControl(DefaultSamplerate)
@@ -52,12 +52,12 @@ public:
     //iStreamOptions.flags = RTAUDIO_MINIMIZE_LATENCY;
   }
 
-  AudioIO()
-    : AudioIO(nullptr)
+  AudioDevice()
+    : AudioDevice(nullptr)
   {
   }
 
-  ~AudioIO()
+  ~AudioDevice()
   {
     if (iDac.isStreamOpen())
     {
@@ -101,7 +101,7 @@ private:
                     aAudioFormat,
                     iSamplerateControl.getSamplerate(),
                     &iBufferSize,
-                    &AudioIO::audioCallback,
+                    &AudioDevice::audioCallback,
                     static_cast<void*>(this),
                     &iStreamOptions);
   }
@@ -126,7 +126,7 @@ private:
     (void)aStreamTime;
     (void)aStreamStatus;
 
-    AudioIO& audio = *static_cast<AudioIO*>(aData);
+    AudioDevice& audio = *static_cast<AudioDevice*>(aData);
     unsigned int inputDataSize = aBufferFrameCount * audio.iInputParameters.nChannels;
     unsigned int outputDataSize = aBufferFrameCount * audio.iOutputParameters.nChannels;
 
@@ -149,37 +149,37 @@ private:
 };
 
 template <typename T>
-void AudioIO<T>::open()
+void AudioDevice<T>::open()
 {
   throw std::logic_error(std::string("Sample type ") + typeid(T).name() + " not supported.");
 }
 
 template <>
-void AudioIO<char>::open()
+void AudioDevice<char>::open()
 {
   doOpen(RTAUDIO_SINT8);
 }
 
 template <>
-void AudioIO<signed short>::open()
+void AudioDevice<signed short>::open()
 {
   doOpen(RTAUDIO_SINT16);
 }
 
 template <>
-void AudioIO<signed long>::open()
+void AudioDevice<signed long>::open()
 {
   doOpen(RTAUDIO_SINT32);
 }
 
 template <>
-void AudioIO<float>::open()
+void AudioDevice<float>::open()
 {
   doOpen(RTAUDIO_FLOAT32);
 }
 
 template <>
-void AudioIO<double>::open()
+void AudioDevice<double>::open()
 {
   doOpen(RTAUDIO_FLOAT64);
 }

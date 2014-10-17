@@ -1,4 +1,4 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <dsp/analysis/fft.h>
 #include <dsp/analysis/beat_detector.h>
 
@@ -7,7 +7,7 @@
 #include <chrono>
 #include <iostream>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 int main(int argc, char* argv[])
 {

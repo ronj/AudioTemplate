@@ -1,11 +1,11 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <dsp/generators/oscillator.h>
 #include <dsp/generators/waveforms.h>
 
 #include <algorithm>
 #include <iostream>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 class Waveform
 {

@@ -1,4 +1,4 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <audio/codec_repository.h>
 
 #include <common/readerwriterqueue.h>
@@ -9,7 +9,7 @@
 #include <condition_variable>
 #include <iostream>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 int main(int argc, char* argv[])
 {

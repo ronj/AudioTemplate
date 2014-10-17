@@ -1,4 +1,4 @@
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <audio/codec_repository.h>
 
 #include <dsp/effects/FFTConvolver.h>
@@ -8,7 +8,7 @@
 
 // See IR's from: http://fokkie.home.xs4all.nl/IR.htm
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 
 int main(int argc, char* argv[])
 {

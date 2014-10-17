@@ -1,6 +1,6 @@
 #include "three/common.h"
 
-#include <audio/audio_io.h>
+#include <audio/audio.h>
 #include <audio/codec_repository.h>
 
 #include <common/stride_iterator.h>
@@ -26,7 +26,7 @@
 #include <string>
 #include <cerrno>
 
-using Audio = AudioIO<float>;
+using Audio = invent::audio::AudioIO;
 using namespace three;
 using namespace three_examples;
 
