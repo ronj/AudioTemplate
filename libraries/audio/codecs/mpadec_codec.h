@@ -78,7 +78,7 @@ public:
     cleanup();
   }
 
-  std::size_t decode(TSample* aSamples, std::size_t aSampleCount)
+  std::size_t decode(TSample* aSamples, std::size_t aSampleCount) const
   {
     unsigned int bufferUsedSize = 0;
 
@@ -90,7 +90,7 @@ public:
     return bufferUsedSize / sizeof(TSample);
   }
 
-  std::size_t encode(const TSample*, std::size_t)
+  std::size_t encode(const TSample*, std::size_t) const
   {
     throw std::logic_error("Not implemented");
   }
