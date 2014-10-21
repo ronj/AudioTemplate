@@ -7,12 +7,38 @@
 #include <dsp/filters/Dsp.h>
 
 #include <algorithm>
+#include <array>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
+#include <memory>
 #include <iostream>
 
 using Audio = invent::audio::AudioIO;
+
+class ParametricEqualizer
+{
+public:
+	void addFilter(std::shared_ptr<Dsp::Filter> aFilter)
+	{
+		m_Bands.push_back(std::move(aFilter));
+	}
+
+	void process(unsigned int aSampleCount, Audio::sample_type* const* aArrayOfChannels)
+	{
+		for (auto band : m_Bands)
+		{
+			band->process(aSampleCount, aArrayOfChannels);
+		}
+	}
+
+	void adjustBandGain(int band, float adjust)
+	{
+		m_Bands[band]->setParam(2, m_Bands[band]->getParam(2) + adjust);
+		std::cout << "New value: " << m_Bands[band]->getParam(2) << std::endl;
+	}
+
+private:
+	std::vector<std::shared_ptr<Dsp::Filter>> m_Bands;
+};
 
 int main(int argc, char* argv[])
 {
@@ -27,12 +53,26 @@ int main(int argc, char* argv[])
 
   moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q;
 
-  Dsp::SimpleFilter <Dsp::ChebyshevI::BandStop <3>, 2> f;
-  f.setup(3,    // order
-	      44100,// sample rate
-	      4000, // center frequency
-	      880,  // band width
-	      1);   // ripple dB
+  ParametricEqualizer eq;
+  
+  std::array<int, 10> bands = { 32, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000 };
+  Dsp::Params params;
+
+
+  for (auto band : bands)
+  {
+	  params.clear();
+
+	  std::shared_ptr<Dsp::Filter> f0 = std::make_shared<Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandShelf, 2>>(1024);
+	  
+	  params[0] = 44100;
+	  params[1] = band;
+	  params[2] = Dsp::ParamInfo::defaultGainParam().getDefaultValue();
+	  params[3] = Dsp::ParamInfo::defaultBandwidthParam().getDefaultValue();
+
+	  f0->setParams(params);
+	  eq.addFilter(f0);
+  }
 
   std::thread decoderThread = std::thread([&]() {
     std::size_t decodedSamples = 0;
@@ -66,7 +106,7 @@ int main(int argc, char* argv[])
                 {
 					Dsp::deinterleave(Audio::DefaultBufferSize, leftChannelData.data(), rightChannelData.data(), audioData.data());
 
-					f.process(Audio::DefaultBufferSize, arrayOfChannels);
+					eq.process(Audio::DefaultBufferSize, arrayOfChannels);
 
 					Dsp::interleave(Audio::DefaultBufferSize, aOutBegin, leftChannelData.data(), rightChannelData.data());
                 }
@@ -78,6 +118,25 @@ int main(int argc, char* argv[])
             << " samples, and a stream latency of " << audio.streamLatency()
             << " samples (" << (audio.streamLatency() / audio.samplerateControl().getSamplerate()) * 1000. << " ms.)" << std::endl
             << "Playing back " << argv[1] << ", which is " << codec->info().toString() << std::endl;
+
+  char x;
+  while (std::cin.get(x))
+  {
+	  switch (x)
+	  {
+	  case 'w': eq.adjustBandGain(0, 1.f); break;
+	  case 's': eq.adjustBandGain(0, -1.f); break;
+
+	  case 'e': eq.adjustBandGain(1, 1.0f); break;
+	  case 'd': eq.adjustBandGain(1, -1.0f); break;
+
+	  case 'r': eq.adjustBandGain(2, 1.0f); break;
+	  case 'f': eq.adjustBandGain(2, -1.0f); break;
+
+	  case 'o': eq.adjustBandGain(8, 1.0f); break;
+	  case 'l': eq.adjustBandGain(8, -1.0f); break;
+	  }
+  }
 
   decoderThread.join();
 }

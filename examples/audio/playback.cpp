@@ -4,9 +4,8 @@
 #include <common/readerwriterqueue.h>
 
 #include <algorithm>
+#include <array>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
 #include <iostream>
 
 using Audio = invent::audio::AudioIO;
@@ -22,23 +21,29 @@ int main(int argc, char* argv[])
   CodecRepository<Audio::sample_type> codecs;
   auto codec = codecs.open(argv[1]);
 
-  moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q;
+  moodycamel::ReaderWriterQueue<std::array<Audio::sample_type, Audio::DefaultBufferSize * 2>> q;
 
   std::thread decoderThread = std::thread([&](){
     std::size_t decodedSamples = 0;
 
     do
     {
-      std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
-      decodedSamples = codec->decode(audioData.data(), audioData.capacity());
+	  std::array<Audio::sample_type, Audio::DefaultBufferSize * 2> decoderBuffer;
+	  decodedSamples = codec->decode(decoderBuffer.data(), decoderBuffer.size());
 
-      bool queue_full = true;
-      while (queue_full)
-      {
-        queue_full = !q.try_enqueue(audioData);
-        std::chrono::milliseconds dura( 10 );
-        std::this_thread::sleep_for( dura );
-      }
+      bool elementEnqueued = false;
+	  do
+	  {
+		  if (q.try_enqueue(decoderBuffer))
+		  {
+			  elementEnqueued = true;
+		  }
+		  else
+		  {
+			  const double sleepTime = ((1.0 / codec->info().samplerate()) * 1000) * Audio::DefaultBufferSize;
+			  std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(std::round(sleepTime))));
+		  }
+	  } while (!elementEnqueued);
     } while (decodedSamples > 0);
   });
 
@@ -47,11 +52,11 @@ int main(int argc, char* argv[])
                   Audio::sample_iterator aOutBegin,
                   Audio::sample_iterator aOutEnd)
               {
-                std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
-
-                if (q.try_dequeue(audioData))
+				auto data = q.peek();
+                if (data)
                 {
-                  std::copy(audioData.cbegin(), audioData.cend(), aOutBegin);
+				  std::copy(data->cbegin(), data->cend(), aOutBegin);
+				  q.pop();
                 }
               });
 
