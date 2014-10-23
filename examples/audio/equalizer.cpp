@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
   CodecRepository<Audio::sample_type> codecs;
   auto codec = codecs.open(argv[1]);
-  auto decoder = invent::audio::blocks::DefaultDecoder(*codec);
+  invent::audio::blocks::DefaultDecoder decoder(*codec);
 
   ParametricEqualizer eq({ 32, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000 }, 44100);
 
