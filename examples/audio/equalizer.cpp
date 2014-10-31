@@ -1,14 +1,8 @@
 #include <audio/audio.h>
-#include <audio/codec_repository.h>
-
-#include <common/stride_iterator.h>
-#include <common/readerwriterqueue.h>
 
 #include <dsp/filters/Dsp.h>
 
 #include <algorithm>
-#include <array>
-#include <thread>
 #include <memory>
 #include <iostream>
 
@@ -17,9 +11,22 @@ using Audio = invent::audio::AudioIO;
 class ParametricEqualizer
 {
 public:
-	void addFilter(std::shared_ptr<Dsp::Filter> aFilter)
+	ParametricEqualizer(const std::vector<unsigned int>& aBands, unsigned int aSamplerate)
 	{
-		m_Bands.push_back(std::move(aFilter));
+		Dsp::Params params;
+
+		for (auto band : aBands)
+		{
+			m_Bands.emplace_back(std::make_shared<Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandShelf, 2>>(1024));
+
+			params.clear();
+			params[0] = aSamplerate;
+			params[1] = band;
+			params[2] = Dsp::ParamInfo::defaultGainParam().getDefaultValue();
+			params[3] = Dsp::ParamInfo::defaultBandwidthParam().getDefaultValue();
+
+			m_Bands.back()->setParams(params);
+		}
 	}
 
 	void process(unsigned int aSampleCount, Audio::sample_type* const* aArrayOfChannels)
@@ -33,7 +40,11 @@ public:
 	void adjustBandGain(int band, float adjust)
 	{
 		m_Bands[band]->setParam(2, m_Bands[band]->getParam(2) + adjust);
-		std::cout << "New value: " << m_Bands[band]->getParam(2) << std::endl;
+	}
+
+	void adjustBandBandwidth(int band, float adjust)
+	{
+		m_Bands[band]->setParam(3, m_Bands[band]->getParam(3) + adjust);
 	}
 
 private:
@@ -51,48 +62,10 @@ int main(int argc, char* argv[])
   invent::audio::CodecRepository::registerCommonCodecs();
 
   auto codec = invent::audio::CodecRepository::open(argv[1]);
-  moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q;
+  invent::audio::blocks::DefaultDecoder decoder(codec);
 
-  ParametricEqualizer eq;
-  
-  std::array<int, 10> bands = { 32, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000 };
-  Dsp::Params params;
+  ParametricEqualizer eq({ 32, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000 }, 44100);
 
-
-  for (auto band : bands)
-  {
-	  params.clear();
-
-	  std::shared_ptr<Dsp::Filter> f0 = std::make_shared<Dsp::SmoothedFilterDesign<Dsp::RBJ::Design::BandShelf, 2>>(1024);
-	  
-	  params[0] = 44100;
-	  params[1] = band;
-	  params[2] = Dsp::ParamInfo::defaultGainParam().getDefaultValue();
-	  params[3] = Dsp::ParamInfo::defaultBandwidthParam().getDefaultValue();
-
-	  f0->setParams(params);
-	  eq.addFilter(f0);
-  }
-
-  std::thread decoderThread = std::thread([&]() {
-    std::size_t decodedSamples = 0;
-
-    do
-    {
-      std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
-      decodedSamples = codec->decode(audioData.data(), audioData.capacity());
-
-      bool queue_full = true;
-      while (queue_full)
-      {
-        queue_full = !q.try_enqueue(audioData);
-        std::chrono::milliseconds dura( 10 );
-        std::this_thread::sleep_for( dura );
-      }
-    } while (decodedSamples > 0);
-  });
-
-  std::vector<Audio::sample_type> audioData(Audio::DefaultBufferSize * codec->info().channels());
   std::vector<Audio::sample_type> leftChannelData(Audio::DefaultBufferSize);
   std::vector<Audio::sample_type> rightChannelData(Audio::DefaultBufferSize);
   float* arrayOfChannels[2] = { leftChannelData.data(), rightChannelData.data() };
@@ -102,13 +75,16 @@ int main(int argc, char* argv[])
                   Audio::sample_iterator aOutBegin,
                   Audio::sample_iterator aOutEnd)
               {
-                if (q.try_dequeue(audioData))
+				auto audio = decoder.peek();
+                if (audio)
                 {
-					Dsp::deinterleave(Audio::DefaultBufferSize, leftChannelData.data(), rightChannelData.data(), audioData.data());
+					Dsp::deinterleave(Audio::DefaultBufferSize, leftChannelData.data(), rightChannelData.data(), audio->data());
 
 					eq.process(Audio::DefaultBufferSize, arrayOfChannels);
 
 					Dsp::interleave(Audio::DefaultBufferSize, aOutBegin, leftChannelData.data(), rightChannelData.data());
+
+					decoder.pop();
                 }
               });
 
@@ -124,8 +100,8 @@ int main(int argc, char* argv[])
   {
 	  switch (x)
 	  {
-	  case 'w': eq.adjustBandGain(0, 1.f); break;
-	  case 's': eq.adjustBandGain(0, -1.f); break;
+	  case 'w': eq.adjustBandGain(0, 1.0f); break;
+	  case 's': eq.adjustBandGain(0, -1.0f); break;
 
 	  case 'e': eq.adjustBandGain(1, 1.0f); break;
 	  case 'd': eq.adjustBandGain(1, -1.0f); break;
@@ -138,5 +114,5 @@ int main(int argc, char* argv[])
 	  }
   }
 
-  decoderThread.join();
+  decoder.join();
 }
