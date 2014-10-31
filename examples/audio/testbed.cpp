@@ -83,8 +83,8 @@ public:
   }
 
 private:
-  CodecRepository<Audio::sample_type> iCodecs;
-  std::shared_ptr<IAudioCodec<float>> iMP3;
+  invent::audio::CodecRepository iCodecs;
+  std::shared_ptr<IAudioCodec> iMP3;
   std::vector<Audio::sample_type> iDecodedData;
   std::shared_ptr<Fft> fft;
   BeatDetektor beat_lo;

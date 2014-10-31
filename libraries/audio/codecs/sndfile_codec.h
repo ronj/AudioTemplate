@@ -1,48 +1,32 @@
 #ifndef SNDFILE_CODEC_H
 #define SNDFILE_CODEC_H
 
-#include <sndfile.h>
-
 #include "audio_codec.h"
-#include "sndfile_info.h"
 
-template <typename TSample>
-class SndFileCodec : public IAudioCodec<TSample>
+#include <memory>
+#include <string>
+#include <vector>
+
+class IAudioInfo;
+class IDataAccess;
+
+class SndFileCodec : public IAudioCodec
 {
 public:
-  SndFileCodec(const std::string& aFilename)
-  {
-    iSndFile = sf_open(aFilename.c_str(), SFM_READ, iInfo.nativeHandle());
+	SndFileCodec(std::unique_ptr<IDataAccess> aDataAccess);
+	virtual ~SndFileCodec() {}
 
-    if (sf_error(iSndFile))
-    {
-      throw FormatNotSupportedException();
-    }
-  }
+	std::size_t decode(float* aSamples, std::size_t aSampleCount) const;
+	std::size_t encode(const float* aSamples, std::size_t aSampleCount) const;
 
-  virtual ~SndFileCodec()
-  {
-    sf_close(iSndFile);
-  }
+	const IAudioInfo& info() const;
 
-  std::size_t decode(TSample* aSamples, std::size_t aSampleCount) const
-  {
-    return sf_read_float(iSndFile, aSamples, aSampleCount);
-  }
-
-  std::size_t encode(const TSample*, std::size_t) const
-  {
-    throw std::logic_error("Not implemented");
-  }
-
-  const IAudioInfo& info() const
-  {
-    return iInfo;
-  }
+	static std::vector<std::string> supportedExtensions();
+	static std::vector<std::string> supportedMimeTypes();
 
 private:
-  SNDFILE*    iSndFile = nullptr;
-  SndFileInfo iInfo;
+	class SndFileCodecImpl;
+	std::shared_ptr<SndFileCodecImpl> iImpl;
 };
 
 #endif // SNDFILE_CODEC_H

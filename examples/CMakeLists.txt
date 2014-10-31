@@ -1,4 +1,4 @@
-include_directories(${rtaudio_INCLUDE_DIRS} ${MPADEC_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR})
+include_directories(${rtaudio_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR})
 
 ## Audio examples
 

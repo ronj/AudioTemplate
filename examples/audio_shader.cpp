@@ -141,8 +141,8 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  CodecRepository<Audio::sample_type> codecs;
-  auto codec = codecs.open(argv[1]);
+  invent::audio::CodecRepository::registerCommonCodecs();
+  auto codec = invent::audio::CodecRepository::open(argv[1]);
   shader_url = argv[2];
 
   std::vector<Audio::sample_type> decodingBuffer(Audio::DefaultBufferSize * codec->info().channels());

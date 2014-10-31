@@ -48,9 +48,9 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  CodecRepository<Audio::sample_type> codecs;
-  auto codec = codecs.open(argv[1]);
+  invent::audio::CodecRepository::registerCommonCodecs();
 
+  auto codec = invent::audio::CodecRepository::open(argv[1]);
   moodycamel::ReaderWriterQueue<std::vector<Audio::sample_type>> q;
 
   ParametricEqualizer eq;

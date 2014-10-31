@@ -6,12 +6,17 @@ find_package(libsndfile)
 if (LIBSNDFILE_FOUND)
   list(APPEND OPTIONAL_INCLUDES ${LIBSNDFILE_INCLUDE_DIR})
   list(APPEND OPTIONAL_LIBS ${LIBSNDFILE_LIBRARY})
+  add_definitions(-DHAS_SNDFILE)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${rtaudio_INCLUDE_DIRS} ${MPADEC_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR} ${OPTIONAL_INCLUDES})
 
 set(AUDIO_SOURCES samplerate_control.cpp
-                  samplerate_aware.cpp)
+                  samplerate_aware.cpp
+                  codec_repository.cpp
+                  codecs/mpadec_codec.cpp
+                  codecs/mpadec_info.cpp
+                  codecs/sndfile_codec.cpp)
 
 invent_add_library(audio ${AUDIO_SOURCES})
 target_link_libraries(audio ${rtaudio_LIBRARY} ${MPADEC_LIBRARY} ${OPTIONAL_LIBS})

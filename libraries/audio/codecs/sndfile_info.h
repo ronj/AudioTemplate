@@ -50,6 +50,11 @@ public:
     return &iInfo;
   }
 
+  void setSndfileHandle(SNDFILE* aHandle)
+  {
+    iSndfileHandle = aHandle;
+  }
+
 private:
   std::string typeToString() const
   {
@@ -87,6 +92,7 @@ private:
 
 private:
   SF_INFO iInfo;
+  SNDFILE* iSndfileHandle;
 };
 
 #endif // SNDFILE_INFO_H

@@ -8,75 +8,23 @@
 class MPADECInfo : public IAudioInfo
 {
 public:
-  unsigned int layer() const
-  {
-    return iInfo.layer;
-  }
+	unsigned int layer() const;
+	unsigned int channels() const;
+	unsigned int bitrate() const;
+	unsigned int samplerate() const;
 
-  unsigned int channels() const
-  {
-    return iInfo.channels;
-  }
+	audio_duration duration() const;
 
-  unsigned int bitrate() const
-  {
-    return iInfo.bitrate;
-  }
+	std::string toString() const;
 
-  unsigned int samplerate() const
-  {
-    return iInfo.frequency;
-  }
-
-  audio_duration duration() const
-  {
-    return audio_duration(iInfo.duration);
-  }
-
-  std::string toString() const
-  {
-    std::stringstream ss;
-
-    ss << mpegTypeString() << " " << layerToString() << " "
-       << channelsToString() << " " << samplerateToString() << " "
-       << bitrateToString() << " " << durationToString();
-
-    return ss.str();
-  }
-
-  mpadec_info_t* nativeHandle()
-  {
-    return &iInfo;
-  }
+	mpadec_info_t* nativeHandle();
 
 private:
-  std::string mpegTypeString() const
-  {
-    if (samplerate() < 16000)
-    {
-      return "MPEG-2.5";
-    }
-    else if (samplerate() < 32000)
-    {
-      return "MPEG-2";
-    }
-
-    return "MPEG-1";
-  }
-
-  std::string layerToString() const
-  {
-    switch (layer())
-    {
-      case 1: return "Layer-I";
-      case 2: return "Layer-II";
-      case 3: return "Layer-III";
-      default: return "Unknown Layer";
-    }
-  }
+	std::string mpegTypeString() const;
+	std::string layerToString() const;
 
 private:
-  mpadec_info_t iInfo;
+	mpadec_info_t iInfo;
 };
 
 #endif // MPADEC_INFO_H

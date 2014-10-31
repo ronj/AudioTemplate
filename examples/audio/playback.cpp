@@ -13,9 +13,9 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  CodecRepository<Audio::sample_type> codecs;
-  auto codec = codecs.open(argv[1]);
-  invent::audio::blocks::DefaultDecoder decoder(*codec);
+  invent::audio::CodecRepository::registerCommonCodecs();
+  auto codec = invent::audio::CodecRepository::open(argv[1]);
+  invent::audio::blocks::DefaultDecoder decoder(codec);
 
   Audio audio([&](Audio::sample_iterator aInBegin,
                   Audio::sample_iterator aInEnd,

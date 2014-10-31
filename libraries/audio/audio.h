@@ -2,12 +2,15 @@
 #define INVENT_AUDIO_H
 
 #include "audio_device.h"
+#include "codecs/audio_info.h"
+#include "codecs/audio_codec.h"
 #include "codec_repository.h"
 
 #include <common/readerwriterqueue.h>
 #include <array>
 #include <algorithm>
 #include <thread>
+#include <memory>
 
 namespace invent {
 	namespace audio {
@@ -63,10 +66,10 @@ namespace invent {
 	      class DefaultDecoder
 	      {
 	      public:
-	        DefaultDecoder(const IAudioCodec<DefaultSampleType>& aCodec)
+	        DefaultDecoder(std::shared_ptr<IAudioCodec> aCodec)
 	          : m_Codec(aCodec)
 	          , m_Queue(128)
-	          , m_SleepTime(static_cast<int>(std::round(((1.0 / m_Codec.info().samplerate()) * 1000) * 512)))
+	          , m_SleepTime(static_cast<int>(std::round(((1.0 / m_Codec->info().samplerate()) * 1000) * 512)))
 	        {
 	          m_Thread = std::thread([this]()
 	          {
@@ -75,7 +78,7 @@ namespace invent {
 	            do
 	            {
 	              StereoInterleaved decoderBuffer;
-	              decodedSamples = m_Codec.decode(decoderBuffer.data(), decoderBuffer.size());
+	              decodedSamples = m_Codec->decode(decoderBuffer.data(), decoderBuffer.size());
 
 	              while (!m_Queue.try_enqueue(decoderBuffer))
 	              {
@@ -101,7 +104,7 @@ namespace invent {
 	        }
 
 	      private:
-	        const IAudioCodec<DefaultSampleType>& m_Codec;
+	        std::shared_ptr<IAudioCodec> m_Codec;
 	        moodycamel::ReaderWriterQueue<StereoInterleaved> m_Queue;
 	        std::thread m_Thread;
 	        std::chrono::milliseconds m_SleepTime;

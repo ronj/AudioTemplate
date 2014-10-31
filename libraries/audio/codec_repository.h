@@ -1,70 +1,43 @@
 #ifndef CODEC_REPOSITORY_H
 #define CODEC_REPOSITORY_H
 
-#include <audio/codecs/mpadec_codec.h>
-
-#if HAS_SNDFILE
-#include <audio/codecs/sndfile_codec.h>
-#endif
+#include "codecs/registered_codec.h"
 
 #include <exception>
-#include <functional>
 #include <memory>
-#include <string>
 #include <vector>
 
-class NoCodecForFiletype : public std::exception
+class IAudioCodec;
+
+namespace invent
 {
-  virtual const char* what() const throw()
-  {
-    return "Format is not supported by any of the registered codecs.";
-  }
-};
+	namespace audio
+	{
+		class NoCodecForFiletype : public std::exception
+		{
+			virtual const char* what() const throw()
+			{
+				return "Format is not supported by any of the registered codecs.";
+			}
+		};
 
-template <typename T>
-class CodecRepository
-{
-public:
-  CodecRepository()
-  {
-#if HAS_SNDFILE
-    registerCodec<SndFileCodec<T>>();
-#endif
-    registerCodec<MPADECCodec<T>>();
-  }
+		class CodecRepository
+		{
+		public:
+			CodecRepository();
 
-  std::shared_ptr<IAudioCodec<T>> open(const std::string& aFilename)
-  {
-    for (auto codec : iRegisteredCodecs)
-    {
-      try
-      {
-        return codec(aFilename);
-      }
-      catch (FormatNotSupportedException& e)
-      {
-        continue;
-      }
-    }
+			static std::shared_ptr<IAudioCodec> open(const std::string& aFilename);
 
-    throw NoCodecForFiletype();
-  }
+			static void registerCodec(RegisteredCodec aCodecInfo);
+			static void registerCommonCodecs();
 
-private:
-  template <typename Codec>
-  void registerCodec()
-  {
-    iRegisteredCodecs.push_back(std::bind(&CodecRepository::tryOpen<Codec>, this, std::placeholders::_1));
-  }
+		private:
+			static void doRegisterCommonCodecs();
 
-  template <typename Codec>
-  std::shared_ptr<IAudioCodec<T>> tryOpen(const std::string& aFilename)
-  {
-    return std::make_shared<Codec>(aFilename);
-  }
+		private:
+			static std::vector<RegisteredCodec> sRegisteredCodecs;
+		};
+	} // !namespace audio
+} // !namespace invent
 
-private:
-  std::vector<std::function<std::shared_ptr<IAudioCodec<T>>(const std::string&)>> iRegisteredCodecs;
-};
-
-#endif // CODEC_REPOSITORY_H
+#endif // !CODEC_REPOSITORY_H

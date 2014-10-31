@@ -19,10 +19,10 @@ int main(int argc, char* argv[])
   }
 
   fftconvolver::FFTConvolver convolver;
-  CodecRepository<Audio::sample_type> codecs;
+  invent::audio::CodecRepository::registerCommonCodecs();
 
-  std::shared_ptr<IAudioCodec<Audio::sample_type>> input = codecs.open(argv[1]);
-  std::shared_ptr<IAudioCodec<Audio::sample_type>> convolve = codecs.open(argv[2]);
+  auto input = invent::audio::CodecRepository::open(argv[1]);
+  auto convolve = invent::audio::CodecRepository::open(argv[2]);
 
   std::vector<Audio::sample_type> convolveData;
   std::vector<Audio::sample_type> inputData(Audio::DefaultBufferSize * input->info().channels());
