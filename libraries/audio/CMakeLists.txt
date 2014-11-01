@@ -16,7 +16,7 @@ find_package(curl)
 if (CURL_FOUND)
   list(APPEND OPTIONAL_INCLUDES ${CURL_INCLUDE_DIRS})
   list(APPEND OPTIONAL_LIBS ${CURL_LIBRARIES})
-  list(APPEND OPTIONAL_SOURCES data-access/http.cpp)
+  list(APPEND OPTIONAL_SOURCES data-access/http.h data-access/http.cpp)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${rtaudio_INCLUDE_DIRS} ${MPADEC_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR} ${OPTIONAL_INCLUDES})
@@ -26,7 +26,12 @@ set(AUDIO_SOURCES samplerate_control.cpp
                   codec_repository.cpp
                   codecs/mpadec_codec.cpp
                   codecs/mpadec_info.cpp
+                  data-access/uri.h
+                  data-access/uri.cpp
+                  data-access/file.h
                   data-access/file.cpp
+                  data-access/data_access_factory.cpp
+                  data-access/data_access_factory.h
                   ${OPTIONAL_SOURCES})
 
 invent_add_library(audio ${AUDIO_SOURCES})
