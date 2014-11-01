@@ -3,6 +3,8 @@
 
 #include <common/noncopyable.h>
 
+#include <cstddef>
+
 class IDataAccess : public NonCopyable
 {
 public:

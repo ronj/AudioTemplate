@@ -51,11 +51,10 @@ namespace virtual_io {
 class SndFileCodec::SndFileCodecImpl
 {
 public:
-	using unique_ptr = std::unique_ptr<SNDFILE, int(*)(SNDFILE *)>;
+	using unique_ptr = std::unique_ptr<SNDFILE, std::function<int(SNDFILE *)>>;
 
 	SndFileCodecImpl(std::unique_ptr<IDataAccess> aDataAccess)
-		: iSndFile(nullptr, nullptr)
-		, iDataAccess(std::move(aDataAccess))
+		: iDataAccess(std::move(aDataAccess))
 	{
 		iDataAccess->open();
 

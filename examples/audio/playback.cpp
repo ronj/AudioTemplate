@@ -22,12 +22,16 @@ int main(int argc, char* argv[])
                   Audio::sample_iterator aOutBegin,
                   Audio::sample_iterator aOutEnd)
               {
-				auto data = decoder.peek();
+				        auto data = decoder.peek();
 
                 if (data)
                 {
-				    std::copy(data->begin(), data->end(), aOutBegin);
-				    decoder.pop();
+				          std::copy(data->begin(), data->end(), aOutBegin);
+				          decoder.pop();
+                }
+                else
+                {
+                  std::fill(aOutBegin, aOutEnd, 0.0f);
                 }
               });
 

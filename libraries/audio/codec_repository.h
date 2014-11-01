@@ -26,7 +26,7 @@ namespace invent
 		public:
 			CodecRepository();
 
-			static std::shared_ptr<IAudioCodec> open(const std::string& aFilename);
+			static std::shared_ptr<IAudioCodec> open(const std::string& aUrl);
 
 			static void registerCodec(RegisteredCodec aCodecInfo);
 			static void registerCommonCodecs();
