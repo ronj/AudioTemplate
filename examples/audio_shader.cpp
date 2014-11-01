@@ -1,6 +1,7 @@
 #include "three/common.h"
 
 #include <audio/audio.h>
+#include <audio/codec_repository.h>
 
 #include <common/stride_iterator.h>
 #include <common/readerwriterqueue.h>

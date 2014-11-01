@@ -6,7 +6,8 @@
 #include "codecs/sndfile_codec.h"
 #endif
 
-#include "data-access/data_access_factory.h"
+#include "data-access/file.h"
+#include "data-access/http.h"
 
 #include <algorithm>
 #include <mutex>
@@ -28,13 +29,11 @@ namespace invent
 
 		std::shared_ptr<IAudioCodec> CodecRepository::open(const std::string& aUrl)
 		{
-			auto access = DataAccessFactory::CreateForUrl(aUrl);
-
 			for (auto codec : sRegisteredCodecs)
 			{
 				try
 				{
-					return codec.create(std::move(access));
+					return codec.create(std::unique_ptr<IDataAccess>(new File(aUrl)));
 				}
 				catch (FormatNotSupportedException& aException)
 				{
