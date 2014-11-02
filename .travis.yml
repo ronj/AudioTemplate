@@ -12,7 +12,7 @@ before_install:
 install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  - sudo apt-get -qq install libasound2-dev libsdl2-dev libsndfile1-dev
+  - sudo apt-get -qq install libasound2-dev libsdl2-dev libsndfile1-dev libcurl-dev
 
 script:
   - mkdir build
