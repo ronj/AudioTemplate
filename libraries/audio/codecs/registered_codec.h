@@ -16,7 +16,7 @@ struct RegisteredCodec
 	std::function<StringList(void)> supportedExtensions;
 	std::function<StringList(void)> supportedMimeTypes;
 
-	std::function<std::unique_ptr<IAudioCodec>(std::unique_ptr<IDataAccess>)> create;
+	std::function<std::shared_ptr<IAudioCodec>(std::unique_ptr<IDataAccess>)> create;
 
 	int priority;
 };

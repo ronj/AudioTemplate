@@ -14,7 +14,7 @@ class SndFileCodec : public IAudioCodec
 {
 public:
 	SndFileCodec(std::unique_ptr<IDataAccess> aDataAccess);
-	virtual ~SndFileCodec() {}
+	virtual ~SndFileCodec();
 
 	std::size_t decode(float* aSamples, std::size_t aSampleCount) const;
 	std::size_t encode(const float* aSamples, std::size_t aSampleCount) const;
@@ -25,8 +25,8 @@ public:
 	static std::vector<std::string> supportedMimeTypes();
 
 private:
-	class SndFileCodecImpl;
-	std::shared_ptr<SndFileCodecImpl> iImpl;
+	class Impl;
+	std::unique_ptr<Impl> iImpl;
 };
 
 #endif // SNDFILE_CODEC_H

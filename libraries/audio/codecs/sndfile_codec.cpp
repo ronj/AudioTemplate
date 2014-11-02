@@ -48,12 +48,12 @@ namespace virtual_io {
 	}
 }
 
-class SndFileCodec::SndFileCodecImpl
+class SndFileCodec::Impl
 {
 public:
 	using unique_ptr = std::unique_ptr<SNDFILE, std::function<int(SNDFILE *)>>;
 
-	SndFileCodecImpl(std::unique_ptr<IDataAccess> aDataAccess)
+	Impl(std::unique_ptr<IDataAccess> aDataAccess)
 		: iDataAccess(std::move(aDataAccess))
 	{
 		iDataAccess->open();
@@ -89,7 +89,11 @@ private:
 };
 
 SndFileCodec::SndFileCodec(std::unique_ptr<IDataAccess> aDataAccess)
-	: iImpl(std::make_shared<SndFileCodecImpl>(std::move(aDataAccess)))
+	: iImpl(new Impl(std::move(aDataAccess)))
+{
+}
+
+SndFileCodec::~SndFileCodec()
 {
 }
 

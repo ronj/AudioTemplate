@@ -40,10 +40,10 @@ namespace virtual_io {
 	}
 } // !namespace virtual_io
 
-class MPADECCodec::MPADECCodecImpl
+class MPADECCodec::Impl
 {
 public:
-	MPADECCodecImpl(std::unique_ptr<IDataAccess> aDataAccess)
+	Impl(std::unique_ptr<IDataAccess> aDataAccess)
 		: iDecoder(mp3dec_init())
 		, iDataAccess(std::move(aDataAccess))
 	{
@@ -64,7 +64,7 @@ public:
 		apiWrapper(mp3dec_get_info, iDecoder, iInfo.nativeHandle(), MPADEC_INFO_STREAM);
 	}
 
-	~MPADECCodecImpl()
+	~Impl()
 	{
 		cleanup();
 	}
@@ -125,7 +125,11 @@ private:
 };
 
 MPADECCodec::MPADECCodec(std::unique_ptr<IDataAccess> aDataAccess)
-	: iImpl(std::make_shared<MPADECCodecImpl>(std::move(aDataAccess)))
+	: iImpl(new Impl(std::move(aDataAccess)))
+{
+}
+
+MPADECCodec::~MPADECCodec()
 {
 }
 

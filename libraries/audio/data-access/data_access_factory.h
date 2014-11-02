@@ -4,6 +4,7 @@
 #include "data_access.h"
 
 #include <memory>
+#include <string>
 
 class DataAccessFactory
 {

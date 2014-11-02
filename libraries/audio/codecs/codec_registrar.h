@@ -26,9 +26,9 @@ namespace invent
 				invent::audio::CodecRepository::registerCodec(std::move(codec));
 			}
 
-			static std::unique_ptr<IAudioCodec> createCodec(std::unique_ptr<IDataAccess> aSource)
+			static std::shared_ptr<IAudioCodec> createCodec(std::unique_ptr<IDataAccess> aSource)
 			{
-				return std::unique_ptr<T>(new T(std::move(aSource)));
+				return std::make_shared<T>(std::move(aSource));
 			}
 		};
 	} // !namespace audio

@@ -5,13 +5,9 @@
 #include "file.h"
 #include "http.h"
 
-#include <iostream>
-
 std::unique_ptr<IDataAccess> DataAccessFactory::CreateForUrl(const std::string& aUrl)
 {
 	HfURISyntax uri(aUrl);
-
-	std::cout << "Scheme: " << uri.getScheme() << std::endl;
 
 	if (uri.getScheme() == "file")
 		return std::unique_ptr<IDataAccess>(new File(uri.getPath()));

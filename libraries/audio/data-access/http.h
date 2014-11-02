@@ -22,7 +22,7 @@ public:
 
 private:
   class Impl;
-  std::shared_ptr<Impl> iImpl;
+  std::unique_ptr<Impl> iImpl;
 };
 
 #endif // !HTTP_DATA_ACCESS_H

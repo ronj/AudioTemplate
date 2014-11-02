@@ -14,7 +14,7 @@ class MPADECCodec : public IAudioCodec
 {
 public:
 	MPADECCodec(std::unique_ptr<IDataAccess> aDataAccess);
-	virtual ~MPADECCodec() {}
+	virtual ~MPADECCodec();
 
 	std::size_t decode(float* aSamples, std::size_t aSampleCount) const;
 	std::size_t encode(const float* aSamples, std::size_t aSampleCount) const;
@@ -25,8 +25,8 @@ public:
 	static std::vector<std::string> supportedMimeTypes();
 
 private:
-	class MPADECCodecImpl;
-	std::shared_ptr<MPADECCodecImpl> iImpl;
+	class Impl;
+	std::unique_ptr<Impl> iImpl;
 };
 
 #endif // MPADEC_CODEC_H

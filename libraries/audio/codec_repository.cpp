@@ -28,12 +28,11 @@ namespace invent
 
 		std::shared_ptr<IAudioCodec> CodecRepository::open(const std::string& aUrl)
 		{
-			auto access = DataAccessFactory::CreateForUrl(aUrl);
-
 			for (auto codec : sRegisteredCodecs)
 			{
 				try
 				{
+					auto access = DataAccessFactory::CreateForUrl(aUrl);
 					return codec.create(std::move(access));
 				}
 				catch (FormatNotSupportedException& aException)

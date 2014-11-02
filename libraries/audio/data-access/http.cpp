@@ -13,6 +13,15 @@ class HTTP::Impl
 {
   struct CURLData
   {
+    CURLData()
+      : buffer(static_cast<unsigned char*>(malloc(256))),
+        buffer_len(256),
+        buffer_pos(0)
+    {
+    }
+
+    ~CURLData() { free(buffer); }
+
     CURL* handle;
     unsigned char* buffer;
     std::size_t buffer_len;
@@ -28,8 +37,7 @@ public:
 
   bool open()
   {
-    iCURLData = new CURLData;
-    iCURLData->buffer = static_cast<unsigned char*>(malloc(256));
+    iCURLData.reset(new CURLData);
 
     if(!iCURLData)
       return false;
@@ -37,7 +45,7 @@ public:
     iCURLData->handle = curl_easy_init();
 
     curl_easy_setopt(iCURLData->handle, CURLOPT_URL, iUrl.c_str());
-    curl_easy_setopt(iCURLData->handle, CURLOPT_WRITEDATA, iCURLData);
+    curl_easy_setopt(iCURLData->handle, CURLOPT_WRITEDATA, iCURLData.get());
     curl_easy_setopt(iCURLData->handle, CURLOPT_VERBOSE, 0L);
     curl_easy_setopt(iCURLData->handle, CURLOPT_WRITEFUNCTION, write_callback);
 
@@ -58,8 +66,7 @@ public:
       /* cleanup */ 
       curl_easy_cleanup(iCURLData->handle);
  
-      delete iCURLData;
-      iCURLData = NULL;
+      iCURLData.reset();
 
       return false;
     }
@@ -75,17 +82,14 @@ public:
     /* cleanup */ 
     curl_easy_cleanup(iCURLData->handle);
 
-    if(iCURLData->buffer)
-      free(iCURLData->buffer);/* free any allocated buffer space */ 
-
-    delete iCURLData;
+    iCURLData.reset();
 
     return true;
   }
 
   std::size_t read(unsigned char* aBuffer, std::size_t aByteCount)
   {
-    fill_buffer(iCURLData, aByteCount);
+    fill_buffer(iCURLData.get(), aByteCount);
  
     /* check if theres data in the buffer - if not fill_buffer()
      * either errored or EOF */ 
@@ -99,7 +103,7 @@ public:
     /* xfer data to caller */ 
     memcpy(aBuffer, iCURLData->buffer, aByteCount);
  
-    use_buffer(iCURLData, aByteCount);
+    use_buffer(iCURLData.get(), aByteCount);
  
     return aByteCount;     /* number of items */ 
   }
@@ -215,22 +219,24 @@ private:
     }
     else {
       /* move rest down make it available for later */ 
+
       memmove(file->buffer,
               &file->buffer[want],
               (file->buffer_pos - want));
    
       file->buffer_pos -= want;
     }
+
     return 0;
   }
 
 private:
   std::string iUrl;
-  CURLData* iCURLData;
+  std::unique_ptr<CURLData> iCURLData;
 };
 
 HTTP::HTTP(const std::string& aUrl)
-  : iImpl(std::make_shared<Impl>(aUrl))
+  : iImpl(new Impl(aUrl))
 {
 }
 
