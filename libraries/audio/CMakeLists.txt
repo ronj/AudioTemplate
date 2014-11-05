@@ -11,12 +11,22 @@ if (LIBSNDFILE_FOUND)
   add_definitions(-DHAS_SNDFILE)
 endif()
 
+find_package(musepack)
+
+if (MUSEPACK_FOUND)
+  list(APPEND OPTIONAL_INCLUDES ${MUSEPACK_INCLUDE_DIR})
+  list(APPEND OPTIONAL_LIBS ${MUSEPACK_LIBRARIES})
+  list(APPEND OPTIONAL_SOURCES codecs/musepack_codec.h codecs/musepack_codec.cpp codecs/musepack_info.h codecs/musepack_info.cpp)
+  add_definitions(-DHAS_MUSEPACK)
+endif()
+
 find_package(curl)
 
 if (CURL_FOUND)
   list(APPEND OPTIONAL_INCLUDES ${CURL_INCLUDE_DIRS})
   list(APPEND OPTIONAL_LIBS ${CURL_LIBRARIES})
   list(APPEND OPTIONAL_SOURCES data-access/http.h data-access/http.cpp)
+  add_definitions(-DHAS_CURL)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${rtaudio_INCLUDE_DIRS} ${MPADEC_INCLUDE_DIRS} ${LIBRARIES_INCLUDE_DIR} ${OPTIONAL_INCLUDES})

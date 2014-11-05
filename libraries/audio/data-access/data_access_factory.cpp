@@ -7,13 +7,15 @@
 
 std::unique_ptr<IDataAccess> DataAccessFactory::CreateForUrl(const std::string& aUrl)
 {
-	HfURISyntax uri(aUrl);
+	URI uri(aUrl);
 
 	if (uri.getScheme() == "file")
 		return std::unique_ptr<IDataAccess>(new File(uri.getPath()));
 
+#ifdef HAS_CURL
 	if (uri.getScheme() == "http")
 		return std::unique_ptr<IDataAccess>(new HTTP(uri.toString()));
+#endif
 
-	return std::unique_ptr<IDataAccess>(new File(aUrl));;
+	return std::unique_ptr<IDataAccess>(new File(aUrl));
 }

@@ -2,9 +2,8 @@
 
 #include "codecs/codec_registrar.h"
 #include "codecs/mpadec_codec.h"
-#ifdef HAS_SNDFILE
 #include "codecs/sndfile_codec.h"
-#endif
+#include "codecs/musepack_codec.h"
 
 #include "data-access/data_access_factory.h"
 
@@ -63,6 +62,9 @@ namespace invent
 			CodecRegistrar<MPADECCodec>(0);
 #ifdef HAS_SNDFILE
 			CodecRegistrar<SndFileCodec>(10);
+#endif
+#ifdef HAS_MUSEPACK
+			CodecRegistrar<MPCDECCodec>(20);
 #endif
 		}
 	} // !namespace audio
