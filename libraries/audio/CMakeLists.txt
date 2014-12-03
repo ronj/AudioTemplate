@@ -20,6 +20,15 @@ if (MUSEPACK_FOUND)
   add_definitions(-DHAS_MUSEPACK)
 endif()
 
+find_package(opus)
+
+if (OPUS_FOUND)
+  list(APPEND OPTIONAL_INCLUDES ${OPUS_INCLUDE_DIRS})
+  list(APPEND OPTIONAL_LIBS ${OPUS_LIBRARY} ${OPUSFILE_LIBRARY})
+  list(APPEND OPTIONAL_SOURCES codecs/opus_codec.h codecs/opus_codec.cpp codecs/opus_info.h codecs/opus_info.cpp)
+  add_definitions(-DHAS_OPUS)
+endif()
+
 find_package(curl)
 
 if (CURL_FOUND)

@@ -4,6 +4,7 @@
 #include "codecs/mpadec_codec.h"
 #include "codecs/sndfile_codec.h"
 #include "codecs/musepack_codec.h"
+#include "codecs/opus_codec.h"
 
 #include "data-access/data_access_factory.h"
 
@@ -65,6 +66,9 @@ namespace invent
 #endif
 #ifdef HAS_MUSEPACK
 			CodecRegistrar<MPCDECCodec>(20);
+#endif
+#ifdef HAS_OPUS
+			CodecRegistrar<OpusCodec>(30);
 #endif
 		}
 	} // !namespace audio
