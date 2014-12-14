@@ -3,6 +3,8 @@
 
 #include "data-access/data_access.h"
 
+#include <opus/opusfile.h>
+
 namespace opus_virtual_io {
 	int read(void* aSource, unsigned char* aData, int aSize)
 	{
@@ -25,7 +27,7 @@ namespace opus_virtual_io {
 			aOffset += io->offset();
 			break;
 		case SEEK_END:
-			//aOffset += io->length();
+			aOffset += io->size();
 			break;
 		}
 
@@ -50,8 +52,8 @@ public:
 
 		OpusFileCallbacks vio = {
 			.read = opus_virtual_io::read,
-			.seek = nullptr, //opus_virtual_io::seek,
-			.tell = nullptr, //opus_virtual_io::tell,
+			.seek = opus_virtual_io::seek,
+			.tell = opus_virtual_io::tell,
 			.close = nullptr
 		};
 
@@ -69,6 +71,7 @@ public:
 		}
 
 		iInfo.setNativeHandle(op_head(iOpusFile.get(), 0));
+		iInfo.setNativeFileHandle(iOpusFile.get());
 	}
 
 	~Impl()
@@ -77,7 +80,22 @@ public:
 
 	std::size_t decode(float* aSamples, std::size_t aSampleCount) const
 	{
-		return op_read_float(iOpusFile.get(), aSamples, aSampleCount, nullptr);
+		std::size_t framesRemaining = aSampleCount;
+		std::size_t totalFramesRead = 0;
+
+		while (framesRemaining > 0)
+		{
+			int framesRead = op_read_float(iOpusFile.get(), aSamples + totalFramesRead, framesRemaining, nullptr);
+
+			if (framesRead < 0) throw std::logic_error("Error occured while decoding " + std::to_string(framesRead));
+			if (framesRead == 0) break;
+
+			iInfo.setNativeHandle(op_head(iOpusFile.get(), 0));
+			framesRemaining -= framesRead * iInfo.channels();
+			totalFramesRead += framesRead * iInfo.channels();
+		}
+
+		return totalFramesRead;
 	}
 
 	std::size_t encode(const float*, std::size_t) const

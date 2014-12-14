@@ -15,8 +15,9 @@ public:
 
   virtual std::size_t read(unsigned char* aBuffer, std::size_t aByteCount) = 0;
   virtual std::size_t write(unsigned char* aBuffer, std::size_t aByteCount) = 0;
-  virtual std::size_t seek(long aByteOffset) = 0;
-  virtual std::size_t offset() = 0;
+  virtual std::size_t seek(std::ptrdiff_t aByteOffset) = 0;
+  virtual std::ptrdiff_t offset() = 0;
+  virtual std::size_t size() = 0;
 };
 
 #endif // !DATA_ACCESS_H

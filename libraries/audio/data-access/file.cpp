@@ -37,12 +37,21 @@ std::size_t File::write(unsigned char* aBuffer, std::size_t aByteCount)
   return std::fwrite(aBuffer, sizeof(unsigned char), aByteCount, iFile.get());
 }
 
-std::size_t File::seek(long aByteOffset)
+std::size_t File::seek(std::ptrdiff_t aByteOffset)
 {
   return std::fseek(iFile.get(), aByteOffset, SEEK_SET);
 }
 
-std::size_t File::offset()
+std::ptrdiff_t File::offset()
 {
   return ::ftello(iFile.get());
+}
+
+std::size_t File::size()
+{
+  std::fseek(iFile.get(), 0, SEEK_END);
+  int size = ftell(iFile.get());
+  std::fseek(iFile.get(), 0, SEEK_SET);
+
+  return size;
 }

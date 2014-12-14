@@ -3,7 +3,8 @@
 
 #include "audio_info.h"
 
-#include <opus/opusfile.h>
+class OpusHead;
+class OggOpusFile;
 
 class OpusInfo : public IAudioInfo
 {
@@ -16,10 +17,12 @@ public:
 
   std::string toString() const;
 
-  void setNativeHandle(const OpusHead* aHeader);
+  void setNativeHandle(const OpusHead* aHeader) const;
+  void setNativeFileHandle(const OggOpusFile* aFile);
 
 private:
-  const OpusHead* iInfo;
+  mutable const OpusHead* iInfo;
+  const OggOpusFile* iFile;
 };
 
 #endif // !OPUS_INFO_H

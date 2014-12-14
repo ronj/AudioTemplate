@@ -17,8 +17,9 @@ public:
 
   std::size_t read(unsigned char* aBuffer, std::size_t aByteCount);
   std::size_t write(unsigned char* aBuffer, std::size_t aByteCount);
-  std::size_t seek(long aByteOffset);
-  std::size_t offset();
+  std::size_t seek(std::ptrdiff_t aByteOffset);
+  std::ptrdiff_t offset();
+  std::size_t size();
 
 private:
   class Impl;

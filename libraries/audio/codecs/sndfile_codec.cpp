@@ -5,8 +5,6 @@
 
 #include <sndfile.h>
 
-#include <iostream>
-
 namespace virtual_io {
 	sf_count_t read(void* aData, sf_count_t aSize, void* aUserData)
 	{

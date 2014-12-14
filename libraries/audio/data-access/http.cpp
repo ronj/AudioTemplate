@@ -71,6 +71,12 @@ public:
       return false;
     }
 
+    double contentLenght = 0;
+    curl_easy_getinfo(iCURLData->handle, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &contentLenght);
+
+    char contentType[256];
+    curl_easy_getinfo(iCURLData->handle, CURLINFO_CONTENT_TYPE, &contentType);
+
     return true;
   }
 
@@ -269,12 +275,17 @@ std::size_t HTTP::write(unsigned char* aBuffer, std::size_t aByteCount)
   return 0;
 }
 
-std::size_t HTTP::seek(long aByteOffset)
+std::size_t HTTP::seek(std::ptrdiff_t aByteOffset)
 {
   return 0;
 }
 
-std::size_t HTTP::offset()
+std::ptrdiff_t HTTP::offset()
+{
+  return 0;
+}
+
+std::size_t HTTP::size()
 {
   return 0;
 }
